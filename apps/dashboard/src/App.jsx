@@ -8,6 +8,7 @@ import OpsConsole from "./components/OpsConsole.jsx";
 import { useEventStream } from "./hooks/useEventStream.js";
 import AuthGate from "./components/AuthGate.jsx";
 import { JobsList, CandidatesList } from "./components/Lists.jsx";
+import ReplayModal from "./components/ReplayModal.jsx";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -17,6 +18,7 @@ export default function App() {
   const [audit, setAudit] = useState([]);
   const [jobId, setJobId] = useState("");
   const [funnel, setFunnel] = useState(null);
+  const [replayOpen, setReplayOpen] = useState(false);
 
   const refresh = async () => {
     const k = await axios.get(`${API}/kpi`);
@@ -125,6 +127,7 @@ export default function App() {
                 </div>
               ))}
             </div>
+            <Button size="small" sx={{ mt: 1 }} onClick={()=>setReplayOpen(true)}>Replay</Button>
           </Paper>
         </Grid>
 
@@ -140,6 +143,7 @@ export default function App() {
         <Grid item xs={12} md={6}><CandidatesList /></Grid>
       </Grid>
       <TimezoneFooter />
+      <ReplayModal open={replayOpen} onClose={()=>setReplayOpen(false)} events={audit} />
       </AuthGate>
     </Container>
   );
