@@ -14,16 +14,16 @@
 ## Architecture
 
 ```
-/recruiter-agent-demo
-  /apps
-    /orchestrator   - FastAPI service that runs the agent flow and emits audit logs
-    /ats-mock       - Greenhouse or Lever flavored mock with REST and webhook stubs
-    /dashboard      - React + Vite dashboard with KPI tiles, audit viewer, and simulator
-  /packages
-    /policies       - YAML guardrails and evaluator settings
-  /infra
-    docker-compose.yml
-  .env.example
+/apps
+  /orchestrator   - FastAPI service that runs the agent flow and emits audit logs
+  /ats-mock       - Greenhouse or Lever flavored mock with REST and webhook stubs
+  /dashboard      - React + Vite dashboard (auth-capable UI)
+  /dashboard-demo - React + Vite demo-only UI (no auth, mock-friendly)
+/packages
+  /policies       - YAML guardrails and evaluator settings
+/infra
+  docker-compose.yml
+.env.example
 ```
 
 Runtime: Python 3.11+, FastAPI, Uvicorn  
