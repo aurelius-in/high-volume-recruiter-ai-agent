@@ -20,6 +20,7 @@ app.add_middleware(
 
 # ---- simple in-memory stores for demo ----
 AUDIT = []
+LAST_HASH = None
 JOBS = {}
 CANDIDATES = {}
 INTERACTIONS = []
@@ -29,15 +30,19 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
 def audit(actor, action, payload):
     ts = time.time()
     body = json.dumps(payload, sort_keys=True)
-    h = hashlib.sha256((str(ts) + body + SIGNING_SECRET).encode()).hexdigest()
+    base = (str(ts) + body + (LAST_HASH or "") + SIGNING_SECRET)
+    h = hashlib.sha256(base.encode()).hexdigest()
     AUDIT.append({
         "id": str(uuid.uuid4()),
         "ts": ts,
         "actor": actor,
         "action": action,
         "payload": payload,
-        "hash": h
+        "hash": h,
+        "prev_hash": LAST_HASH
     })
+    global LAST_HASH
+    LAST_HASH = h
 
 class CreateJob(BaseModel):
     title: str
@@ -77,14 +82,18 @@ def simulate_outreach(job_id: str):
     # seed 25 demo candidates
     for i in range(25):
         cid = str(uuid.uuid4())
+        locale = "ar" if i % 5 == 0 else "en"
         CANDIDATES[cid] = {
             "name": f"Candidate {i+1}",
             "phone": f"+100000000{i:02d}",
-            "locale": "ar" if i % 5 == 0 else "en",
+            "locale": locale,
             "consent": False,
             "status": "contacted"
         }
-        audit("agent", "outreach.sent", {"job_id": job_id, "candidate_id": cid})
+        cost = 0.02 + (0.001 if locale == "ar" else 0.0)
+        audit("agent", "outreach.sent", {"job_id": job_id, "candidate_id": cid, "locale": locale, "cost_usd": round(cost, 3)})
+        if locale == "ar":
+            audit("agent", "translation.applied", {"candidate_id": cid, "direction": "en->ar", "provider": "demo"})
     return {"ok": True, "count": 25}
 
 @app.post("/simulate/flow")
@@ -123,6 +132,18 @@ def simulate_flow(job_id: str, fast: bool = True):
 @app.get("/audit")
 def get_audit():
     return {"events": AUDIT[-250:]}
+
+@app.get("/audit/verify")
+def verify_audit():
+    prev = None
+    for idx, e in enumerate(AUDIT):
+        ts = e["ts"]
+        body = json.dumps(e["payload"], sort_keys=True)
+        expected = hashlib.sha256((str(ts) + body + (prev or "") + SIGNING_SECRET).encode()).hexdigest()
+        if e.get("hash") != expected or e.get("prev_hash") != prev:
+            return {"ok": False, "broken_at": idx}
+        prev = e["hash"]
+    return {"ok": True, "count": len(AUDIT)}
 
 @app.get("/kpi")
 def kpi():
