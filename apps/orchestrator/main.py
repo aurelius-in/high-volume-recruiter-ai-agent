@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException, UploadFile, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os, time, json, uuid
+import os, time, json, uuid, hashlib
 import httpx
+from math import floor
 
 MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
@@ -23,13 +24,19 @@ JOBS = {}
 CANDIDATES = {}
 INTERACTIONS = []
 
+SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
+
 def audit(actor, action, payload):
+    ts = time.time()
+    body = json.dumps(payload, sort_keys=True)
+    h = hashlib.sha256((str(ts) + body + SIGNING_SECRET).encode()).hexdigest()
     AUDIT.append({
         "id": str(uuid.uuid4()),
-        "ts": time.time(),
+        "ts": ts,
         "actor": actor,
         "action": action,
-        "payload": payload
+        "payload": payload,
+        "hash": h
     })
 
 class CreateJob(BaseModel):
@@ -131,6 +138,21 @@ def kpi():
         "qualified_rate": f"{(qualified/max(1,consented))*100:.0f}%",
         "show_rate": f"{show_rate*100:.0f}%",
         "cost_per_qualified": f"${cpp:.0f}"
+    }
+
+@app.post("/simulate/hiring")
+def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: float = 0.25, show_rate: float = 0.7, interviewer_capacity: int = 50):
+    replies = vol_per_day * reply_rate
+    qualified = replies * qual_rate
+    scheduled = min(qualified, interviewer_capacity)
+    shows = scheduled * show_rate
+    hires_week = floor(shows * 5 * 0.6)
+    return {
+        "replies": int(replies),
+        "qualified": int(qualified),
+        "scheduled": int(scheduled),
+        "shows": int(shows),
+        "hires_per_week": int(hires_week)
     }
 
 
