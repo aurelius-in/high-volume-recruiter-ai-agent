@@ -6,6 +6,8 @@ import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
 import { useEventStream } from "./hooks/useEventStream.js";
+import AuthGate from "./components/AuthGate.jsx";
+import { JobsList, CandidatesList } from "./components/Lists.jsx";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -59,6 +61,7 @@ export default function App() {
 
   return (
     <Container sx={{ py: 4 }}>
+      <AuthGate>
       <Typography variant="h5" gutterBottom>Recruiter Agent — Live Demo</Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
@@ -114,6 +117,11 @@ export default function App() {
                   {typeof e.payload?.cost_usd === 'number' && (
                     <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
                   )}
+                  {e.payload?.compliance && (
+                    <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? 'green' : 'crimson' }}>
+                      policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -127,7 +135,12 @@ export default function App() {
           </Paper>
         </Grid>
       </Grid>
+      <Grid container spacing={2} sx={{ mt: 0 }}>
+        <Grid item xs={12} md={6}><JobsList /></Grid>
+        <Grid item xs={12} md={6}><CandidatesList /></Grid>
+      </Grid>
       <TimezoneFooter />
+      </AuthGate>
     </Container>
   );
 }
