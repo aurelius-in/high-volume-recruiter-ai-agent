@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Grid, Paper, Typography, Button, TextField } from "@mui/material";
+import { Container, Grid, Paper, Typography, Button, TextField, Snackbar, Alert, Switch, FormControlLabel } from "@mui/material";
 import Simulator from "./Simulator.jsx";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
@@ -9,6 +9,7 @@ import { useEventStream } from "./hooks/useEventStream.js";
 import AuthGate from "./components/AuthGate.jsx";
 import { JobsList, CandidatesList } from "./components/Lists.jsx";
 import ReplayModal from "./components/ReplayModal.jsx";
+import PolicyDialog from "./components/PolicyDialog.jsx";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -19,6 +20,9 @@ export default function App() {
   const [jobId, setJobId] = useState("");
   const [funnel, setFunnel] = useState(null);
   const [replayOpen, setReplayOpen] = useState(false);
+  const [policyOpen, setPolicyOpen] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
   const refresh = async () => {
     const k = await axios.get(`${API}/kpi`);
@@ -53,18 +57,26 @@ export default function App() {
   const seedOutreach = async () => {
     if (!jobId) return;
     await axios.post(`${API}/simulate/outreach?job_id=${jobId}`);
+    setToast({ open: true, message: "Outreach seeded", severity: "success" });
   };
 
   const runFlow = async () => {
     if (!jobId) return;
     await axios.post(`${API}/simulate/flow?job_id=${jobId}`);
     await refresh();
+    setToast({ open: true, message: "Flow executed", severity: "success" });
   };
 
   return (
-    <Container sx={{ py: 4 }}>
+    <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
       <AuthGate>
-      <Typography variant="h5" gutterBottom>Recruiter Agent — Live Demo</Typography>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" gutterBottom>Recruiter Agent — Live Demo</Typography>
+        <div>
+          <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label="Dark" />
+          <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
+        </div>
+      </div>
       <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
@@ -144,6 +156,10 @@ export default function App() {
       </Grid>
       <TimezoneFooter />
       <ReplayModal open={replayOpen} onClose={()=>setReplayOpen(false)} events={audit} />
+      <PolicyDialog open={policyOpen} onClose={()=>setPolicyOpen(false)} />
+      <Snackbar open={toast.open} autoHideDuration={2000} onClose={()=>setToast({...toast, open:false})}>
+        <Alert severity={toast.severity} onClose={()=>setToast({...toast, open:false})}>{toast.message}</Alert>
+      </Snackbar>
       </AuthGate>
     </Container>
   );
