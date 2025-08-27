@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Grid, Paper, Typography, Button } from "@mui/material";
+import { Container, Grid, Paper, Typography, Button, Snackbar, Alert, Switch, FormControlLabel } from "@mui/material";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
 import { useEventStream } from "./hooks/useEventStream.js";
 import ReplayModal from "./components/ReplayModal.jsx";
+import PolicyDialog from "./components/PolicyDialog.jsx";
 import Simulator from "./Simulator.jsx";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -16,6 +17,9 @@ export default function App() {
   const [jobId, setJobId] = useState("");
   const [funnel, setFunnel] = useState(null);
   const [replayOpen, setReplayOpen] = useState(false);
+  const [policyOpen, setPolicyOpen] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
   const refresh = async () => {
     const k = await axios.get(`${API}/kpi`);
@@ -59,8 +63,14 @@ export default function App() {
   };
 
   return (
-    <Container sx={{ py: 4 }}>
-      <Typography variant="h5" gutterBottom>Recruiter Agent — Demo UI</Typography>
+    <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" gutterBottom>Recruiter Agent — Demo UI</Typography>
+        <div>
+          <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label="Dark" />
+          <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
+        </div>
+      </div>
       <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
@@ -136,6 +146,10 @@ export default function App() {
       </Grid>
       <TimezoneFooter />
       <ReplayModal open={replayOpen} onClose={()=>setReplayOpen(false)} events={audit} />
+      <PolicyDialog open={policyOpen} onClose={()=>setPolicyOpen(false)} />
+      <Snackbar open={toast.open} autoHideDuration={2000} onClose={()=>setToast({...toast, open:false})}>
+        <Alert severity={toast.severity} onClose={()=>setToast({...toast, open:false})}>{toast.message}</Alert>
+      </Snackbar>
     </Container>
   );
 }
