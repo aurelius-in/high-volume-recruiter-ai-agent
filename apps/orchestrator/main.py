@@ -5,6 +5,11 @@ import os, time, json, uuid, hashlib, asyncio
 import httpx
 from math import floor
 from sse_starlette.sse import EventSourceResponse
+# add YAML import (optional)
+try:
+    import yaml  # type: ignore
+except Exception:
+    yaml = None
 
 MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
@@ -26,8 +31,25 @@ JOBS = {}
 CANDIDATES = {}
 INTERACTIONS = []
 SCHEDULE = {}
+POLICY = {}
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
+
+# load policy.yaml if present
+def _load_policy():
+    global POLICY
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    policy_path = os.path.join(base_dir, "packages", "policies", "policy.yaml")
+    try:
+        if yaml and os.path.exists(policy_path):
+            with open(policy_path, "r", encoding="utf-8") as f:
+                POLICY = yaml.safe_load(f) or {}
+        else:
+            POLICY = {"allowed_channels": ["sms", "whatsapp", "web"], "max_questions": 5}
+    except Exception:
+        POLICY = {"allowed_channels": ["sms", "whatsapp", "web"], "max_questions": 5}
+
+_load_policy()
 
 def audit(actor, action, payload):
     ts = time.time()
@@ -210,6 +232,7 @@ def verify_audit():
         prev = e["hash"]
     return {"ok": True, "count": len(AUDIT)}
 
+# helper
 def _find_candidate_by_phone(phone: str):
     for cid, c in CANDIDATES.items():
         if c.get("phone") == phone:
@@ -217,11 +240,11 @@ def _find_candidate_by_phone(phone: str):
     return None, None
 
 @app.post("/channels/inbound")
-def channels_inbound(From: str = Form(None), Body: str = Form(None), request: Request = None):
+async def channels_inbound(From: str = Form(None), Body: str = Form(None), request: Request = None):
     # accept JSON fallback
     if From is None or Body is None:
         try:
-            data = request.json() if hasattr(request, 'json') else None
+            data = await request.json() if request is not None else None
         except Exception:
             data = None
         if data:
@@ -264,6 +287,10 @@ def funnel():
     showed = int(scheduled * 0.7)
     return {"contacted": contacted, "replied": replied, "qualified": qualified, "scheduled": scheduled, "showed": showed}
 
+@app.get("/policy")
+def get_policy():
+    return {"policy": POLICY}
+
 class SendMessage(BaseModel):
     to: str
     body: str
@@ -272,7 +299,15 @@ class SendMessage(BaseModel):
 
 @app.post("/send")
 def send(body: SendMessage):
-    audit("agent", "message.sent", body.model_dump())
+    checks = []
+    ok = True
+    if POLICY.get("allowed_channels") and body.channel not in POLICY.get("allowed_channels"):
+        ok = False
+        checks.append({"rule": "allowed_channels", "ok": False})
+    else:
+        checks.append({"rule": "allowed_channels", "ok": True})
+    payload = {**body.model_dump(), "compliance": {"ok": ok, "checks": checks}}
+    audit("agent", "message.sent", payload)
     return {"ok": True}
 
 @app.post("/simulate/hiring")
@@ -289,5 +324,32 @@ def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: floa
         "shows": int(shows),
         "hires_per_week": int(hires_week)
     }
+
+class ForceOp(BaseModel):
+    action: str
+    candidate_id: str
+
+@app.post("/ops/force")
+def ops_force(body: ForceOp):
+    action = body.action
+    cid = body.candidate_id
+    if action == "schedule_propose":
+        return schedule_propose(cid)
+    if action == "schedule_confirm":
+        return schedule_confirm(cid)
+    if action == "ats_resync":
+        try:
+            slot = SCHEDULE.get(cid, {}).get("slot") or f"2025-08-29T0{(hash(cid)%8)+1}:00:00Z"
+            with httpx.Client(timeout=5.0) as client:
+                resp = client.post(f"{ATS_BASE}/applications", json={
+                    "candidate_id": cid, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                })
+                resp.raise_for_status()
+            audit("agent", "ats.write", {"candidate_id": cid, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot})
+        except Exception as e:
+            audit("agent", "ats.error", {"error": str(e)})
+        return {"ok": True}
+    audit("system", "ops.ignored", {"action": action, "candidate_id": cid})
+    return {"ok": True}
 
 

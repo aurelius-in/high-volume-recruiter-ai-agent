@@ -113,6 +113,11 @@ export default function App() {
                   {typeof e.payload?.cost_usd === 'number' && (
                     <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
                   )}
+                  {e.payload?.compliance && (
+                    <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? 'green' : 'crimson' }}>
+                      policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
