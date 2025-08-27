@@ -81,6 +81,12 @@ export default function App() {
               {audit.slice().reverse().map(e => (
                 <div key={e.id} title={e.hash || ""}>
                   <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> :: <code>{e.action}</code>
+                  {e.payload?.locale === 'ar' && (
+                    <span style={{ marginLeft: 8, padding: '2px 6px', background: '#eee', borderRadius: 4, fontSize: 12 }}>AR</span>
+                  )}
+                  {typeof e.payload?.cost_usd === 'number' && (
+                    <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
+                  )}
                 </div>
               ))}
             </div>
