@@ -79,7 +79,7 @@ export default function App() {
             <Typography variant="subtitle1" gutterBottom>Audit Trail (latest 250)</Typography>
             <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
               {audit.slice().reverse().map(e => (
-                <div key={e.id}>
+                <div key={e.id} title={e.hash || ""}>
                   <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> :: <code>{e.action}</code>
                 </div>
               ))}
