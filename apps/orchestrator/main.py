@@ -25,6 +25,7 @@ LAST_HASH = None
 JOBS = {}
 CANDIDATES = {}
 INTERACTIONS = []
+SCHEDULE = {}
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
 
@@ -69,12 +70,20 @@ def create_job(body: CreateJob):
     audit("system", "job.created", {"job_id": job_id, **JOBS[job_id]})
     return {"job_id": job_id, **JOBS[job_id]}
 
+@app.get("/jobs")
+def list_jobs():
+    return {"jobs": [{"id": jid, **data} for jid, data in JOBS.items()]}
+
 @app.post("/candidates")
 def create_candidate(body: Candidate):
     cid = str(uuid.uuid4())
     CANDIDATES[cid] = body.model_dump()
     audit("system", "candidate.created", {"candidate_id": cid, **CANDIDATES[cid]})
     return {"candidate_id": cid, **CANDIDATES[cid]}
+
+@app.get("/candidates")
+def list_candidates():
+    return {"candidates": [{"id": cid, **data} for cid, data in CANDIDATES.items()]}
 
 @app.post("/simulate/outreach")
 def simulate_outreach(job_id: str):
@@ -96,6 +105,11 @@ def simulate_outreach(job_id: str):
         if locale == "ar":
             audit("agent", "translation.applied", {"candidate_id": cid, "direction": "en->ar", "provider": "demo"})
     return {"ok": True, "count": 25}
+
+# Spec-aligned alias
+@app.post("/outreach/start")
+def outreach_start(job_id: str):
+    return simulate_outreach(job_id)
 
 @app.post("/simulate/flow")
 def simulate_flow(job_id: str, fast: bool = True):
@@ -129,6 +143,35 @@ def simulate_flow(job_id: str, fast: bool = True):
         if not fast:
             time.sleep(0.15)
     return {"ok": True, "moved": moved}
+
+@app.post("/schedule/propose")
+def schedule_propose(candidate_id: str):
+    if candidate_id not in CANDIDATES:
+        raise HTTPException(404, "candidate not found")
+    slot = f"2025-08-29T0{(hash(candidate_id)%8)+1}:00:00Z"
+    SCHEDULE[candidate_id] = {"slot": slot, "status": "hold"}
+    audit("agent", "schedule.proposed", {"candidate_id": candidate_id, "slot": slot})
+    return {"candidate_id": candidate_id, "slot": slot}
+
+@app.post("/schedule/confirm")
+def schedule_confirm(candidate_id: str):
+    if candidate_id not in CANDIDATES:
+        raise HTTPException(404, "candidate not found")
+    slot = SCHEDULE.get(candidate_id, {}).get("slot") or f"2025-08-29T0{(hash(candidate_id)%8)+1}:00:00Z"
+    SCHEDULE[candidate_id] = {"slot": slot, "status": "confirmed"}
+    CANDIDATES[candidate_id]["status"] = "scheduled"
+    audit("agent", "schedule.confirmed", {"candidate_id": candidate_id, "slot": slot})
+    # write to ATS mock
+    try:
+        with httpx.Client(timeout=5.0) as client:
+            resp = client.post(f"{ATS_BASE}/applications", json={
+                "candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+            })
+            resp.raise_for_status()
+        audit("agent", "ats.write", {"candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot})
+    except Exception as e:
+        audit("agent", "ats.error", {"error": str(e)})
+    return {"ok": True}
 
 @app.get("/audit")
 def get_audit(limit: int = 250, cursor: int | None = None):
@@ -166,6 +209,35 @@ def verify_audit():
             return {"ok": False, "broken_at": idx}
         prev = e["hash"]
     return {"ok": True, "count": len(AUDIT)}
+
+def _find_candidate_by_phone(phone: str):
+    for cid, c in CANDIDATES.items():
+        if c.get("phone") == phone:
+            return cid, c
+    return None, None
+
+@app.post("/channels/inbound")
+def channels_inbound(From: str = Form(None), Body: str = Form(None), request: Request = None):
+    # accept JSON fallback
+    if From is None or Body is None:
+        try:
+            data = request.json() if hasattr(request, 'json') else None
+        except Exception:
+            data = None
+        if data:
+            From = data.get("From") or data.get("from")
+            Body = data.get("Body") or data.get("body")
+    if not From or not Body:
+        raise HTTPException(400, "missing From/Body")
+    cid, c = _find_candidate_by_phone(From)
+    if cid:
+        audit("candidate", "channel.inbound", {"candidate_id": cid, "from": From, "body": Body})
+        if "yes" in Body.lower():
+            c["consent"] = True
+            audit("agent", "consent.captured", {"candidate_id": cid})
+    else:
+        audit("candidate", "channel.inbound.unknown", {"from": From, "body": Body})
+    return {"ok": True}
 
 @app.get("/kpi")
 def kpi():
