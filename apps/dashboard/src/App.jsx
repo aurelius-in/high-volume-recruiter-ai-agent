@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Grid, Paper, Typography, Button, TextField } from "@mui/material";
 import Simulator from "./Simulator.jsx";
+import FunnelChart from "./components/FunnelChart.jsx";
+import TimezoneFooter from "./components/TimezoneFooter.jsx";
+import OpsConsole from "./components/OpsConsole.jsx";
+import { useEventStream } from "./hooks/useEventStream.js";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -10,18 +14,27 @@ export default function App() {
   const [kpi, setKpi] = useState(null);
   const [audit, setAudit] = useState([]);
   const [jobId, setJobId] = useState("");
+  const [funnel, setFunnel] = useState(null);
 
   const refresh = async () => {
     const k = await axios.get(`${API}/kpi`);
     setKpi(k.data);
     const a = await axios.get(`${API}/audit`);
     setAudit(a.data.events);
+    const f = await axios.get(`${API}/funnel`);
+    setFunnel(f.data);
   };
 
   useEffect(() => {
     const t = setInterval(refresh, 1000);
     return () => clearInterval(t);
   }, []);
+
+  useEventStream(`${API}/events/stream`, (evt) => {
+    if (evt.type === "audit") {
+      setAudit((cur) => [...cur, evt.data].slice(-250));
+    }
+  });
 
   const createJob = async () => {
     const res = await axios.post(`${API}/jobs`, {
@@ -65,6 +78,19 @@ export default function App() {
             ) : "Loading..."}
           </Paper>
         </Grid>
+
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>Funnel</Typography>
+            <FunnelChart data={funnel} />
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>Ops Console</Typography>
+            <OpsConsole />
+          </Paper>
+        </Grid>
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>Controls</Typography>
@@ -101,6 +127,7 @@ export default function App() {
           </Paper>
         </Grid>
       </Grid>
+      <TimezoneFooter />
     </Container>
   );
 }
