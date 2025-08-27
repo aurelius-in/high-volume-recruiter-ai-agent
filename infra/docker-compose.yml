@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  orchestrator:
+    build: ../apps/orchestrator
+    ports: ["8000:8000"]
+    environment:
+      - MODE=${MODE:-demo}
+      - ATS_BASE=http://ats-mock:8001
+      - SIGNING_SECRET=${SIGNING_SECRET:-dev-signing-secret}
+    depends_on: [ats-mock]
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  ats-mock:
+    build: ../apps/ats-mock
+    ports: ["8001:8001"]
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+
+  dashboard:
+    build: ../apps/dashboard
+    ports: ["5173:5173"]
+    environment:
+      - VITE_API_BASE=http://localhost:8000
+    command: npm run dev
+
+

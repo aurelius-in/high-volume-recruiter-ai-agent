@@ -1,0 +1,15 @@
+consent_required: true
+block_pii_without_consent: true
+allowed_channels:
+  - sms
+  - whatsapp
+  - web
+max_questions: 5
+language:
+  primary: en
+  fallback: ar
+redactions:
+  - national_id
+  - passport_number
+
+
