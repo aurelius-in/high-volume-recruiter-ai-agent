@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException, UploadFile, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os, time, json, uuid, hashlib
+import os, time, json, uuid, hashlib, asyncio
 import httpx
 from math import floor
+from sse_starlette.sse import EventSourceResponse
 
 MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
@@ -130,8 +131,29 @@ def simulate_flow(job_id: str, fast: bool = True):
     return {"ok": True, "moved": moved}
 
 @app.get("/audit")
-def get_audit():
-    return {"events": AUDIT[-250:]}
+def get_audit(limit: int = 250, cursor: int | None = None):
+    if cursor is None:
+        # latest page
+        page = AUDIT[-limit:]
+        next_cursor = len(AUDIT)
+    else:
+        start = max(0, cursor - limit)
+        page = AUDIT[start:cursor]
+        next_cursor = start
+    return {"events": page, "next_cursor": next_cursor}
+
+@app.get("/events/stream")
+async def events_stream():
+    async def event_generator():
+        idx = 0
+        while True:
+            # yield any new events since last index
+            while idx < len(AUDIT):
+                e = AUDIT[idx]
+                yield {"event": "audit", "data": json.dumps(e)}
+                idx += 1
+            await asyncio.sleep(0.5)
+    return EventSourceResponse(event_generator())
 
 @app.get("/audit/verify")
 def verify_audit():
@@ -160,6 +182,26 @@ def kpi():
         "show_rate": f"{show_rate*100:.0f}%",
         "cost_per_qualified": f"${cpp:.0f}"
     }
+
+@app.get("/funnel")
+def funnel():
+    contacted = sum(1 for c in CANDIDATES.values() if c["status"] in ["contacted","qualified","disqualified","scheduled"])
+    replied = sum(1 for c in CANDIDATES.values() if c.get("consent"))
+    qualified = sum(1 for c in CANDIDATES.values() if c["status"] == "qualified")
+    scheduled = sum(1 for e in AUDIT if e["action"] == "ats.write")
+    showed = int(scheduled * 0.7)
+    return {"contacted": contacted, "replied": replied, "qualified": qualified, "scheduled": scheduled, "showed": showed}
+
+class SendMessage(BaseModel):
+    to: str
+    body: str
+    locale: str = "en"
+    channel: str = "sms"
+
+@app.post("/send")
+def send(body: SendMessage):
+    audit("agent", "message.sent", body.model_dump())
+    return {"ok": True}
 
 @app.post("/simulate/hiring")
 def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: float = 0.25, show_rate: float = 0.7, interviewer_capacity: int = 50):
