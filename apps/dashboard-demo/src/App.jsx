@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Grid, Paper, Typography, Button } from "@mui/material";
+import Simulator from "./Simulator.jsx";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
@@ -83,6 +84,13 @@ export default function App() {
                 </div>
               ))}
             </div>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>Hiring Simulator</Typography>
+            <Simulator />
           </Paper>
         </Grid>
       </Grid>
