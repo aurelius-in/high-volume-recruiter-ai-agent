@@ -5,6 +5,7 @@ import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
 import { useEventStream } from "./hooks/useEventStream.js";
+import ReplayModal from "./components/ReplayModal.jsx";
 import Simulator from "./Simulator.jsx";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
@@ -14,6 +15,7 @@ export default function App() {
   const [audit, setAudit] = useState([]);
   const [jobId, setJobId] = useState("");
   const [funnel, setFunnel] = useState(null);
+  const [replayOpen, setReplayOpen] = useState(false);
 
   const refresh = async () => {
     const k = await axios.get(`${API}/kpi`);
@@ -121,6 +123,7 @@ export default function App() {
                 </div>
               ))}
             </div>
+            <Button size="small" sx={{ mt: 1 }} onClick={()=>setReplayOpen(true)}>Replay</Button>
           </Paper>
         </Grid>
 
@@ -132,6 +135,7 @@ export default function App() {
         </Grid>
       </Grid>
       <TimezoneFooter />
+      <ReplayModal open={replayOpen} onClose={()=>setReplayOpen(false)} events={audit} />
     </Container>
   );
 }
