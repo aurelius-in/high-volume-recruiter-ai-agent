@@ -11,7 +11,7 @@ import { JobsList, CandidatesList } from "./components/Lists.jsx";
 import ReplayModal from "./components/ReplayModal.jsx";
 import PolicyDialog from "./components/PolicyDialog.jsx";
 import { useTranslation } from "react-i18next";
-import KpiOrbit from "./components/KpiOrbit.jsx";
+import KpiGrid from "./components/KpiGrid.jsx";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
@@ -126,12 +126,12 @@ export default function App() {
           <Grid container spacing={2}>
             <Grid item xs={12} md={8}>
               <Paper sx={{ p: 2, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(183,28,28,0.35)' }}>
-                <Typography variant="subtitle1" gutterBottom>{t("kpiTiles")}</Typography>
+                <Typography variant="subtitle1" gutterBottom sx={{ fontFamily: "'Amiri','Cairo', serif", fontSize: 20 }}>{t("kpiTiles")}</Typography>
                 {kpi ? (
-                  <KpiOrbit data={kpi} />
+                  <KpiGrid data={kpi} />
                 ) : (
                   <Grid container spacing={2}>
-                    {Array.from({ length: 5 }).map((_, i) => (
+                    {Array.from({ length: 6 }).map((_, i) => (
                       <Grid item key={i}>
                         <Paper sx={{ p: 2, minWidth: 160, bgcolor: 'rgba(0,0,0,0.6)', border: '1px solid rgba(46,125,50,0.2)' }}>
                           <Skeleton variant="text" width={120} />
