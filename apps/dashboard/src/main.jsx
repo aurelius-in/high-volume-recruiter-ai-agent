@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { Auth0Provider } from "@auth0/auth0-react";
 import * as Sentry from "@sentry/react";
+import "./i18n";
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 if (SENTRY_DSN) {

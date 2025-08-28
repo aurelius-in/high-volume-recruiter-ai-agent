@@ -13,6 +13,8 @@ except Exception:
 import logging
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 import sentry_sdk
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 if SENTRY_DSN:
@@ -22,6 +24,7 @@ MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
 ATS_CONNECTOR_BASE = os.getenv("ATS_CONNECTOR_BASE")
 CHANNEL_CONNECTOR_BASE = os.getenv("CHANNEL_CONNECTOR_BASE")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 app = FastAPI(title="Recruiter Orchestrator")
 
@@ -32,6 +35,51 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# optional db
+db_engine = create_engine(DATABASE_URL) if DATABASE_URL else None
+
+def db_exec(sql: str, params: dict = None):
+    if not db_engine:
+        return
+    try:
+        with db_engine.begin() as conn:
+            conn.execute(text(sql), params or {})
+    except SQLAlchemyError as e:
+        logging.error(json.dumps({"type": "db_error", "error": str(e)}))
+
+# create basic tables if db present
+if db_engine:
+    db_exec("""
+    CREATE TABLE IF NOT EXISTS jobs(
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      location TEXT,
+      shift TEXT,
+      requirements_json TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+    db_exec("""
+    CREATE TABLE IF NOT EXISTS candidates(
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      phone TEXT,
+      locale TEXT,
+      consent BOOLEAN,
+      status TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+    db_exec("""
+    CREATE TABLE IF NOT EXISTS applications(
+      id TEXT PRIMARY KEY,
+      candidate_id TEXT,
+      job_id TEXT,
+      slot TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
 
 # prometheus metrics
 REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests", ["method", "path"])
@@ -144,6 +192,9 @@ def create_job(body: CreateJob):
     job_id = str(uuid.uuid4())
     JOBS[job_id] = body.model_dump()
     audit("system", "job.created", {"job_id": job_id, **JOBS[job_id]})
+    if db_engine:
+        db_exec("INSERT INTO jobs(id,title,location,shift,requirements_json) VALUES (:id,:t,:l,:s,:r)",
+                {"id": job_id, "t": body.title, "l": body.location, "s": body.shift, "r": json.dumps(body.reqs)})
     return {"job_id": job_id, **JOBS[job_id]}
 
 @app.get("/jobs")
@@ -155,6 +206,9 @@ def create_candidate(body: Candidate):
     cid = str(uuid.uuid4())
     CANDIDATES[cid] = body.model_dump()
     audit("system", "candidate.created", {"candidate_id": cid, **CANDIDATES[cid]})
+    if db_engine:
+        db_exec("INSERT INTO candidates(id,name,phone,locale,consent,status) VALUES (:id,:n,:p,:loc,:c,:st)",
+                {"id": cid, "n": body.name, "p": body.phone, "loc": body.locale, "c": body.consent, "st": body.status})
     return {"candidate_id": cid, **CANDIDATES[cid]}
 
 @app.get("/candidates")
@@ -246,19 +300,23 @@ def schedule_confirm(candidate_id: str):
     SCHEDULE[candidate_id] = {"slot": slot, "status": "confirmed"}
     CANDIDATES[candidate_id]["status"] = "scheduled"
     audit("agent", "schedule.confirmed", {"candidate_id": candidate_id, "slot": slot})
-    # write to ATS mock
+    job_id = next(iter(JOBS.keys()), "demo-job")
+    # write to ATS mock or connector
     try:
         with httpx.Client(timeout=5.0) as client:
             if ATS_CONNECTOR_BASE:
                 resp = client.post(f"{ATS_CONNECTOR_BASE}/application", json={
-                    "candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                    "candidate_id": candidate_id, "job_id": job_id, "slot": slot
                 })
             else:
                 resp = client.post(f"{ATS_BASE}/applications", json={
-                    "candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                    "candidate_id": candidate_id, "job_id": job_id, "slot": slot
                 })
             resp.raise_for_status()
-        audit("agent", "ats.write", {"candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot})
+        audit("agent", "ats.write", {"candidate_id": candidate_id, "job_id": job_id, "slot": slot})
+        if db_engine:
+            db_exec("INSERT INTO applications(id,candidate_id,job_id,slot) VALUES (:id,:cid,:jid,:slot)",
+                    {"id": str(uuid.uuid4()), "cid": candidate_id, "jid": job_id, "slot": slot})
     except Exception as e:
         audit("agent", "ats.error", {"error": str(e)})
     return {"ok": True}
