@@ -295,7 +295,6 @@ export default function App() {
             </Grid>
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 2, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ color:'#fff' }}>Ask Anything</Typography>
                 <AskChat />
               </Paper>
             </Grid>

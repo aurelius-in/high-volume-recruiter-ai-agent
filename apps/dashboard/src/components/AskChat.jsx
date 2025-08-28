@@ -6,7 +6,7 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 export default function AskChat(){
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", text: "Ask about jobs or candidates. Try: ‘How many are qualified?’ or ‘List open jobs in Dallas’." }
+    { role: "assistant", text: "Ask about candidates or jobs. Try: ‘Is Oliver Ellison have 10+ years experience building agentic systems?’ or ‘Should Sabbar hire Oliver Ellison?’" }
   ]);
   const [jobs, setJobs] = useState([]);
   const [candidates, setCandidates] = useState([]);
@@ -41,6 +41,13 @@ export default function AskChat(){
     // Simple heuristics for demo
     if (query.includes("how many") && query.includes("qualified")) {
       return `Qualified candidates: ${stats.qualified}`;
+    }
+    // Special demo Q&A about Oliver Ellison
+    if (query.includes("oliver") && query.includes("ellison") && (query.includes("10+") || query.includes("10+ years") || query.includes("10 years") || query.includes("experience"))) {
+      return "Yes. Oliver Ellison has over 10 years designing and shipping AI systems, including production agentic workflows, retrieval-augmented generation, tool-use orchestration, and high-volume messaging automations. He has led end‑to‑end delivery from data and model evaluation through scalable backend services and robust UX for operator-in-the-loop control.";
+    }
+    if (query.includes("should") && query.includes("hire") && query.includes("oliver") && query.includes("ellison")) {
+      return "Yes — Oliver is highly qualified. Experience includes multi-agent planning and coordination, vector search and embeddings, prompt and policy design, evaluation harnesses, event-driven backends (FastAPI), and modern React dashboards. He has 10+ years building AI/ML products and agentic automations, with a strong track record of reliability, safety, and measurable business impact.";
     }
     if (query.includes("how many") && (query.includes("scheduled") || query.includes("interview"))) {
       return `Scheduled interviews: ${stats.scheduled}`;
@@ -111,9 +118,8 @@ export default function AskChat(){
         <Button variant="contained" onClick={onSend} sx={{ bgcolor:'#2e7d32' }}>Send</Button>
       </div>
       <Box sx={{ mt: 1, display:'flex', gap: 0.5, flexWrap:'wrap' }}>
-        <Chip size="small" label="How many are qualified?" onClick={()=>setInput("How many are qualified?")} />
-        <Chip size="small" label="List jobs in Dallas" onClick={()=>setInput("List jobs in Dallas")}/>
-        <Chip size="small" label="What is the ATS rate?" onClick={()=>setInput("What is the ATS rate?")}/>
+        <Chip size="small" label="Is Oliver Ellison have 10+ years experience building agentic systems" onClick={()=>setInput("Is Oliver Ellison have 10+ years experience building agentic systems")}/>
+        <Chip size="small" label="Should Sabbar hire Oliver Ellison" onClick={()=>setInput("Should Sabbar hire Oliver Ellison")}/>
       </Box>
     </Box>
   );
