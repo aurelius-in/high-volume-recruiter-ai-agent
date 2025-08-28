@@ -25,28 +25,7 @@ export default function KpiOrbit({ data }) {
           animation: 'orbit-rotate 32s linear infinite'
         }} />
 
-        {/* Center label */}
-        <div style={{
-          position: 'absolute',
-          left: center - 80,
-          top: center - 60,
-          width: 160,
-          height: 120,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: 12,
-          borderRadius: 16,
-          background: 'linear-gradient(180deg, rgba(13,71,20,0.7), rgba(0,0,0,0.6))',
-          border: '1px solid rgba(46,125,50,0.5)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.35)'
-        }}>
-          <div>
-            <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: '#e8f5e9' }}>Key metrics</div>
-            <div style={{ fontSize: 11, color: '#bdbdbd', marginTop: 6 }}>Live snapshot</div>
-          </div>
-        </div>
+        {/* Center label removed as requested */}
 
         {/* Metric bubbles */}
         {items.map(([key, value], idx) => {
