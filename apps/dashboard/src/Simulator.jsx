@@ -4,7 +4,7 @@ import { Grid, TextField, Button, Typography } from "@mui/material";
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function Simulator(){
-  const [form, setForm] = useState({ vol_per_day: 500, reply_rate: 0.35, qual_rate: 0.25, show_rate: 0.7, interviewer_capacity: 50 });
+  const [form, setForm] = useState({ vol_per_day: 500, reply_rate: 0.35, qual_rate: 0.25, show_rate: 0.7, interviewer_capacity: 50, target_openings: 50 });
   const [res, setRes] = useState(null);
 
   const go = async () => {
@@ -32,7 +32,7 @@ export default function Simulator(){
       </Grid>
       {res && (
         <Typography sx={{ mt: 2 }}>
-          Hires/week: <b>{res.hires_per_week}</b> • Replies: {res.replies} • Qualified: {res.qualified} • Scheduled: {res.scheduled} • Shows: {res.shows}
+          Hires/week: <b>{res.hires_per_week}</b> • Utilization: {(res.utilization*100).toFixed(0)}% • Time-to-fill: {res.time_to_fill_weeks ?? '—'} weeks • Replies: {res.replies} • Qualified: {res.qualified} • Scheduled: {res.scheduled} • Shows: {res.shows}
         </Typography>
       )}
     </div>
