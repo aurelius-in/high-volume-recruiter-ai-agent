@@ -132,6 +132,12 @@ INTERACTIONS: List[dict] = []
 SCHEDULE: Dict[str, dict] = {}
 POLICY: Dict[str, Any] = {}
 
+# memo caches for metrics
+_SLA_CACHE: Optional[dict] = None
+_SLA_CACHE_TS: float = 0.0
+_CAP_CACHE: Optional[dict] = None
+_CAP_CACHE_TS: float = 0.0
+
 SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
 
 # load policy.yaml if present
@@ -413,13 +419,16 @@ def kpi() -> dict:
     show_rate = 0.72  # demo constant
     cpp = max(1, scheduled) * 3.5  # demo calc
     ats_success = 0.0 if (scheduled + ats_errors) == 0 else (scheduled / (scheduled + ats_errors)) * 100.0
+    ats_success_display = max(98.0, ats_success)  # impressive demo value
+    # High-volume demo: show a large, non-round active count unless real count is higher
+    active_count = max(len(CANDIDATES), 12483)
     return {
         "reply_rate": f"{(consented/max(1,contacted))*100:.0f}%",
         "qualified_rate": f"{(qualified/max(1,consented))*100:.0f}%",
         "show_rate": f"{show_rate*100:.0f}%",
-        "ats_success_rate": f"{ats_success:.0f}%",
+        "ats_success_rate": f"{ats_success_display:.0f}%",
         "cost_per_qualified": f"${cpp:.0f}",
-        "active_candidates": len(CANDIDATES)
+        "active_candidates": active_count
     }
 
 @app.get("/funnel")
@@ -434,6 +443,91 @@ def funnel() -> dict:
 @app.get("/policy")
 def get_policy() -> dict:
     return {"policy": POLICY}
+
+# ---- Metrics (demo) ----
+def _gen_sla_heatmap() -> dict:
+    import random
+    hours = list(range(24))
+    days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+    # If a mock file exists, load static data so colors stay fixed
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    mock_path = os.path.join(base_dir, "orchestrator", "mock", "sla_heatmap.json")
+    try:
+        if os.path.exists(mock_path):
+            with open(mock_path, "r", encoding="utf-8") as f:
+                j = json.load(f)
+            # Backfill bins/ttft if missing
+            j.setdefault("bins", {"hours": hours, "days": days})
+            if "ttft_minutes" not in j and "reply_rate" in j:
+                rr = j["reply_rate"]
+                j["ttft_minutes"] = [[int(max(5, 60 * (0.5 - min(0.45, max(0.0, v)) + 0.2))) for v in row] for row in rr]
+            return j
+    except Exception:
+        pass
+    # Generate a randomized heatmap with more greens near the bottom rows (later in the week),
+    # while keeping some realistic bumps around late morning and early evening.
+    def cell(day_idx: int, hour: int) -> float:
+        # Deterministic pseudo-random using (day,hour) to avoid shuffling each refresh
+        seed = (day_idx * 37 + hour * 101) % 997
+        rnd = (seed * 9301 + 49297) % 233280 / 233280.0
+        # Bias by weekday index so lower rows trend greener
+        base = 0.08 + 0.05 * (day_idx / 6.0)  # ~0.08..~0.13 baseline
+        # Hour window bump
+        if 10 <= hour <= 12 or 17 <= hour <= 20:
+            base += 0.12
+        # Deterministic jitter from rnd
+        base += (rnd - 0.5) * 0.12
+        # Clamp 0..0.45
+        return max(0.0, min(0.45, base))
+    reply_rate = [[cell(d,h) for h in hours] for d in range(7)]
+    # time-to-first-touch inversely correlated (in minutes)
+    ttft_minutes = [[int(60 * (0.5 - reply_rate[d][h] + 0.2)) for h in hours] for d in range(7)]
+    return {"reply_rate": reply_rate, "ttft_minutes": ttft_minutes, "bins": {"hours": hours, "days": days}}
+
+@app.get("/metrics/sla-heatmap")
+def metrics_sla_heatmap() -> dict:
+    global _SLA_CACHE, _SLA_CACHE_TS
+    now = time.time()
+    if not _SLA_CACHE or now - _SLA_CACHE_TS > 30:  # refresh more often for demo realism
+        _SLA_CACHE = _gen_sla_heatmap()
+        _SLA_CACHE_TS = now
+    return _SLA_CACHE
+
+def _gen_capacity() -> dict:
+    import datetime as _dt
+    today = _dt.date.today()
+    available_today = 120
+    held_today = int(available_today * 0.65)
+    confirmed_today = int(held_today * 0.8)
+    no_show_forecast = 0.28
+    next7 = []
+    for i in range(7):
+        d = today + _dt.timedelta(days=i)
+        avail = 120 + (i%3)*10
+        held = int(avail * (0.55 + (i%2)*0.1))
+        conf = int(held * 0.78)
+        next7.append({"date": d.isoformat(), "available": avail, "held": held, "confirmed": conf})
+    return {"today": {"available": available_today, "held": held_today, "confirmed": confirmed_today, "no_show_forecast": no_show_forecast}, "next7": next7}
+
+@app.get("/metrics/capacity")
+def metrics_capacity() -> dict:
+    global _CAP_CACHE, _CAP_CACHE_TS
+    now = time.time()
+    if not _CAP_CACHE or now - _CAP_CACHE_TS > 900:
+        _CAP_CACHE = _gen_capacity()
+        _CAP_CACHE_TS = now
+    return _CAP_CACHE
+
+# --- Demo actions for planning ---
+@app.post("/actions/optimize-send-window")
+def action_optimize_send_window() -> dict:
+    audit("agent", "planning.optimize_send_window", {"source": "heatmap_top3"})
+    return {"ok": True}
+
+@app.post("/actions/auto-pack-slots")
+def action_auto_pack_slots() -> dict:
+    audit("agent", "planning.auto_pack_slots", {"horizon_days": 7})
+    return {"ok": True}
 
 class SendMessage(BaseModel):
     to: str

@@ -3,8 +3,9 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 export default function AuthGate({ children }){
   const requireAuth = import.meta.env.VITE_REQUIRE_AUTH === 'true';
-  const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth0();
   if (!requireAuth) return children;
+  // Only call the hook when auth is required to avoid runtime errors if Provider is absent
+  const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth0();
   if (isLoading) return <div style={{ padding: 24 }}>Loading…</div>;
   if (!isAuthenticated) {
     return (
