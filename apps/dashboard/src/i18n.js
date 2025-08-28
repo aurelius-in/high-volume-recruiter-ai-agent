@@ -5,7 +5,7 @@ const resources = {
   en: {
     translation: {
       title: "Recruiter Agent",
-      kpiTiles: "KPI Tiles",
+      kpiTiles: "Key metrics",
       funnel: "Funnel",
       opsConsole: "Ops Console",
       controls: "Controls",
@@ -31,7 +31,7 @@ const resources = {
   ar: {
     translation: {
       title: "وكيل التوظيف",
-      kpiTiles: "مؤشرات الأداء",
+      kpiTiles: "المؤشرات الرئيسية",
       funnel: "المسار",
       opsConsole: "لوحة العمليات",
       controls: "التحكم",
@@ -57,7 +57,7 @@ const resources = {
   es: {
     translation: {
       title: "Agente Reclutador",
-      kpiTiles: "Indicadores KPI",
+      kpiTiles: "Indicadores clave",
       funnel: "Embudo",
       opsConsole: "Consola de Operaciones",
       controls: "Controles",

@@ -416,7 +416,8 @@ def kpi() -> dict:
         "reply_rate": f"{(consented/max(1,contacted))*100:.0f}%",
         "qualified_rate": f"{(qualified/max(1,consented))*100:.0f}%",
         "show_rate": f"{show_rate*100:.0f}%",
-        "cost_per_qualified": f"${cpp:.0f}"
+        "cost_per_qualified": f"${cpp:.0f}",
+        "active_jobs": len(JOBS)
     }
 
 @app.get("/funnel")
