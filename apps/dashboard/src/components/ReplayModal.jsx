@@ -28,7 +28,9 @@ export default function ReplayModal({ open, onClose, events }){
         {current ? (
           <div>
             <Typography variant="body2" gutterBottom>
-              {new Date(current.ts * 1000).toLocaleTimeString()} — {current.actor} :: {current.action}
+              <span style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, "Apple Color Emoji", "Segoe UI Emoji"' }}>
+                {new Date(current.ts * 1000).toLocaleTimeString()}
+              </span> — {current.actor} :: {current.action}
             </Typography>
             <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'ui-monospace' }}>{JSON.stringify(current.payload, null, 2)}</pre>
             <Typography variant="caption">Step {idx+1} of {events.length}</Typography>
