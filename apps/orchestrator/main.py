@@ -10,6 +10,7 @@ try:
     import yaml  # type: ignore
 except Exception:
     yaml = None
+import logging
 
 MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
@@ -25,6 +26,35 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# basic structured logging & headers
+logging.basicConfig(level=logging.INFO)
+
+@app.middleware("http")
+async def add_request_context(request: Request, call_next):
+    req_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    start = time.time()
+    try:
+        response = await call_next(request)
+        return response
+    finally:
+        duration_ms = int((time.time() - start) * 1000)
+        logging.info(json.dumps({
+            "type": "request_log",
+            "request_id": req_id,
+            "method": request.method,
+            "path": request.url.path,
+            "duration_ms": duration_ms,
+        }))
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["x-request-id"] = request.headers.get("x-request-id", str(uuid.uuid4()))
+    response.headers["x-content-type-options"] = "nosniff"
+    response.headers["x-frame-options"] = "DENY"
+    response.headers["referrer-policy"] = "no-referrer"
+    return response
 
 # ---- simple in-memory stores for demo ----
 AUDIT = []
@@ -86,6 +116,10 @@ class Candidate(BaseModel):
 @app.get("/health")
 def health():
     return {"ok": True, "mode": MODE}
+
+@app.get("/ready")
+def ready():
+    return {"ready": True, "policy_loaded": bool(POLICY is not None)}
 
 @app.post("/jobs")
 def create_job(body: CreateJob):
@@ -222,6 +256,20 @@ def get_audit(limit: int = 250, cursor: int | None = None):
         page = AUDIT[start:cursor]
         next_cursor = start
     return {"events": page, "next_cursor": next_cursor}
+
+# error envelope handlers
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    payload = {"code": exc.status_code, "message": exc.detail}
+    logging.warning(json.dumps({"type": "http_error", "code": exc.status_code, "path": request.url.path, "message": exc.detail}))
+    return JSONResponse(status_code=exc.status_code, content=payload)
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logging.error(json.dumps({"type": "error", "path": request.url.path, "error": str(exc)}))
+    return JSONResponse(status_code=500, content={"code": 500, "message": "Internal Server Error"})
 
 @app.get("/events/stream")
 async def events_stream():
