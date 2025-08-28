@@ -82,6 +82,9 @@ export default function App() {
               <Tab label="Outreach" sx={{ color: tab===0?'#e0e0e0':'#cfd8dc',
                 mx: 0.5,
                 borderRadius: 2,
+                minWidth: 160,
+                height: 44,
+                fontSize: '0.95rem',
                 border: tab===0?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
                 background: tab===0?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
                 textDecoration: tab===0?'underline':'none'
@@ -89,6 +92,9 @@ export default function App() {
               <Tab label="Scheduling" sx={{ color: tab===1?'#e0e0e0':'#cfd8dc',
                 mx: 0.5,
                 borderRadius: 2,
+                minWidth: 160,
+                height: 44,
+                fontSize: '0.95rem',
                 border: tab===1?'1px solid rgba(183,28,28,0.7)':'1px solid rgba(46,125,50,0.3)',
                 background: tab===1?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(183,28,28,0.4))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
                 textDecoration: tab===1?'underline':'none'
@@ -96,6 +102,9 @@ export default function App() {
               <Tab label="Audit & Plan" sx={{ color: tab===2?'#e0e0e0':'#cfd8dc',
                 mx: 0.5,
                 borderRadius: 2,
+                minWidth: 160,
+                height: 44,
+                fontSize: '0.95rem',
                 border: tab===2?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
                 background: tab===2?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
                 textDecoration: tab===2?'underline':'none'
