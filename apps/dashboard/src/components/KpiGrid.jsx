@@ -4,10 +4,9 @@ import React from "react";
 export default function KpiGrid({ data }){
   const entries = Object.entries(data || {});
   // Normalize to exactly 6 entries (pad if fewer)
-  const six = Array.from({ length: 6 }).map((_, i) => entries[i] || [
-    i === 0 ? 'time_to_first_touch' : i === 1 ? 'reply_rate' : i === 2 ? 'qualified_rate' : i === 3 ? 'show_rate' : i === 4 ? 'cost_per_qualified' : 'ats_success_rate',
-    '-'
-  ]);
+  const desiredOrder = ['reply_rate','qualified_rate','show_rate','ats_success_rate','cost_per_qualified','active_candidates'];
+  const map = new Map(entries);
+  const six = desiredOrder.map(k => [k, map.get(k) ?? '-']);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
@@ -21,12 +20,12 @@ export default function KpiGrid({ data }){
         }}>
           <div style={{
             fontFamily: "'Amiri','Cairo', serif",
-            fontSize: 16,
+            fontSize: 20,
             color: '#e8f5e9',
             marginBottom: 6,
             textTransform: 'capitalize'
           }}>{key.replaceAll('_',' ')}</div>
-          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: 0.3, color: '#66bb6a' }}>{String(value)}</div>
+          <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: 0.3, color: '#66bb6a' }}>{String(value)}</div>
         </div>
       ))}
     </div>
