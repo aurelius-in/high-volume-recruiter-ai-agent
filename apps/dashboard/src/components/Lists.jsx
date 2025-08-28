@@ -13,11 +13,21 @@ export function JobsList(){
     "Front Desk Agent","Server","Host","Dishwasher","Prep Cook","Call Center Agent","Data Entry Clerk","Receptionist","Forklift Operator","Sorter",
     "Grocery Associate","Picker/Packer","Shift Lead","Greeter","Lot Attendant","Laundry Attendant","Maintenance Helper","Line Cook","Sandwich Artist","Food Runner",
     "Merchandiser","Order Picker","Car Wash Attendant","Usher","Ticket Taker","Valet Attendant","Bellhop","Housekeeper","Room Attendant","Front of House",
-    "Back of House","Janitor","Mailroom Clerk","Onsite Support","Courier","Kitchen Porter","Barback","Bagger","Cafe Attendant","Counter Clerk"
+    "Back of House","Janitor","Mailroom Clerk","Onsite Support","Courier","Kitchen Porter","Barback","Bagger","Cafe Attendant","Counter Clerk",
+    // More roles for richer variety
+    "Stock Associate","Inventory Specialist","Produce Clerk","Deli Clerk","Baker Assistant","Pharmacy Clerk","Photo Lab Tech","Garden Associate","Pet Care Associate","Electronics Associate",
+    "Meat Cutter Apprentice","Seafood Clerk","Bakery Associate","Lot Porter","Parts Runner","Warehouse Loader","Returns Clerk","Quality Checker","Packaging Associate","Sorter/Scanner",
+    "Catering Assistant","Event Staff","Stadium Usher","Concessions Worker","Set Up Crew","Tear Down Crew","Grounds Crew","Parking Attendant","Shuttle Driver","Route Driver",
+    "Copy Center Associate","Print Shop Assistant","Library Aide","Records Clerk","File Clerk","Front Office Assistant","Office Runner","Mail Courier","Facilities Helper","Utility Worker",
+    "Recycling Sorter","Dock Worker","Yard Associate","Assembler","Light Machine Operator","Production Helper","Kitting Associate","Shipping Clerk","Receiving Clerk","Cycle Counter"
   ];
   const locations = [
     "New York","Los Angeles","Chicago","Dallas","Atlanta","Miami","Houston","Phoenix","Boston","Seattle",
-    "San Francisco","San Diego","Austin","Denver","Orlando","Washington DC","Philadelphia","Charlotte","Tampa","Nashville"
+    "San Francisco","San Diego","Austin","Denver","Orlando","Washington DC","Philadelphia","Charlotte","Tampa","Nashville",
+    // More cities for variety
+    "San Antonio","Columbus","Indianapolis","Fort Worth","Memphis","Baltimore","El Paso","Portland","Las Vegas","Detroit",
+    "Oklahoma City","Louisville","Milwaukee","Albuquerque","Tucson","Fresno","Sacramento","Kansas City","Mesa","Omaha",
+    "Colorado Springs","Raleigh","Long Beach","Virginia Beach","Oakland","Minneapolis","Tulsa","Arlington","Newark","Buffalo"
   ];
   const shifts = ["Morning","Afternoon","Evening"];
 
@@ -33,7 +43,7 @@ export function JobsList(){
       shift: isBad(j.shift) ? undefined : (shiftMap[j.shift] || j.shift)
     }))
     .filter(j=> j.title && j.location && j.shift);
-  const fallbackJobs = Array.from({ length: 50 }).map((_, i) => ({
+  const fallbackJobs = Array.from({ length: 300 }).map((_, i) => ({
     id: `demo-${i}`,
     title: titles[i % titles.length],
     location: locations[i % locations.length],
