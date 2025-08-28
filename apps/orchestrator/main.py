@@ -13,6 +13,8 @@ except Exception:
 
 MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
+ATS_CONNECTOR_BASE = os.getenv("ATS_CONNECTOR_BASE")
+CHANNEL_CONNECTOR_BASE = os.getenv("CHANNEL_CONNECTOR_BASE")
 
 app = FastAPI(title="Recruiter Orchestrator")
 
@@ -195,9 +197,14 @@ def schedule_confirm(candidate_id: str):
     # write to ATS mock
     try:
         with httpx.Client(timeout=5.0) as client:
-            resp = client.post(f"{ATS_BASE}/applications", json={
-                "candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
-            })
+            if ATS_CONNECTOR_BASE:
+                resp = client.post(f"{ATS_CONNECTOR_BASE}/application", json={
+                    "candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                })
+            else:
+                resp = client.post(f"{ATS_BASE}/applications", json={
+                    "candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                })
             resp.raise_for_status()
         audit("agent", "ats.write", {"candidate_id": candidate_id, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot})
     except Exception as e:
@@ -317,6 +324,13 @@ def send(body: SendMessage):
         checks.append({"rule": "allowed_channels", "ok": True})
     payload = {**body.model_dump(), "compliance": {"ok": ok, "checks": checks}}
     audit("agent", "message.sent", payload)
+    # optional forward to channel connector in real mode
+    if CHANNEL_CONNECTOR_BASE:
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                client.post(f"{CHANNEL_CONNECTOR_BASE}/send", json=body.model_dump())
+        except Exception as e:
+            audit("agent", "channel.forward.error", {"error": str(e)})
     return {"ok": True}
 
 @app.post("/simulate/hiring")
@@ -350,9 +364,14 @@ def ops_force(body: ForceOp):
         try:
             slot = SCHEDULE.get(cid, {}).get("slot") or f"2025-08-29T0{(hash(cid)%8)+1}:00:00Z"
             with httpx.Client(timeout=5.0) as client:
-                resp = client.post(f"{ATS_BASE}/applications", json={
-                    "candidate_id": cid, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
-                })
+                if ATS_CONNECTOR_BASE:
+                    resp = client.post(f"{ATS_CONNECTOR_BASE}/application", json={
+                        "candidate_id": cid, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                    })
+                else:
+                    resp = client.post(f"{ATS_BASE}/applications", json={
+                        "candidate_id": cid, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot
+                    })
                 resp.raise_for_status()
             audit("agent", "ats.write", {"candidate_id": cid, "job_id": next(iter(JOBS.keys()), "demo-job"), "slot": slot})
         except Exception as e:
