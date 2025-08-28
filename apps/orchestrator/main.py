@@ -334,18 +334,22 @@ def send(body: SendMessage):
     return {"ok": True}
 
 @app.post("/simulate/hiring")
-def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: float = 0.25, show_rate: float = 0.7, interviewer_capacity: int = 50):
+def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: float = 0.25, show_rate: float = 0.7, interviewer_capacity: int = 50, target_openings: int = 50):
     replies = vol_per_day * reply_rate
     qualified = replies * qual_rate
     scheduled = min(qualified, interviewer_capacity)
     shows = scheduled * show_rate
     hires_week = floor(shows * 5 * 0.6)
+    utilization = (scheduled / max(1, interviewer_capacity)) if interviewer_capacity else 0.0
+    time_to_fill_weeks = None if hires_week == 0 else max(0, int((target_openings + hires_week - 1) // hires_week))
     return {
         "replies": int(replies),
         "qualified": int(qualified),
         "scheduled": int(scheduled),
         "shows": int(shows),
-        "hires_per_week": int(hires_week)
+        "hires_per_week": int(hires_week),
+        "utilization": utilization,
+        "time_to_fill_weeks": time_to_fill_weeks
     }
 
 class ForceOp(BaseModel):
