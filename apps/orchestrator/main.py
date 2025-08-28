@@ -5,6 +5,7 @@ import os, time, json, uuid, hashlib, asyncio
 import httpx
 from math import floor
 from sse_starlette.sse import EventSourceResponse
+from typing import Any, Optional, Tuple, Dict, List
 # add YAML import (optional)
 try:
     import yaml  # type: ignore
@@ -39,7 +40,7 @@ app.add_middleware(
 # optional db
 db_engine = create_engine(DATABASE_URL) if DATABASE_URL else None
 
-def db_exec(sql: str, params: dict = None):
+def db_exec(sql: str, params: Optional[dict] = None) -> None:
     if not db_engine:
         return
     try:
@@ -123,18 +124,18 @@ def metrics():
     return app.response_class(data, media_type=CONTENT_TYPE_LATEST)
 
 # ---- simple in-memory stores for demo ----
-AUDIT = []
-LAST_HASH = None
-JOBS = {}
-CANDIDATES = {}
-INTERACTIONS = []
-SCHEDULE = {}
-POLICY = {}
+AUDIT: List[dict] = []
+LAST_HASH: Optional[str] = None
+JOBS: Dict[str, dict] = {}
+CANDIDATES: Dict[str, dict] = {}
+INTERACTIONS: List[dict] = []
+SCHEDULE: Dict[str, dict] = {}
+POLICY: Dict[str, Any] = {}
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
 
 # load policy.yaml if present
-def _load_policy():
+def _load_policy() -> None:
     global POLICY
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     policy_path = os.path.join(base_dir, "packages", "policies", "policy.yaml")
@@ -149,7 +150,8 @@ def _load_policy():
 
 _load_policy()
 
-def audit(actor, action, payload):
+def audit(actor: str, action: str, payload: dict) -> None:
+    global LAST_HASH
     ts = time.time()
     body = json.dumps(payload, sort_keys=True)
     base = (str(ts) + body + (LAST_HASH or "") + SIGNING_SECRET)
@@ -163,7 +165,6 @@ def audit(actor, action, payload):
         "hash": h,
         "prev_hash": LAST_HASH
     })
-    global LAST_HASH
     LAST_HASH = h
 
 class CreateJob(BaseModel):
@@ -180,15 +181,15 @@ class Candidate(BaseModel):
     status: str = "new"
 
 @app.get("/health")
-def health():
+def health() -> dict:
     return {"ok": True, "mode": MODE}
 
 @app.get("/ready")
-def ready():
+def ready() -> dict:
     return {"ready": True, "policy_loaded": bool(POLICY is not None)}
 
 @app.post("/jobs")
-def create_job(body: CreateJob):
+def create_job(body: CreateJob) -> dict:
     job_id = str(uuid.uuid4())
     JOBS[job_id] = body.model_dump()
     audit("system", "job.created", {"job_id": job_id, **JOBS[job_id]})
@@ -198,11 +199,11 @@ def create_job(body: CreateJob):
     return {"job_id": job_id, **JOBS[job_id]}
 
 @app.get("/jobs")
-def list_jobs():
+def list_jobs() -> dict:
     return {"jobs": [{"id": jid, **data} for jid, data in JOBS.items()]}
 
 @app.post("/candidates")
-def create_candidate(body: Candidate):
+def create_candidate(body: Candidate) -> dict:
     cid = str(uuid.uuid4())
     CANDIDATES[cid] = body.model_dump()
     audit("system", "candidate.created", {"candidate_id": cid, **CANDIDATES[cid]})
@@ -212,11 +213,11 @@ def create_candidate(body: Candidate):
     return {"candidate_id": cid, **CANDIDATES[cid]}
 
 @app.get("/candidates")
-def list_candidates():
+def list_candidates() -> dict:
     return {"candidates": [{"id": cid, **data} for cid, data in CANDIDATES.items()]}
 
 @app.post("/simulate/outreach")
-def simulate_outreach(job_id: str):
+def simulate_outreach(job_id: str) -> dict:
     if job_id not in JOBS:
         raise HTTPException(404, "job not found")
     # seed 25 demo candidates
@@ -243,11 +244,11 @@ def outreach_start(job_id: str):
 
 # Demo layer aliases
 @app.post("/demo/seed")
-def demo_seed(job_id: str):
+def demo_seed(job_id: str) -> dict:
     return simulate_outreach(job_id)
 
 @app.post("/simulate/flow")
-def simulate_flow(job_id: str, fast: bool = True):
+def simulate_flow(job_id: str, fast: bool = True) -> dict:
     # move a few through the full funnel quickly
     moved = 0
     for cid, c in list(CANDIDATES.items())[:8]:
@@ -284,7 +285,7 @@ def demo_walkthrough(job_id: str, fast: bool = True):
     return simulate_flow(job_id, fast=fast)
 
 @app.post("/schedule/propose")
-def schedule_propose(candidate_id: str):
+def schedule_propose(candidate_id: str) -> dict:
     if candidate_id not in CANDIDATES:
         raise HTTPException(404, "candidate not found")
     slot = f"2025-08-29T0{(hash(candidate_id)%8)+1}:00:00Z"
@@ -293,7 +294,7 @@ def schedule_propose(candidate_id: str):
     return {"candidate_id": candidate_id, "slot": slot}
 
 @app.post("/schedule/confirm")
-def schedule_confirm(candidate_id: str):
+def schedule_confirm(candidate_id: str) -> dict:
     if candidate_id not in CANDIDATES:
         raise HTTPException(404, "candidate not found")
     slot = SCHEDULE.get(candidate_id, {}).get("slot") or f"2025-08-29T0{(hash(candidate_id)%8)+1}:00:00Z"
@@ -322,7 +323,7 @@ def schedule_confirm(candidate_id: str):
     return {"ok": True}
 
 @app.get("/audit")
-def get_audit(limit: int = 250, cursor: int | None = None):
+def get_audit(limit: int = 250, cursor: Optional[int] = None) -> dict:
     if cursor is None:
         # latest page
         page = AUDIT[-limit:]
@@ -361,7 +362,7 @@ async def events_stream():
     return EventSourceResponse(event_generator())
 
 @app.get("/audit/verify")
-def verify_audit():
+def verify_audit() -> dict:
     prev = None
     for idx, e in enumerate(AUDIT):
         ts = e["ts"]
@@ -373,14 +374,14 @@ def verify_audit():
     return {"ok": True, "count": len(AUDIT)}
 
 # helper
-def _find_candidate_by_phone(phone: str):
+def _find_candidate_by_phone(phone: str) -> Tuple[Optional[str], Optional[dict]]:
     for cid, c in CANDIDATES.items():
         if c.get("phone") == phone:
             return cid, c
     return None, None
 
 @app.post("/channels/inbound")
-async def channels_inbound(From: str = Form(None), Body: str = Form(None), request: Request = None):
+async def channels_inbound(From: str = Form(None), Body: str = Form(None), request: Request = None) -> dict:
     # accept JSON fallback
     if From is None or Body is None:
         try:
@@ -403,7 +404,7 @@ async def channels_inbound(From: str = Form(None), Body: str = Form(None), reque
     return {"ok": True}
 
 @app.get("/kpi")
-def kpi():
+def kpi() -> dict:
     contacted = sum(1 for c in CANDIDATES.values() if c["status"] in ["contacted","qualified","disqualified","scheduled"])
     consented = sum(1 for c in CANDIDATES.values() if c.get("consent"))
     qualified = sum(1 for c in CANDIDATES.values() if c["status"] == "qualified")
@@ -419,7 +420,7 @@ def kpi():
     }
 
 @app.get("/funnel")
-def funnel():
+def funnel() -> dict:
     contacted = sum(1 for c in CANDIDATES.values() if c["status"] in ["contacted","qualified","disqualified","scheduled"])
     replied = sum(1 for c in CANDIDATES.values() if c.get("consent"))
     qualified = sum(1 for c in CANDIDATES.values() if c["status"] == "qualified")
@@ -428,7 +429,7 @@ def funnel():
     return {"contacted": contacted, "replied": replied, "qualified": qualified, "scheduled": scheduled, "showed": showed}
 
 @app.get("/policy")
-def get_policy():
+def get_policy() -> dict:
     return {"policy": POLICY}
 
 class SendMessage(BaseModel):
@@ -438,7 +439,7 @@ class SendMessage(BaseModel):
     channel: str = "sms"
 
 @app.post("/send")
-def send(body: SendMessage):
+def send(body: SendMessage) -> dict:
     checks = []
     ok = True
     if POLICY.get("allowed_channels") and body.channel not in POLICY.get("allowed_channels"):
@@ -458,7 +459,7 @@ def send(body: SendMessage):
     return {"ok": True}
 
 @app.post("/simulate/hiring")
-def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: float = 0.25, show_rate: float = 0.7, interviewer_capacity: int = 50, target_openings: int = 50):
+def hiring_sim(vol_per_day: int = 500, reply_rate: float = 0.35, qual_rate: float = 0.25, show_rate: float = 0.7, interviewer_capacity: int = 50, target_openings: int = 50) -> dict:
     replies = vol_per_day * reply_rate
     qualified = replies * qual_rate
     scheduled = min(qualified, interviewer_capacity)
@@ -481,7 +482,7 @@ class ForceOp(BaseModel):
     candidate_id: str
 
 @app.post("/ops/force")
-def ops_force(body: ForceOp):
+def ops_force(body: ForceOp) -> dict:
     action = body.action
     cid = body.candidate_id
     if action == "schedule_propose":
