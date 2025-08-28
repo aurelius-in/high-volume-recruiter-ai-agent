@@ -30,7 +30,7 @@ const resources = {
       capacity: "Capacity",
       actions: { autoPackSlots: "Auto-Pack Slots" },
       capacityLabels: { holds: "Holds", confirmed: "Confirmed", noShow: "No-show" },
-      funnelLabels: { contacted: "Contacted", replied: "Replied", qualified: "Qualified", scheduled: "Scheduled", showed: "Showed" },
+      funnelLabels: { contacted: "Contacted", replied: "Replied", qualified: "Qualified", scheduled: "Scheduled", showed: "Showed", offer: "Offer", hired: "Hired" },
       ask: {
         title: "Ask Anything",
         placeholder: "Ask about candidates or jobs...",
@@ -110,7 +110,7 @@ const resources = {
       capacity: "السعة",
       actions: { autoPackSlots: "حزم المواعيد تلقائيًا" },
       capacityLabels: { holds: "الحجوزات", confirmed: "المؤكد", noShow: "عدم الحضور" },
-      funnelLabels: { contacted: "تم التواصل", replied: "تم الرد", qualified: "مؤهل", scheduled: "مجدول", showed: "حضر" },
+      funnelLabels: { contacted: "تم التواصل", replied: "تم الرد", qualified: "مؤهل", scheduled: "مجدول", showed: "حضر", offer: "عرض", hired: "توظيف" },
       ask: {
         title: "اسأل أي شيء",
         placeholder: "اسأل عن المرشحين أو الوظائف...",
@@ -190,7 +190,7 @@ const resources = {
       capacity: "容量",
       actions: { autoPackSlots: "自动打包时段" },
       capacityLabels: { holds: "保留", confirmed: "已确认", noShow: "未到场" },
-      funnelLabels: { contacted: "已联系", replied: "已回复", qualified: "合格", scheduled: "已排期", showed: "已到场" },
+      funnelLabels: { contacted: "已联系", replied: "已回复", qualified: "合格", scheduled: "已排期", showed: "已到场", offer: "发放Offer", hired: "已录用" },
       ask: {
         title: "随便问",
         placeholder: "询问候选人或职位...",
