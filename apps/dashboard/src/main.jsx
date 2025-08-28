@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import "./global.css";
 import { Auth0Provider } from "@auth0/auth0-react";
 import * as Sentry from "@sentry/react";
 import "./i18n";

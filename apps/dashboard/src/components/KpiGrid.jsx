@@ -35,7 +35,7 @@ export default function KpiGrid({ data }){
           boxShadow: '0 8px 20px rgba(0,0,0,0.35)'
         }}>
           <div style={{
-            fontFamily: "'Amiri','Cairo', serif",
+            fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
             fontSize: 20,
             color: '#e8f5e9',
             marginBottom: 6,

@@ -97,8 +97,36 @@ export default function App() {
       backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(13,71,20,0.25), transparent 300px), radial-gradient(circle at 80% 30%, rgba(183,28,28,0.15), transparent 260px)'
     }}>
       <AuthGate>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" gutterBottom>{t("title")}</Typography>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '10px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 70 }} />
+          <div>
+            <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto"
+              TabIndicatorProps={{ sx: { height: 4, backgroundColor: 'rgba(46,125,50,0.9)', boxShadow: '0 0 12px rgba(46,125,50,0.8)' } }}>
+              <Tab label={t("outreachTab")} sx={{ color: tab===0?'#e0e0e0':'#cfd8dc',
+                mx: 0.5,
+                borderRadius: 2,
+                border: tab===0?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
+                background: tab===0?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
+                textDecoration: tab===0?'underline':'none'
+              }} />
+              <Tab label={t("qualificationTab")} sx={{ color: tab===1?'#e0e0e0':'#cfd8dc',
+                mx: 0.5,
+                borderRadius: 2,
+                border: tab===1?'1px solid rgba(183,28,28,0.7)':'1px solid rgba(46,125,50,0.3)',
+                background: tab===1?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(183,28,28,0.4))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
+                textDecoration: tab===1?'underline':'none'
+              }} />
+              <Tab label={t("auditTab")} sx={{ color: tab===2?'#e0e0e0':'#cfd8dc',
+                mx: 0.5,
+                borderRadius: 2,
+                border: tab===2?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
+                background: tab===2?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
+                textDecoration: tab===2?'underline':'none'
+              }} />
+            </Tabs>
+          </div>
+        </div>
         <div>
           {health && (
             <Chip size="small" label={t("systemOk")} sx={{ mr: 1, bgcolor: 'rgba(46,125,50,0.3)', color: '#e8f5e9', border: '1px solid rgba(46,125,50,0.6)' }} />
@@ -114,32 +142,6 @@ export default function App() {
         </div>
       </div>
 
-      <Paper sx={{ px: 2, pt: 1, mb: 2, bgcolor: 'rgba(0,0,0,0.6)', border: '1px solid rgba(46,125,50,0.4)' }}>
-        <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto"
-          TabIndicatorProps={{ sx: { height: 4, backgroundColor: 'rgba(46,125,50,0.9)', boxShadow: '0 0 12px rgba(46,125,50,0.8)' } }}>
-          <Tab label={t("outreachTab")} sx={{ color: '#e0e0e0',
-            mx: 1,
-            borderRadius: 2,
-            border: '1px solid rgba(46,125,50,0.5)',
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 16px rgba(0,0,0,0.35)'
-          }} />
-          <Tab label={t("qualificationTab")} sx={{ color: '#e0e0e0',
-            mx: 1,
-            borderRadius: 2,
-            border: '1px solid rgba(183,28,28,0.5)',
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(183,28,28,0.4))',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 16px rgba(0,0,0,0.35)'
-          }} />
-          <Tab label={t("auditTab")} sx={{ color: '#e0e0e0',
-            mx: 1,
-            borderRadius: 2,
-            border: '1px solid rgba(46,125,50,0.5)',
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 16px rgba(0,0,0,0.35)'
-          }} />
-        </Tabs>
-      </Paper>
 
       {tab === 0 && (
         <Box>
