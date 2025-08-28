@@ -73,9 +73,9 @@ export default function App() {
 
   return (
     <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '10px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 28 }} />
+          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 70 }} />
           <Typography variant="h6" sx={{ letterSpacing: 1.2 }}>HIRE FALCON</Typography>
         </div>
         <div>

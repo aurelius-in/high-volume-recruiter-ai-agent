@@ -97,9 +97,9 @@ export default function App() {
       backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(13,71,20,0.25), transparent 300px), radial-gradient(circle at 80% 30%, rgba(183,28,28,0.15), transparent 260px)'
     }}>
       <AuthGate>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '10px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 28 }} />
+          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 70 }} />
           <Typography variant="h6" sx={{ letterSpacing: 1.2 }}>HIRE FALCON</Typography>
         </div>
         <div>
