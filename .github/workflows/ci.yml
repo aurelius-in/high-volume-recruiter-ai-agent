@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r apps/orchestrator/requirements.txt
+          pip install -r apps/ats-mock/requirements.txt || true
+          pip install pytest
+      - name: Run tests
+        env:
+          MODE: demo
+          ATS_BASE: http://localhost:8001
+          SIGNING_SECRET: dev-signing-secret
+        run: |
+          pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install and build dashboard
+        working-directory: apps/dashboard
+        run: |
+          npm ci || npm i
+          npm run build
+
