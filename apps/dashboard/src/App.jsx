@@ -273,7 +273,7 @@ export default function App() {
                       const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
                       return (
                       <div key={e.id} title={e.hash || ""}>
-                        <b style={{ color:'#fff', fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, "Apple Color Emoji", "Segoe UI Emoji"' }}>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i style={{ color:'#e0e0e0' }}>{e.actor}</i> {icon} :: <code style={{ color:'#cfd8dc' }}>{e.action}</code>
+                        <b style={{ color:'#fff', fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, "Apple Color Emoji", "Segoe UI Emoji"' }}>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i style={{ color:'#e0e0e0', fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, "Apple Color Emoji", "Segoe UI Emoji"', fontStyle: 'italic' }}>{e.actor}</i> {icon} :: <code style={{ color:'#cfd8dc' }}>{e.action}</code>
                         {e.payload?.locale === 'ar' && (
                           <span style={{ marginLeft: 8, padding: '2px 6px', background: '#263238', borderRadius: 4, fontSize: 12, color: '#e0e0e0' }}>AR</span>
                         )}
