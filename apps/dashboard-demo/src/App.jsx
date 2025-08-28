@@ -76,7 +76,7 @@ export default function App() {
         <Typography variant="h5" gutterBottom>Recruiter Agent — Demo UI</Typography>
         <div>
           {health && (
-            <Chip size="small" label={health.mode === 'demo' ? 'Demo mode' : 'Real mode'} color={health.mode === 'demo' ? 'default' : 'success'} sx={{ mr: 1 }} />
+            <Chip size="small" label={'System OK'} color={'success'} sx={{ mr: 1 }} />
           )}
           <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label="Dark" />
           <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
@@ -171,7 +171,7 @@ export default function App() {
 
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Hiring Simulator</Typography>
+            <Typography variant="subtitle1" gutterBottom>Capacity Planner</Typography>
             <Simulator />
           </Paper>
         </Grid>

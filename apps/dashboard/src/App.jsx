@@ -94,7 +94,7 @@ export default function App() {
         <Typography variant="h5" gutterBottom>{t("title")}</Typography>
         <div>
           {health && (
-            <Chip size="small" label={health.mode === 'demo' ? t("modeDemo") : t("modeReal")} color={health.mode === 'demo' ? 'default' : 'success'} sx={{ mr: 1 }} />
+            <Chip size="small" label={t("systemOk")} color={'success'} sx={{ mr: 1 }} />
           )}
           <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label={t("dark")} />
           <Button size="small" onClick={()=>setPolicyOpen(true)}>{t("viewPolicy")}</Button>
@@ -167,7 +167,7 @@ export default function App() {
             <Typography variant="subtitle1" gutterBottom>{t("auditTrail")}</Typography>
             <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
               {audit.length === 0 ? (
-                <Typography variant="body2" sx={{ color: '#777' }}>No audit events yet. Run Simulate Outreach and Flow to populate.</Typography>
+                <Typography variant="body2" sx={{ color: '#777' }}>{t("noActivity")}</Typography>
               ) : (
                 audit.slice().reverse().map(e => {
                   const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
