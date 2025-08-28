@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Grid, Paper, Typography, Button, Snackbar, Alert, Switch, FormControlLabel, Skeleton, Chip } from "@mui/material";
+import { Container, Grid, Paper, Typography, Button, Snackbar, Alert, Switch, FormControlLabel, Skeleton, Chip, Tabs, Tab, Box } from "@mui/material";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
@@ -21,6 +21,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   const [health, setHealth] = useState(null);
+  const [tab, setTab] = useState(0);
 
   const refresh = async () => {
     const h = await axios.get(`${API}/health`);
@@ -54,7 +55,6 @@ export default function App() {
       });
       setJobId(res.data.job_id);
     } catch (e) {
-      // demo UI: simple alert fallback
       alert("Failed to create job");
     }
   };
@@ -73,7 +73,7 @@ export default function App() {
   return (
     <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" gutterBottom>Recruiter Agent — Demo UI</Typography>
+        <Typography variant="h5" gutterBottom>Recruiter Agent</Typography>
         <div>
           {health && (
             <Chip size="small" label={'System OK'} color={'success'} sx={{ mr: 1 }} />
@@ -82,100 +82,139 @@ export default function App() {
           <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
         </div>
       </div>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>KPI Tiles</Typography>
-            {kpi ? (
-              <Grid container spacing={2}>
-                {Object.entries(kpi).map(([k, v]) => (
-                  <Grid item key={k}>
-                    <Paper sx={{ p: 2, minWidth: 160 }}>
-                      <Typography variant="caption">{k.replaceAll("_", " ")}</Typography>
-                      <Typography variant="h6">{v}</Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Grid container spacing={2}>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Grid item key={i}>
-                    <Paper sx={{ p: 2, minWidth: 160 }}>
-                      <Skeleton variant="text" width={120} />
-                      <Skeleton variant="text" width={80} height={32} />
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Controls</Typography>
-            <Button onClick={createJob} variant="contained" sx={{ mr: 1 }}>Create Job</Button>
-            <Button onClick={seedOutreach} variant="outlined" sx={{ mr: 1 }}>Simulate Outreach</Button>
-            <Button onClick={runFlow} variant="text">Run Flow</Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }}>Job ID: {jobId || "(create a job)"}</Typography>
-          </Paper>
-        </Grid>
 
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Funnel</Typography>
-            {funnel ? (
-              <FunnelChart data={funnel} />
-            ) : (
-              <Skeleton variant="rectangular" height={200} />
-            )}
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Ops Console</Typography>
-            <OpsConsole />
-          </Paper>
-        </Grid>
+      <Paper sx={{ px: 2, pt: 1, mb: 2 }}>
+        <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto">
+          <Tab label="Outreach" />
+          <Tab label="Qualification & Scheduling" />
+          <Tab label="Audit & Planning" />
+        </Tabs>
+      </Paper>
 
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Audit Trail (latest 250)</Typography>
-            <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
-              {audit.length === 0 ? (
-                <Typography variant="body2" sx={{ color: '#777' }}>No audit events yet. Run Simulate Outreach and Flow to populate.</Typography>
-              ) : (
-              audit.slice().reverse().map(e => {
-                const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
-                return (
-                <div key={e.id} title={e.hash || ""}>
-                  <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> {icon} :: <code>{e.action}</code>
-                  {e.payload?.locale === 'ar' && (
-                    <span style={{ marginLeft: 8, padding: '2px 6px', background: '#eee', borderRadius: 4, fontSize: 12 }}>AR</span>
-                  )}
-                  {typeof e.payload?.cost_usd === 'number' && (
-                    <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
-                  )}
-                  {e.payload?.compliance && (
-                    <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? 'green' : 'crimson' }}>
-                      policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
-                    </span>
+      {tab === 0 && (
+        <Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={8}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>KPI Tiles</Typography>
+                {kpi ? (
+                  <Grid container spacing={2}>
+                    {Object.entries(kpi).map(([k, v]) => (
+                      <Grid item key={k}>
+                        <Paper sx={{ p: 2, minWidth: 160 }}>
+                          <Typography variant="caption">{k.replaceAll("_", " ")}</Typography>
+                          <Typography variant="h6">{v}</Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Grid container spacing={2}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Grid item key={i}>
+                        <Paper sx={{ p: 2, minWidth: 160 }}>
+                          <Skeleton variant="text" width={120} />
+                          <Skeleton variant="text" width={80} height={32} />
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </Paper>
+            </Grid>
+        
+            <Grid item xs={12} md={4}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Controls</Typography>
+                <Button onClick={createJob} variant="contained" sx={{ mr: 1 }}>Create Job</Button>
+                <Button onClick={seedOutreach} variant="outlined" sx={{ mr: 1 }}>Start Outreach</Button>
+                <Button onClick={runFlow} variant="text">Run Automation</Button>
+                <Typography variant="caption" display="block" sx={{ mt: 1 }}>Job ID: {jobId || "(create a job)"}</Typography>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} md={8}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Funnel</Typography>
+                {funnel ? (
+                  <FunnelChart data={funnel} />
+                ) : (
+                  <Skeleton variant="rectangular" height={200} />
+                )}
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Ops Console</Typography>
+                <OpsConsole />
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+
+      {tab === 1 && (
+        <Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Jobs</Typography>
+                {/* Consumers can embed the demo lists if needed */}
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Qualification & Scheduling</Typography>
+                <OpsConsole />
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+
+      {tab === 2 && (
+        <Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Audit Trail (latest 250)</Typography>
+                <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
+                  {audit.length === 0 ? (
+                    <Typography variant="body2" sx={{ color: '#777' }}>No recent activity yet. Start outreach and automation to populate.</Typography>
+                  ) : (
+                  audit.slice().reverse().map(e => {
+                    const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
+                    return (
+                    <div key={e.id} title={e.hash || ""}>
+                      <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> {icon} :: <code>{e.action}</code>
+                      {e.payload?.locale === 'ar' && (
+                        <span style={{ marginLeft: 8, padding: '2px 6px', background: '#eee', borderRadius: 4, fontSize: 12 }}>AR</span>
+                      )}
+                      {typeof e.payload?.cost_usd === 'number' && (
+                        <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
+                      )}
+                      {e.payload?.compliance && (
+                        <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? 'green' : 'crimson' }}>
+                          policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
+                        </span>
+                      )}
+                    </div>
+                  )})
                   )}
                 </div>
-              )})
-              )}
-            </div>
-            <Button size="small" sx={{ mt: 1 }} onClick={()=>setReplayOpen(true)}>Replay</Button>
-          </Paper>
-        </Grid>
+                <Button size="small" sx={{ mt: 1 }} onClick={()=>setReplayOpen(true)}>Replay</Button>
+              </Paper>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Capacity Planner</Typography>
+                <Simulator />
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
 
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Capacity Planner</Typography>
-            <Simulator />
-          </Paper>
-        </Grid>
-      </Grid>
       <TimezoneFooter />
       <ReplayModal open={replayOpen} onClose={()=>setReplayOpen(false)} events={audit} />
       <PolicyDialog open={policyOpen} onClose={()=>setPolicyOpen(false)} />
