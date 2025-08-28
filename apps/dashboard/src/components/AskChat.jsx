@@ -83,6 +83,42 @@ export default function AskChat(){
     if (!text) return;
     setInput("");
     setMessages(m=>[...m, { role:'user', text }]);
+
+    // Demo-specific handling with hourglass delay
+    const q = text.toLowerCase();
+    const hasOliver = q.includes('oliver');
+    const hasEllison = q.includes('ellison');
+    const hasSabbar = q.includes('sabbar');
+    const hasQualifiedWord = q.includes('qualified');
+
+    if (hasOliver && (hasSabbar || hasQualifiedWord)) {
+      // Second answer path, delayed with hourglass
+      setMessages(m=>[...m, { role:'assistant', text: '⏳' }]);
+      await new Promise(r=>setTimeout(r, 3000));
+      const detailed = "Yes — Oliver is highly qualified. Experience includes multi-agent planning and coordination, vector search and embeddings, prompt and policy design, evaluation harnesses, event-driven backends (FastAPI), and modern React dashboards. He has 10+ years building AI/ML products and agentic automations, with a strong track record of reliability, safety, and measurable business impact.";
+      setMessages(m=>{
+        const copy = m.slice();
+        if (copy[copy.length-1]?.text === '⏳' && copy[copy.length-1]?.role==='assistant') copy.pop();
+        copy.push({ role:'assistant', text: detailed });
+        return copy;
+      });
+      return;
+    }
+
+    if (hasOliver && hasEllison) {
+      // First answer path, delayed with hourglass
+      setMessages(m=>[...m, { role:'assistant', text: '⏳' }]);
+      await new Promise(r=>setTimeout(r, 3000));
+      const detailed = "Yes. Oliver Ellison has over 10 years designing and shipping AI systems, including production agentic workflows, retrieval-augmented generation, tool-use orchestration, and high-volume messaging automations. He has led end‑to‑end delivery from data and model evaluation through scalable backend services and robust UX for operator-in-the-loop control.";
+      setMessages(m=>{
+        const copy = m.slice();
+        if (copy[copy.length-1]?.text === '⏳' && copy[copy.length-1]?.role==='assistant') copy.pop();
+        copy.push({ role:'assistant', text: detailed });
+        return copy;
+      });
+      return;
+    }
+
     const reply = await answer(text);
     setMessages(m=>[...m, { role:'assistant', text: reply }]);
   };
