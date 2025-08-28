@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Grid, Paper, Typography, Button, TextField, Snackbar, Alert, Switch, FormControlLabel } from "@mui/material";
+import { Container, Grid, Paper, Typography, Button, TextField, Snackbar, Alert, Switch, FormControlLabel, Skeleton, Chip } from "@mui/material";
 import Simulator from "./Simulator.jsx";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
@@ -23,8 +23,11 @@ export default function App() {
   const [policyOpen, setPolicyOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
+  const [health, setHealth] = useState(null);
 
   const refresh = async () => {
+    const h = await axios.get(`${API}/health`);
+    setHealth(h.data);
     const k = await axios.get(`${API}/kpi`);
     setKpi(k.data);
     const a = await axios.get(`${API}/audit`);
@@ -73,6 +76,9 @@ export default function App() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5" gutterBottom>Recruiter Agent — Live Demo</Typography>
         <div>
+          {health && (
+            <Chip size="small" label={health.mode === 'demo' ? 'Demo mode' : 'Real mode'} color={health.mode === 'demo' ? 'default' : 'success'} sx={{ mr: 1 }} />
+          )}
           <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label="Dark" />
           <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
         </div>
@@ -92,14 +98,29 @@ export default function App() {
                   </Grid>
                 ))}
               </Grid>
-            ) : "Loading..."}
+            ) : (
+              <Grid container spacing={2}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Grid item key={i}>
+                    <Paper sx={{ p: 2, minWidth: 160 }}>
+                      <Skeleton variant="text" width={120} />
+                      <Skeleton variant="text" width={80} height={32} />
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </Paper>
         </Grid>
 
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>Funnel</Typography>
-            <FunnelChart data={funnel} />
+            {funnel ? (
+              <FunnelChart data={funnel} />
+            ) : (
+              <Skeleton variant="rectangular" height={200} />
+            )}
           </Paper>
         </Grid>
         <Grid item xs={12} md={4}>
@@ -122,9 +143,11 @@ export default function App() {
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>Audit Trail (latest 250)</Typography>
             <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
-              {audit.slice().reverse().map(e => (
+              {audit.slice().reverse().map(e => {
+                const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
+                return (
                 <div key={e.id} title={e.hash || ""}>
-                  <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> :: <code>{e.action}</code>
+                  <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> {icon} :: <code>{e.action}</code>
                   {e.payload?.locale === 'ar' && (
                     <span style={{ marginLeft: 8, padding: '2px 6px', background: '#eee', borderRadius: 4, fontSize: 12 }}>AR</span>
                   )}
@@ -137,7 +160,7 @@ export default function App() {
                     </span>
                   )}
                 </div>
-              ))}
+              )})}
             </div>
             <Button size="small" sx={{ mt: 1 }} onClick={()=>setReplayOpen(true)}>Replay</Button>
           </Paper>
