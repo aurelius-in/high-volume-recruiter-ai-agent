@@ -191,3 +191,13 @@ This will: create a job, seed outreach, run the flow, print KPI tiles, and verif
 - Hover an audit row to show the hash, open Replay, then the Policy dialog
 - Run the Hiring Simulator at 500/day and point to hires/week
 - Keep the clip under 45 seconds
+
+## Deploy to Render (optional)
+This repo includes `render.yaml` for a three-service deploy (orchestrator, ats-mock, dashboard).
+
+Steps:
+1) Push to GitHub (develop). In Render, "New > Blueprint" and select this repo.
+2) First deploy will use placeholder URLs. After it boots:
+   - Copy the public URL of `recruiter-ats-mock` into the `ATS_BASE` env var of `recruiter-orchestrator`.
+   - Copy the public URL of `recruiter-orchestrator` into `VITE_API_BASE` env var of `recruiter-dashboard` and redeploy dashboard.
+3) Visit the dashboard app URL and run the same 90-second demo flow.
