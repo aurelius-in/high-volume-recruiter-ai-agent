@@ -10,9 +10,15 @@ export function JobsList(){
   return (
     <Paper sx={{ p:2 }}>
       <Typography variant="subtitle1">Jobs</Typography>
-      <ul>
-        {jobs.map(j => (<li key={j.id}>{j.title} — {j.location} — {j.shift}</li>))}
-      </ul>
+      {jobs.length === 0 ? (
+        <Typography variant="body2" sx={{ color: '#777' }}>No jobs yet. Click "Create Job" to get started.</Typography>
+      ) : (
+        <ul>
+          {jobs.map(j => (
+            <li key={j.id}>📄 {j.title} — {j.location} — {j.shift}</li>
+          ))}
+        </ul>
+      )}
     </Paper>
   );
 }
@@ -23,9 +29,15 @@ export function CandidatesList(){
   return (
     <Paper sx={{ p:2 }}>
       <Typography variant="subtitle1">Candidates</Typography>
-      <ul>
-        {cands.map(c => (<li key={c.id}>{c.name} — {c.status}</li>))}
-      </ul>
+      {cands.length === 0 ? (
+        <Typography variant="body2" sx={{ color: '#777' }}>No candidates yet. Use Ops Console to create one or run Simulate Outreach.</Typography>
+      ) : (
+        <ul>
+          {cands.map(c => (
+            <li key={c.id}>{c.status === 'qualified' ? '✅' : c.status === 'scheduled' ? '📅' : '👤'} {c.name} — {c.status}</li>
+          ))}
+        </ul>
+      )}
     </Paper>
   );
 }
