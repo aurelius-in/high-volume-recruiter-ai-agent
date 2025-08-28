@@ -6,7 +6,7 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 export default function AskChat(){
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", text: "Ask about candidates or jobs. Try: ‘Is Oliver Ellison have 10+ years experience building agentic systems?’ or ‘Should Sabbar hire Oliver Ellison?’" }
+    { role: "assistant", text: "Ask about candidates or jobs. Try: ‘Does Aisha Rahman have 10+ years of experience building agentic systems?’ or ‘Should Sabbar hire Miguel Santos?’ You can also ask ‘List jobs in Dallas’ or ‘How many candidates are qualified?’" }
   ]);
   const [jobs, setJobs] = useState([]);
   const [candidates, setCandidates] = useState([]);
@@ -154,8 +154,10 @@ export default function AskChat(){
         <Button variant="contained" onClick={onSend} sx={{ bgcolor:'#2e7d32' }}>Send</Button>
       </div>
       <Box sx={{ mt: 1, display:'flex', gap: 0.5, flexWrap:'wrap' }}>
-        <Chip size="small" label="Is Oliver Ellison have 10+ years experience building agentic systems" onClick={()=>setInput("Is Oliver Ellison have 10+ years experience building agentic systems")}/>
-        <Chip size="small" label="Should Sabbar hire Oliver Ellison" onClick={()=>setInput("Should Sabbar hire Oliver Ellison")}/>
+        <Chip size="small" label="Does Aisha Rahman have 10+ years of agentic AI experience?" onClick={()=>setInput("Does Aisha Rahman have 10+ years of experience building agentic systems?")}/>
+        <Chip size="small" label="Should Sabbar hire Miguel Santos?" onClick={()=>setInput("Should Sabbar hire Miguel Santos")}/>
+        <Chip size="small" label="How many candidates are qualified?" onClick={()=>setInput("How many candidates are qualified?")}/>
+        <Chip size="small" label="List jobs in Dallas" onClick={()=>setInput("List jobs in Dallas")}/>
       </Box>
     </Box>
   );
