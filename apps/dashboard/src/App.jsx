@@ -292,12 +292,6 @@ export default function App() {
                 <Button size="small" sx={{ mt: 1, color: '#e0e0e0' }} onClick={()=>setReplayOpen(true)}>Replay</Button>
               </Paper>
             </Grid>
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ color:'#fff' }}>{t("hiringSimulator")}</Typography>
-                <Simulator />
-              </Paper>
-            </Grid>
           </Grid>
         </Box>
       )}
