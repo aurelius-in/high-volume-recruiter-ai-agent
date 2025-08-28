@@ -98,7 +98,12 @@ export default function App() {
           )}
           <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label={t("dark")} />
           <Button size="small" onClick={()=>setPolicyOpen(true)}>{t("viewPolicy")}</Button>
-          <Button size="small" sx={{ ml: 1 }} onClick={()=>setLocale(locale === 'en' ? 'ar' : 'en')}>{locale.toUpperCase()}</Button>
+          <select style={{ marginLeft: 8 }} value={locale} onChange={(e)=>setLocale(e.target.value)}>
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+            <option value="ar">AR</option>
+            <option value="zh">中文</option>
+          </select>
         </div>
       </div>
       <Grid container spacing={2}>
