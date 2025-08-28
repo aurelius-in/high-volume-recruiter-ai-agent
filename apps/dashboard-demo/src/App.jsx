@@ -74,9 +74,34 @@ export default function App() {
   return (
     <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '10px 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 70 }} />
-          <Typography variant="h6" sx={{ letterSpacing: 1.2 }}>HIRE FALCON</Typography>
+          <div>
+            <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto"
+              TabIndicatorProps={{ sx: { height: 4, backgroundColor: 'rgba(46,125,50,0.9)', boxShadow: '0 0 12px rgba(46,125,50,0.8)' } }}>
+              <Tab label="Outreach" sx={{ color: tab===0?'#e0e0e0':'#cfd8dc',
+                mx: 0.5,
+                borderRadius: 2,
+                border: tab===0?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
+                background: tab===0?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
+                textDecoration: tab===0?'underline':'none'
+              }} />
+              <Tab label="Scheduling" sx={{ color: tab===1?'#e0e0e0':'#cfd8dc',
+                mx: 0.5,
+                borderRadius: 2,
+                border: tab===1?'1px solid rgba(183,28,28,0.7)':'1px solid rgba(46,125,50,0.3)',
+                background: tab===1?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(183,28,28,0.4))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
+                textDecoration: tab===1?'underline':'none'
+              }} />
+              <Tab label="Audit & Plan" sx={{ color: tab===2?'#e0e0e0':'#cfd8dc',
+                mx: 0.5,
+                borderRadius: 2,
+                border: tab===2?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
+                background: tab===2?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
+                textDecoration: tab===2?'underline':'none'
+              }} />
+            </Tabs>
+          </div>
         </div>
         <div>
           {health && (
