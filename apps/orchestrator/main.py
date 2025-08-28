@@ -133,6 +133,11 @@ def simulate_outreach(job_id: str):
 def outreach_start(job_id: str):
     return simulate_outreach(job_id)
 
+# Demo layer aliases
+@app.post("/demo/seed")
+def demo_seed(job_id: str):
+    return simulate_outreach(job_id)
+
 @app.post("/simulate/flow")
 def simulate_flow(job_id: str, fast: bool = True):
     # move a few through the full funnel quickly
@@ -165,6 +170,10 @@ def simulate_flow(job_id: str, fast: bool = True):
         if not fast:
             time.sleep(0.15)
     return {"ok": True, "moved": moved}
+
+@app.post("/demo/walkthrough")
+def demo_walkthrough(job_id: str, fast: bool = True):
+    return simulate_flow(job_id, fast=fast)
 
 @app.post("/schedule/propose")
 def schedule_propose(candidate_id: str):
