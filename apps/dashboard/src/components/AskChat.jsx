@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, TextField, Typography, Chip } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function AskChat(){
+  const { t } = useTranslation();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", text: "Ask about candidates or jobs. Try: ‘Does Aisha Rahman have 10+ years of experience building agentic systems?’ or ‘Should Sabbar hire Miguel Santos?’ You can also ask ‘List jobs in Dallas’ or ‘How many candidates are qualified?’" }
+    { role: "assistant", text: t('ask.suggestionLine') }
   ]);
   const [jobs, setJobs] = useState([]);
   const [candidates, setCandidates] = useState([]);
@@ -125,7 +127,7 @@ export default function AskChat(){
 
   return (
     <Box sx={{ display:'flex', flexDirection:'column', height: 360, bgcolor:'#000', color:'#fff' }}>
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>Ask Anything</Typography>
+      <Typography variant="subtitle1" sx={{ mb: 1 }}>{t('ask.title')}</Typography>
       <div ref={listRef} style={{ flex:1, overflowY:'auto', padding: '6px 8px', border:'1px solid rgba(46,125,50,0.35)', borderRadius: 6, background:'rgba(0,0,0,0.6)' }}>
         {messages.map((m, idx)=> (
           <div key={idx} style={{ marginBottom: 8, display:'flex', justifyContent: m.role==='user'?'flex-end':'flex-start' }}>
@@ -144,7 +146,7 @@ export default function AskChat(){
       </div>
       <div style={{ display:'flex', gap:8, marginTop:8 }}>
         <TextField size="small" fullWidth value={input} onChange={e=>setInput(e.target.value)}
-          placeholder="Ask about candidates or jobs..."
+          placeholder={t('ask.placeholder')}
           InputLabelProps={{ sx:{ color:'#b0bec5' } }}
           sx={{
             '& .MuiInputBase-root': { bgcolor:'rgba(38,50,56,0.6)', color:'#e0e0e0' },
@@ -154,10 +156,10 @@ export default function AskChat(){
         <Button variant="contained" onClick={onSend} sx={{ bgcolor:'#2e7d32' }}>Send</Button>
       </div>
       <Box sx={{ mt: 1, display:'flex', gap: 0.5, flexWrap:'wrap' }}>
-        <Chip size="small" label="Does Aisha Rahman have 10+ years of agentic AI experience?" onClick={()=>setInput("Does Aisha Rahman have 10+ years of experience building agentic systems?")}/>
-        <Chip size="small" label="Should Sabbar hire Miguel Santos?" onClick={()=>setInput("Should Sabbar hire Miguel Santos")}/>
-        <Chip size="small" label="How many candidates are qualified?" onClick={()=>setInput("How many candidates are qualified?")}/>
-        <Chip size="small" label="List jobs in Dallas" onClick={()=>setInput("List jobs in Dallas")}/>
+        <Chip size="small" label={t('ask.suggest1')} onClick={()=>setInput(t('ask.suggest1'))}/>
+        <Chip size="small" label={t('ask.suggest2')} onClick={()=>setInput(t('ask.suggest2'))}/>
+        <Chip size="small" label={t('ask.suggest3')} onClick={()=>setInput(t('ask.suggest3'))}/>
+        <Chip size="small" label={t('ask.suggest4')} onClick={()=>setInput(t('ask.suggest4'))}/>
       </Box>
     </Box>
   );

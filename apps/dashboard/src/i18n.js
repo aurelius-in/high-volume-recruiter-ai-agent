@@ -31,6 +31,15 @@ const resources = {
       actions: { autoPackSlots: "Auto-Pack Slots" },
       capacityLabels: { holds: "Holds", confirmed: "Confirmed", noShow: "No-show" },
       funnelLabels: { contacted: "Contacted", replied: "Replied", qualified: "Qualified", scheduled: "Scheduled", showed: "Showed" },
+      ask: {
+        title: "Ask Anything",
+        placeholder: "Ask about candidates or jobs...",
+        suggestionLine: "Ask about candidates or jobs. Try: ‘Does Aisha Rahman have 10+ years of experience building agentic systems?’ or ‘Should Sabbar hire Miguel Santos?’ You can also ask ‘List jobs in Dallas’ or ‘How many candidates are qualified?’",
+        suggest1: "Does Aisha Rahman have 10+ years of agentic AI experience?",
+        suggest2: "Should Sabbar hire Miguel Santos?",
+        suggest3: "How many candidates are qualified?",
+        suggest4: "List jobs in Dallas"
+      },
       heatmap: {
         title: "Monthly Reply Window Heatmap",
         caption: "Reply rate by hour × weekday. Favor green, avoid red.",
@@ -102,6 +111,15 @@ const resources = {
       actions: { autoPackSlots: "حزم المواعيد تلقائيًا" },
       capacityLabels: { holds: "الحجوزات", confirmed: "المؤكد", noShow: "عدم الحضور" },
       funnelLabels: { contacted: "تم التواصل", replied: "تم الرد", qualified: "مؤهل", scheduled: "مجدول", showed: "حضر" },
+      ask: {
+        title: "اسأل أي شيء",
+        placeholder: "اسأل عن المرشحين أو الوظائف...",
+        suggestionLine: "اسأل عن المرشحين أو الوظائف. جرِّب: ‘هل لدى عائشة رحمن خبرة تزيد عن 10 سنوات في بناء الأنظمة الوكيلية؟’ أو ‘هل يجب على صبّار توظيف ميغيل سانتوس؟’ ويمكنك أيضًا أن تسأل ‘اعرض الوظائف في دالاس’ أو ‘كم عدد المرشحين المؤهلين؟’.",
+        suggest1: "هل لدى عائشة رحمن خبرة تزيد عن 10 سنوات في الذكاء الاصطناعي الوكيلي؟",
+        suggest2: "هل يجب على صبّار توظيف ميغيل سانتوس؟",
+        suggest3: "كم عدد المرشحين المؤهلين؟",
+        suggest4: "اعرض الوظائف في دالاس"
+      },
       heatmap: {
         title: "خريطة نوافذ الرد الشهرية",
         caption: "معدل الرد حسب الساعة × أيام الأسبوع. فضّل الأخضر وتجنّب الأحمر.",
@@ -173,6 +191,15 @@ const resources = {
       actions: { autoPackSlots: "自动打包时段" },
       capacityLabels: { holds: "保留", confirmed: "已确认", noShow: "未到场" },
       funnelLabels: { contacted: "已联系", replied: "已回复", qualified: "合格", scheduled: "已排期", showed: "已到场" },
+      ask: {
+        title: "随便问",
+        placeholder: "询问候选人或职位...",
+        suggestionLine: "可以询问候选人或职位。例如：“艾莎·拉赫曼是否有10年以上构建代理系统的经验？” 或 “Sabbar是否应该录用米格尔·桑托斯？” 还可以问 “列出达拉斯的职位” 或 “有多少候选人已合格？”。",
+        suggest1: "艾莎·拉赫曼是否有10年以上代理式AI经验？",
+        suggest2: "Sabbar是否应该录用米格尔·桑托斯？",
+        suggest3: "有多少候选人已合格？",
+        suggest4: "列出达拉斯的职位"
+      },
       heatmap: {
         title: "月度回复时间窗口热力图",
         caption: "按小时 × 星期的回复率。尽量选择绿色，避免红色。",
