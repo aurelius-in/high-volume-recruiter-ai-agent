@@ -11,10 +11,12 @@ import { JobsList, CandidatesList } from "./components/Lists.jsx";
 import ReplayModal from "./components/ReplayModal.jsx";
 import PolicyDialog from "./components/PolicyDialog.jsx";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function App() {
+  const { t, i18n } = useTranslation();
   const [kpi, setKpi] = useState(null);
   const [audit, setAudit] = useState([]);
   const [jobId, setJobId] = useState("");
@@ -24,6 +26,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   const [health, setHealth] = useState(null);
+  const [locale, setLocale] = useState(import.meta.env.VITE_LOCALE || "en");
 
   const refresh = async () => {
     const h = await axios.get(`${API}/health`);
@@ -37,9 +40,11 @@ export default function App() {
   };
 
   useEffect(() => {
-    const t = setInterval(refresh, 1000);
-    return () => clearInterval(t);
+    const tmr = setInterval(refresh, 1000);
+    return () => clearInterval(tmr);
   }, []);
+
+  useEffect(() => { i18n.changeLanguage(locale); }, [locale, i18n]);
 
   useEventStream(`${API}/events/stream`, (evt) => {
     if (evt.type === "audit") {
@@ -57,7 +62,7 @@ export default function App() {
       });
       setJobId(res.data.job_id);
     } catch (e) {
-      setToast({ open: true, message: "Failed to create job", severity: "error" });
+      setToast({ open: true, message: t("errorCreateJob") || "Failed to create job", severity: "error" });
     }
   };
 
@@ -65,9 +70,9 @@ export default function App() {
     if (!jobId) return;
     try {
       await axios.post(`${API}/simulate/outreach?job_id=${jobId}`);
-      setToast({ open: true, message: "Outreach seeded", severity: "success" });
+      setToast({ open: true, message: t("outreachSeeded") || "Outreach seeded", severity: "success" });
     } catch (e) {
-      setToast({ open: true, message: "Outreach failed", severity: "error" });
+      setToast({ open: true, message: t("outreachFailed") || "Outreach failed", severity: "error" });
     }
   };
 
@@ -76,9 +81,9 @@ export default function App() {
     try {
       await axios.post(`${API}/simulate/flow?job_id=${jobId}`);
       await refresh();
-      setToast({ open: true, message: "Flow executed", severity: "success" });
+      setToast({ open: true, message: t("flowExecuted") || "Flow executed", severity: "success" });
     } catch (e) {
-      setToast({ open: true, message: "Flow failed", severity: "error" });
+      setToast({ open: true, message: t("flowFailed") || "Flow failed", severity: "error" });
     }
   };
 
@@ -86,19 +91,20 @@ export default function App() {
     <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
       <AuthGate>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" gutterBottom>Recruiter Agent — Live Demo</Typography>
+        <Typography variant="h5" gutterBottom>{t("title")}</Typography>
         <div>
           {health && (
-            <Chip size="small" label={health.mode === 'demo' ? 'Demo mode' : 'Real mode'} color={health.mode === 'demo' ? 'default' : 'success'} sx={{ mr: 1 }} />
+            <Chip size="small" label={health.mode === 'demo' ? t("modeDemo") : t("modeReal")} color={health.mode === 'demo' ? 'default' : 'success'} sx={{ mr: 1 }} />
           )}
-          <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label="Dark" />
-          <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
+          <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label={t("dark")} />
+          <Button size="small" onClick={()=>setPolicyOpen(true)}>{t("viewPolicy")}</Button>
+          <Button size="small" sx={{ ml: 1 }} onClick={()=>setLocale(locale === 'en' ? 'ar' : 'en')}>{locale.toUpperCase()}</Button>
         </div>
       </div>
       <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>KPI Tiles</Typography>
+            <Typography variant="subtitle1" gutterBottom>{t("kpiTiles")}</Typography>
             {kpi ? (
               <Grid container spacing={2}>
                 {Object.entries(kpi).map(([k, v]) => (
@@ -127,7 +133,7 @@ export default function App() {
 
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Funnel</Typography>
+            <Typography variant="subtitle1" gutterBottom>{t("funnel")}</Typography>
             {funnel ? (
               <FunnelChart data={funnel} />
             ) : (
@@ -137,23 +143,23 @@ export default function App() {
         </Grid>
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Ops Console</Typography>
+            <Typography variant="subtitle1" gutterBottom>{t("opsConsole")}</Typography>
             <OpsConsole />
           </Paper>
         </Grid>
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Controls</Typography>
-            <Button onClick={createJob} variant="contained" sx={{ mr: 1 }}>Create Job</Button>
-            <Button onClick={seedOutreach} variant="outlined" sx={{ mr: 1 }}>Simulate Outreach</Button>
-            <Button onClick={runFlow} variant="text">Run Flow</Button>
+            <Typography variant="subtitle1" gutterBottom>{t("controls")}</Typography>
+            <Button onClick={createJob} variant="contained" sx={{ mr: 1 }}>{t("createJob")}</Button>
+            <Button onClick={seedOutreach} variant="outlined" sx={{ mr: 1 }}>{t("simulateOutreach")}</Button>
+            <Button onClick={runFlow} variant="text">{t("runFlow")}</Button>
             <Typography variant="caption" display="block" sx={{ mt: 1 }}>Job ID: {jobId || "(create a job)"}</Typography>
           </Paper>
         </Grid>
 
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Audit Trail (latest 250)</Typography>
+            <Typography variant="subtitle1" gutterBottom>{t("auditTrail")}</Typography>
             <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
               {audit.length === 0 ? (
                 <Typography variant="body2" sx={{ color: '#777' }}>No audit events yet. Run Simulate Outreach and Flow to populate.</Typography>
@@ -184,7 +190,7 @@ export default function App() {
 
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>Hiring Simulator</Typography>
+            <Typography variant="subtitle1" gutterBottom>{t("hiringSimulator")}</Typography>
             <Simulator />
           </Paper>
         </Grid>
