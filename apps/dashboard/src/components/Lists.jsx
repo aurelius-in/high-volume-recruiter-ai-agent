@@ -9,17 +9,7 @@ export function JobsList(){
   useEffect(()=>{ axios.get(`${API}/jobs`).then(r=>setJobs(r.data.jobs||[])); },[]);
   // Fallback demo: 50 clear, easy-to-explain roles/cities/shifts
   const titles = [
-    "Store Associate","Warehouse Associate","Customer Service Rep","Barista","Delivery Driver","Security Officer","Cleaner","Stock Clerk","Kitchen Assistant","Cashier",
-    "Front Desk Agent","Server","Host","Dishwasher","Prep Cook","Call Center Agent","Data Entry Clerk","Receptionist","Forklift Operator","Sorter",
-    "Grocery Associate","Picker/Packer","Shift Lead","Greeter","Lot Attendant","Laundry Attendant","Maintenance Helper","Line Cook","Sandwich Artist","Food Runner",
-    "Merchandiser","Order Picker","Car Wash Attendant","Usher","Ticket Taker","Valet Attendant","Bellhop","Housekeeper","Room Attendant","Front of House",
-    "Back of House","Janitor","Mailroom Clerk","Onsite Support","Courier","Kitchen Porter","Barback","Bagger","Cafe Attendant","Counter Clerk",
-    // More roles for richer variety
-    "Stock Associate","Inventory Specialist","Produce Clerk","Deli Clerk","Baker Assistant","Pharmacy Clerk","Photo Lab Tech","Garden Associate","Pet Care Associate","Electronics Associate",
-    "Meat Cutter Apprentice","Seafood Clerk","Bakery Associate","Lot Porter","Parts Runner","Warehouse Loader","Returns Clerk","Quality Checker","Packaging Associate","Sorter/Scanner",
-    "Catering Assistant","Event Staff","Stadium Usher","Concessions Worker","Set Up Crew","Tear Down Crew","Grounds Crew","Parking Attendant","Shuttle Driver","Route Driver",
-    "Copy Center Associate","Print Shop Assistant","Library Aide","Records Clerk","File Clerk","Front Office Assistant","Office Runner","Mail Courier","Facilities Helper","Utility Worker",
-    "Recycling Sorter","Dock Worker","Yard Associate","Assembler","Light Machine Operator","Production Helper","Kitting Associate","Shipping Clerk","Receiving Clerk","Cycle Counter"
+    "Retail Sales Associate","Warehouse Associate","Picker/Packer","Customer Service Representative","Call Center Representative","Barista","Cashier","Food Service Worker","Line Cook","Prep Cook","Dishwasher","Server","Host/Hostess","Delivery Driver","Rideshare Driver","Security Guard","Janitorial Associate","Housekeeper","Room Attendant","Hotel Front Desk Agent","Greeter","Stock Associate","Inventory Control Associate","Merchandising Associate","Grocery Clerk","Deli Clerk","Bakery Associate","Produce Clerk","Pharmacy Technician Trainee","Mailroom Clerk","Receptionist","Data Entry Clerk","Administrative Assistant","Front Office Coordinator","Facilities Helper","Maintenance Helper","Groundskeeper","Valet Attendant","Parking Attendant","Event Staff","Concessions Worker","Stadium Usher","Warehouse Loader","Forklift Operator","Production Operator","Light Assembler","Quality Inspector","Packaging Associate","Kitting Associate","Shipping Clerk","Receiving Clerk","Cycle Counter","Order Picker","Sorter/Scanner","Laundry Attendant","Caregiver","Home Health Aide","Phlebotomist","Warehouse Supervisor (Entry)","Shift Lead","Team Lead (Front End)"
   ];
   const locations = [
     "New York","Los Angeles","Chicago","Dallas","Atlanta","Miami","Houston","Phoenix","Boston","Seattle",
@@ -68,11 +58,19 @@ export function CandidatesList(){
   const [cands, setCands] = useState([]);
   useEffect(()=>{ axios.get(`${API}/candidates`).then(r=>setCands(r.data.candidates||[])); },[]);
   const demoNames = [
-    "Ahmed Al‑Mutairi","Fatimah Al‑Harbi","Yousef Al‑Qahtani","Mona Al‑Otaibi","Omar Al‑Shammari","Layla Al‑Rashid","Hassan Al‑Zahrani","Sara Al‑Ghamdi","Khalid Al‑Anazi","Noura Al‑Saud",
+    // Arabic / Middle Eastern
+    "Ahmed Al‑Mutairi","Fatima Al‑Harbi","Yousef Al‑Qahtani","Mona Al‑Otaibi","Omar Al‑Shammari","Layla Al‑Rashid","Hassan Al‑Zahrani","Sara Al‑Ghamdi","Khalid Al‑Anazi","Noura Al‑Saud",
+    "Aisha Rahman","Omar Haddad","Layla Nasser","Yusuf Qureshi","Zainab Fadel","Tariq Nasser","Rana Karim","Ali Hassan","Amal Samir","Rami Jaber",
+    "Huda Taleb","Sami Barakat","Nadia Azmi","Faisal Haddad","Mariam Kamel","Khaled Farouk","Omar Shammari","Reem Saleh","Basem Khoury","Dalia Mansour",
+    // Spanish / Latin
     "Juan Pérez","María García","Luis Hernández","Lucía Martínez","Carlos Sánchez","Sofía López","Diego Gómez","Camila Díaz","Miguel Torres","Elena Ruiz",
+    "Ricardo Morales","Isabella Castillo","Andrés Navarro","Valentina Rojas","Pedro Romero","Paula Vega","Javier Ortega","Hugo Cabrera","Carmen Soto","Gabriela Morales",
+    "Fernando Álvarez","Lucía Herrera","Marcos Medina","Daniela Pineda","Santiago Rivera","Ximena Castillo","José Luis Morales","Adriana Delgado","Pablo Castillo","Rosa Álvarez",
+    "Manuel Ortiz","Teresa Molina","Eduardo Santos","Alejandra Cruz","Roberto Navarro","Carolina Mendoza","Vicente Campos","Miguel Santos","Mateo López","Alejandra Ruiz",
+    // English / American
     "John Miller","Emily Johnson","Michael Smith","Olivia Brown","David Wilson","Ava Davis","Daniel Anderson","Sophia Thomas","James Taylor","Emma Moore",
-    "Ricardo Morales","Isabella Castillo","Andrés Navarro","Valentina Rojas","Pedro Romero","Ana Fernández","Javier Ortega","Paula Vega","Hugo Cabrera","Carmen Soto",
-    "Ali Hassan","Rana Karim","Tariq Nasser","Zainab Fadel","Faisal Haddad","Amal Samir","Rami Jaber","Huda Taleb","Sami Barakat","Nadia Azmi"
+    "William Clark","Charlotte Martin","Benjamin Lee","Amelia Walker","Henry Hall","Mia Allen","Alexander Young","Harper King","Ethan Wright","Abigail Scott",
+    "Noah Green","Ella Baker","Lucas Nelson","Grace Adams","Jacob Hill","Lily Campbell","Logan Mitchell","Chloe Turner","Mason Parker","Aria Rogers"
   ];
   const statuses = ["contacted","replied","qualified","scheduled"];
   const fallbackCands = Array.from({ length: 50 }).map((_, i) => ({
