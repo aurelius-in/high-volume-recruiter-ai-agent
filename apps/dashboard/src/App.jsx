@@ -98,7 +98,10 @@ export default function App() {
     }}>
       <AuthGate>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" gutterBottom>{t("title")}</Typography>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 28 }} />
+          <Typography variant="h6" sx={{ letterSpacing: 1.2 }}>HIRE FALCON</Typography>
+        </div>
         <div>
           {health && (
             <Chip size="small" label={t("systemOk")} sx={{ mr: 1, bgcolor: 'rgba(46,125,50,0.3)', color: '#e8f5e9', border: '1px solid rgba(46,125,50,0.6)' }} />

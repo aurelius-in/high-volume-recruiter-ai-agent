@@ -74,7 +74,10 @@ export default function App() {
   return (
     <Container sx={{ py: 4, bgcolor: dark ? '#111' : undefined, color: dark ? '#eee' : undefined }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" gutterBottom>Recruiter Agent</Typography>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <img src="/hirefalcon.png" alt="HIRE FALCON" style={{ height: 28 }} />
+          <Typography variant="h6" sx={{ letterSpacing: 1.2 }}>HIRE FALCON</Typography>
+        </div>
         <div>
           {health && (
             <Chip size="small" label={'System OK'} color={'success'} sx={{ mr: 1 }} />
