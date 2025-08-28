@@ -7,23 +7,39 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 export function JobsList(){
   const [jobs, setJobs] = useState([]);
   useEffect(()=>{ axios.get(`${API}/jobs`).then(r=>setJobs(r.data.jobs||[])); },[]);
-  // Fallback demo: 50 varied roles across English/Arabic/Spanish
+  // Fallback demo: 50 clear, easy-to-explain roles/cities/shifts
   const titles = [
-    "Retail Associate","Cashier","Warehouse Picker","Customer Support","Line Cook","Barista","Delivery Driver","Security Guard","Janitor","Stock Clerk",
-    "Asistente de Ventas","Cajero","Mozo de Almacén","Atención al Cliente","Cocinero","Barista","Repartidor","Guardia de Seguridad","Conserje","Repositor",
-    "مندوب مبيعات","أمين صندوق","ملتقط مستودع","دعم العملاء","طباخ","باريستا","سائق توصيل","حارس أمن","عامل نظافة","موظف مخزن",
-    "Sales Associate","Call Center Agent","Data Entry Clerk","Receptionist","Host","Dishwasher","Prep Cook","Forklift Operator","Sorter","Greeter",
-    "Asistente de Cocina","Operario de Montacargas","Clasificador","Recepcionista","Vigilante","Ayudante de Limpieza","Operador","Mozo","Empaquetador","Telefonista"
+    "Store Associate","Warehouse Associate","Customer Service Rep","Barista","Delivery Driver","Security Officer","Cleaner","Stock Clerk","Kitchen Assistant","Cashier",
+    "Front Desk Agent","Server","Host","Dishwasher","Prep Cook","Call Center Agent","Data Entry Clerk","Receptionist","Forklift Operator","Sorter",
+    "Grocery Associate","Picker/Packer","Shift Lead","Greeter","Lot Attendant","Laundry Attendant","Maintenance Helper","Line Cook","Sandwich Artist","Food Runner",
+    "Merchandiser","Order Picker","Car Wash Attendant","Usher","Ticket Taker","Valet Attendant","Bellhop","Housekeeper","Room Attendant","Front of House",
+    "Back of House","Janitor","Mailroom Clerk","Onsite Support","Courier","Kitchen Porter","Barback","Bagger","Cafe Attendant","Counter Clerk"
   ];
-  const locations = ["Riyadh","Jeddah","Dammam","Dubai","Doha","Cairo","Casablanca","Madrid","Barcelona","Ciudad de México","Monterrey","Miami","Houston","London"];
-  const shifts = ["Day","Evening","Night"];
+  const locations = [
+    "New York","Los Angeles","Chicago","Dallas","Atlanta","Miami","Houston","Phoenix","Boston","Seattle",
+    "San Francisco","San Diego","Austin","Denver","Orlando","Washington DC","Philadelphia","Charlotte","Tampa","Nashville"
+  ];
+  const shifts = ["Morning","Afternoon","Evening"];
+
+  // Sanitize incoming API jobs: drop placeholders and map unfamiliar cities/shifts to friendlier labels
+  const cityMap = { Riyadh: "Dallas", Jeddah: "San Diego", Dammam: "Houston", Dubai: "Miami", Doha: "Austin", Cairo: "Chicago", Casablanca: "Boston" };
+  const shiftMap = { Night: "Evening" };
+  const isBad = (s)=> !s || String(s).length < 2;
+  const sanitized = (jobs||[])
+    .map(j=> ({
+      id: j.id || `api-${Math.random().toString(36).slice(2,8)}`,
+      title: isBad(j.title) ? undefined : j.title,
+      location: isBad(j.location) ? undefined : (cityMap[j.location] || j.location),
+      shift: isBad(j.shift) ? undefined : (shiftMap[j.shift] || j.shift)
+    }))
+    .filter(j=> j.title && j.location && j.shift);
   const fallbackJobs = Array.from({ length: 50 }).map((_, i) => ({
     id: `demo-${i}`,
     title: titles[i % titles.length],
     location: locations[i % locations.length],
     shift: shifts[i % shifts.length]
   }));
-  const display = (jobs && jobs.length) ? jobs : fallbackJobs;
+  const display = sanitized.length ? sanitized : fallbackJobs;
   return (
     <Paper sx={{ p:2, bgcolor:'#000', color:'#fff', border:'1px solid rgba(46,125,50,0.35)', height: 360 }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>Jobs</Typography>

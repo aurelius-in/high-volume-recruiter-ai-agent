@@ -57,10 +57,10 @@ export default function App() {
   const createJob = async () => {
     try {
       const res = await axios.post(`${API}/jobs`, {
-        title: "Retail Associate",
-        location: "Jeddah",
-        shift: "Night",
-        reqs: ["Arabic or English", "18+", "High school"]
+        title: "Store Associate",
+        location: "Dallas",
+        shift: "Morning",
+        reqs: ["English or Arabic OK", "18+", "High school diploma"]
       });
       setJobId(res.data.job_id);
     } catch (e) {
