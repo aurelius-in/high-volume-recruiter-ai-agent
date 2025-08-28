@@ -11,6 +11,12 @@ try:
 except Exception:
     yaml = None
 import logging
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+import sentry_sdk
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.2)
 
 MODE = os.getenv("MODE", "demo")
 ATS_BASE = os.getenv("ATS_BASE", "http://localhost:8001")
@@ -27,6 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# prometheus metrics
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests", ["method", "path"])
+REQUEST_LATENCY = Histogram("http_request_duration_seconds", "Latency", ["path"])
+
 # basic structured logging & headers
 logging.basicConfig(level=logging.INFO)
 
@@ -38,7 +48,10 @@ async def add_request_context(request: Request, call_next):
         response = await call_next(request)
         return response
     finally:
-        duration_ms = int((time.time() - start) * 1000)
+        duration_s = (time.time() - start)
+        REQUEST_COUNT.labels(request.method, request.url.path).inc()
+        REQUEST_LATENCY.labels(request.url.path).observe(duration_s)
+        duration_ms = int(duration_s * 1000)
         logging.info(json.dumps({
             "type": "request_log",
             "request_id": req_id,
@@ -55,6 +68,11 @@ async def security_headers(request: Request, call_next):
     response.headers["x-frame-options"] = "DENY"
     response.headers["referrer-policy"] = "no-referrer"
     return response
+
+@app.get("/metrics")
+def metrics():
+    data = generate_latest()
+    return app.response_class(data, media_type=CONTENT_TYPE_LATEST)
 
 # ---- simple in-memory stores for demo ----
 AUDIT = []
