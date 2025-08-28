@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: recruiter-orchestrator
+    env: python
+    rootDir: apps/orchestrator
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODE
+        value: demo
+      - key: SIGNING_SECRET
+        sync: false
+      - key: ATS_BASE
+        # After first deploy, update this to the public URL of recruiter-ats-mock
+        value: https://REPLACE_WITH_ATS_MOCK_URL
+
+  - type: web
+    name: recruiter-ats-mock
+    env: python
+    rootDir: apps/ats-mock
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+  - type: static
+    name: recruiter-dashboard
+    rootDir: apps/dashboard
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE
+        # After first deploy, update this to the public URL of recruiter-orchestrator
+        value: https://REPLACE_WITH_ORCHESTRATOR_URL
+
