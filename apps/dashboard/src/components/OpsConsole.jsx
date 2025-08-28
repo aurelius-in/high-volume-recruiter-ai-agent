@@ -8,6 +8,8 @@ export default function OpsConsole(){
   const [body, setBody] = useState("");
   const [locale, setLocale] = useState("en");
   const [candidateId, setCandidateId] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newPhone, setNewPhone] = useState("");
 
   const send = async () => {
     await fetch(`${API}/send`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to, body, locale, channel: "sms" }) });
@@ -17,6 +19,23 @@ export default function OpsConsole(){
   const force = async (action) => {
     if (!candidateId) return;
     await fetch(`${API}/ops/force`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, candidate_id: candidateId }) });
+  };
+
+  const createCandidate = async () => {
+    if (!newName || !newPhone) return;
+    await fetch(`${API}/candidates`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName, phone: newPhone, locale }) });
+    setNewName("");
+    setNewPhone("");
+  };
+
+  const resendLast = async () => {
+    const res = await fetch(`${API}/audit`);
+    const data = await res.json();
+    const last = (data.events || []).slice().reverse().find(e => e.action === 'message.sent');
+    if (last?.payload) {
+      const p = last.payload;
+      await fetch(`${API}/send`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: p.to, body: p.body, locale: p.locale || 'en', channel: p.channel || 'sms' }) });
+    }
   };
 
   return (
@@ -30,6 +49,12 @@ export default function OpsConsole(){
       <Grid item>
         <TextField label="Candidate ID" size="small" value={candidateId} onChange={e=>setCandidateId(e.target.value)} />
       </Grid>
+      <Grid item>
+        <TextField label="Name" size="small" value={newName} onChange={e=>setNewName(e.target.value)} />
+      </Grid>
+      <Grid item>
+        <TextField label="Phone" size="small" value={newPhone} onChange={e=>setNewPhone(e.target.value)} />
+      </Grid>
       <Grid item xs>
         <TextField fullWidth label="Message" size="small" value={body} onChange={e=>setBody(e.target.value)} />
       </Grid>
@@ -39,6 +64,10 @@ export default function OpsConsole(){
       <Grid item>
         <Button onClick={()=>force("schedule_propose")} sx={{ ml: 1 }}>Propose</Button>
         <Button onClick={()=>force("schedule_confirm")} sx={{ ml: 1 }}>Confirm</Button>
+      </Grid>
+      <Grid item>
+        <Button onClick={createCandidate} sx={{ ml: 1 }}>Create Candidate</Button>
+        <Button onClick={resendLast} sx={{ ml: 1 }}>Resend Last</Button>
       </Grid>
     </Grid>
   );
