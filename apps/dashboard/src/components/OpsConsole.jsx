@@ -11,6 +11,20 @@ export default function OpsConsole(){
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
 
+  const labelSx = { color: '#b0bec5' };
+  const fieldSx = {
+    '& .MuiInputBase-root': {
+      bgcolor: 'rgba(38,50,56,0.6)',
+      color: '#e0e0e0',
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'rgba(176,190,197,0.4)'
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'rgba(176,190,197,0.7)'
+    }
+  };
+
   const send = async () => {
     await fetch(`${API}/send`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to, body, locale, channel: "sms" }) });
     setBody("");
@@ -39,24 +53,24 @@ export default function OpsConsole(){
   };
 
   return (
-    <Grid container spacing={2} alignItems="center">
+    <Grid container spacing={2} alignItems="center" sx={{ color: '#b0bec5' }}>
       <Grid item>
-        <TextField label="To" size="small" value={to} onChange={e=>setTo(e.target.value)} />
+        <TextField label="To" size="small" value={to} onChange={e=>setTo(e.target.value)} InputLabelProps={{ sx: labelSx }} sx={fieldSx} />
       </Grid>
       <Grid item>
-        <TextField label="Locale" size="small" value={locale} onChange={e=>setLocale(e.target.value)} />
+        <TextField label="Locale" size="small" value={locale} onChange={e=>setLocale(e.target.value)} InputLabelProps={{ sx: labelSx }} sx={fieldSx} />
       </Grid>
       <Grid item>
-        <TextField label="Candidate ID" size="small" value={candidateId} onChange={e=>setCandidateId(e.target.value)} />
+        <TextField label="Candidate ID" size="small" value={candidateId} onChange={e=>setCandidateId(e.target.value)} InputLabelProps={{ sx: labelSx }} sx={fieldSx} />
       </Grid>
       <Grid item>
-        <TextField label="Name" size="small" value={newName} onChange={e=>setNewName(e.target.value)} />
+        <TextField label="Name" size="small" value={newName} onChange={e=>setNewName(e.target.value)} InputLabelProps={{ sx: labelSx }} sx={fieldSx} />
       </Grid>
       <Grid item>
-        <TextField label="Phone" size="small" value={newPhone} onChange={e=>setNewPhone(e.target.value)} />
+        <TextField label="Phone" size="small" value={newPhone} onChange={e=>setNewPhone(e.target.value)} InputLabelProps={{ sx: labelSx }} sx={fieldSx} />
       </Grid>
       <Grid item xs>
-        <TextField fullWidth label="Message" size="small" value={body} onChange={e=>setBody(e.target.value)} />
+        <TextField fullWidth label="Message" size="small" value={body} onChange={e=>setBody(e.target.value)} InputLabelProps={{ sx: labelSx }} sx={fieldSx} />
       </Grid>
       <Grid item>
         <Button variant="contained" onClick={send}>Send</Button>

@@ -9,7 +9,6 @@ import { useEventStream } from "./hooks/useEventStream.js";
 import AuthGate from "./components/AuthGate.jsx";
 import { JobsList, CandidatesList } from "./components/Lists.jsx";
 import ReplayModal from "./components/ReplayModal.jsx";
-import PolicyDialog from "./components/PolicyDialog.jsx";
 import { useTranslation } from "react-i18next";
 import KpiGrid from "./components/KpiGrid.jsx";
 
@@ -132,11 +131,9 @@ export default function App() {
             <Chip size="small" label={t("systemOk")} sx={{ mr: 1, bgcolor: 'rgba(46,125,50,0.3)', color: '#e8f5e9', border: '1px solid rgba(46,125,50,0.6)' }} />
           )}
           {/* Dark mode is always on; toggle removed */}
-          <Button size="small" onClick={()=>setPolicyOpen(true)} sx={{ color: '#e0e0e0' }}>{t("viewPolicy")}</Button>
           <select style={{ marginLeft: 8, background: '#000', color: '#e0e0e0', border: '1px solid rgba(46,125,50,0.4)', borderRadius: 6, padding: '4px 6px' }} value={locale} onChange={(e)=>setLocale(e.target.value)}>
-            <option value="en">EN</option>
-            <option value="es">ES</option>
-            <option value="ar">AR</option>
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
             <option value="zh">中文</option>
           </select>
         </div>
@@ -254,7 +251,6 @@ export default function App() {
 
       <TimezoneFooter />
       <ReplayModal open={replayOpen} onClose={()=>setReplayOpen(false)} events={audit} />
-      <PolicyDialog open={policyOpen} onClose={()=>setPolicyOpen(false)} />
       <Snackbar open={toast.open} autoHideDuration={2000} onClose={()=>setToast({...toast, open:false})}>
         <Alert severity={toast.severity} onClose={()=>setToast({...toast, open:false})}>{toast.message}</Alert>
       </Snackbar>

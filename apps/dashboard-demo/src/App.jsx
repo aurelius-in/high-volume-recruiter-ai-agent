@@ -107,16 +107,14 @@ export default function App() {
           {health && (
             <Chip size="small" label={'System OK'} color={'success'} sx={{ mr: 1 }} />
           )}
-          <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label="Dark" />
-          <Button size="small" onClick={()=>setPolicyOpen(true)}>View Policy</Button>
         </div>
       </div>
 
       <Paper sx={{ px: 2, pt: 1, mb: 2 }}>
         <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto">
           <Tab label="Outreach" />
-          <Tab label="Qualification & Scheduling" />
-          <Tab label="Audit & Planning" />
+          <Tab label="Scheduling" />
+          <Tab label="Audit & Plan" />
         </Tabs>
       </Paper>
 
