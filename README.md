@@ -177,3 +177,17 @@ Definition of Done
 
 ## License
 MIT. Replace organization identifiers before sharing externally.
+
+## One-command Demo (CLI)
+With the orchestrator running on http://localhost:8000:
+```bash
+python scripts/demo_walkthrough.py
+```
+This will: create a job, seed outreach, run the flow, print KPI tiles, and verify the audit hash chain.
+
+## Record a Quick GIF (for stakeholders)
+- Start dashboard (http://localhost:5173), open in a clean browser window
+- Click: Create Job → Simulate Outreach → Run Flow
+- Hover an audit row to show the hash, open Replay, then the Policy dialog
+- Run the Hiring Simulator at 500/day and point to hires/week
+- Keep the clip under 45 seconds
