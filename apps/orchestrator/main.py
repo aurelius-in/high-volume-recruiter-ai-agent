@@ -409,15 +409,18 @@ def kpi() -> dict:
     consented = sum(1 for c in CANDIDATES.values() if c.get("consent"))
     qualified = sum(1 for c in CANDIDATES.values() if c["status"] == "qualified")
     scheduled = sum(1 for e in AUDIT if e["action"] == "ats.write")
+    ats_errors = sum(1 for e in AUDIT if e["action"] == "ats.error")
     show_rate = 0.72  # demo constant
     cpp = max(1, scheduled) * 3.5  # demo calc
+    ats_success = 0.0 if (scheduled + ats_errors) == 0 else (scheduled / (scheduled + ats_errors)) * 100.0
     return {
         "time_to_first_touch": "45s",
         "reply_rate": f"{(consented/max(1,contacted))*100:.0f}%",
         "qualified_rate": f"{(qualified/max(1,consented))*100:.0f}%",
         "show_rate": f"{show_rate*100:.0f}%",
         "cost_per_qualified": f"${cpp:.0f}",
-        "active_jobs": len(JOBS)
+        "active_jobs": len(JOBS),
+        "ats_success_rate": f"{ats_success:.0f}%"
     }
 
 @app.get("/funnel")

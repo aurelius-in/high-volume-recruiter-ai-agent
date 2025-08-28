@@ -8,6 +8,7 @@ import { useEventStream } from "./hooks/useEventStream.js";
 import ReplayModal from "./components/ReplayModal.jsx";
 import PolicyDialog from "./components/PolicyDialog.jsx";
 import Simulator from "./Simulator.jsx";
+import KpiOrbit from "./components/KpiOrbit.jsx";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
@@ -96,18 +97,9 @@ export default function App() {
           <Grid container spacing={2}>
             <Grid item xs={12} md={8}>
               <Paper sx={{ p: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>KPI Tiles</Typography>
+                <Typography variant="subtitle1" gutterBottom>Key metrics</Typography>
                 {kpi ? (
-                  <Grid container spacing={2}>
-                    {Object.entries(kpi).map(([k, v]) => (
-                      <Grid item key={k}>
-                        <Paper sx={{ p: 2, minWidth: 160 }}>
-                          <Typography variant="caption">{k.replaceAll("_", " ")}</Typography>
-                          <Typography variant="h6">{v}</Typography>
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
+                  <KpiOrbit data={kpi} />
                 ) : (
                   <Grid container spacing={2}>
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -122,7 +114,7 @@ export default function App() {
                 )}
               </Paper>
             </Grid>
-        
+            
             <Grid item xs={12} md={4}>
               <Paper sx={{ p: 2 }}>
                 <Typography variant="subtitle1" gutterBottom>Controls</Typography>
@@ -159,7 +151,6 @@ export default function App() {
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 2 }}>
                 <Typography variant="subtitle1" gutterBottom>Jobs</Typography>
-                {/* Consumers can embed the demo lists if needed */}
               </Paper>
             </Grid>
             <Grid item xs={12} md={6}>
