@@ -2,6 +2,7 @@ html, body, #root {
   height: 100%;
   background-color: #0b0d0b; /* full-bleed dark background */
   color: #e0e0e0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
