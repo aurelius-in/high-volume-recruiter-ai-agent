@@ -209,3 +209,20 @@ Steps:
    - Copy the public URL of `recruiter-ats-mock` into the `ATS_BASE` env var of `recruiter-orchestrator`.
    - Copy the public URL of `recruiter-orchestrator` into `VITE_API_BASE` env var of `recruiter-dashboard` and redeploy dashboard.
 3) Visit the dashboard app URL and run the same 90-second demo flow.
+
+## Staging Deploy Checklist
+- Environment
+  - MODE=real (optional) • SIGNING_SECRET set • VITE_REQUIRE_AUTH=true (main UI)
+  - VITE_API_BASE points to orchestrator • ATS_BASE/ATS_CONNECTOR_BASE set
+  - CHANNEL_CONNECTOR_BASE set if using an outbound provider
+  - DATABASE_URL set to Postgres (optional)
+  - SENTRY_DSN and VITE_SENTRY_DSN set (optional)
+  - Auth0 (optional): VITE_AUTH0_DOMAIN, VITE_AUTH0_CLIENT_ID, VITE_AUTH0_AUDIENCE
+- Orchestrator
+  - /health returns ok:true • /ready returns ready:true
+  - /metrics scraped (Prometheus) • Logs visible (Sentry if configured)
+- Dashboard
+  - Auth works if enabled • Locale toggle (EN/AR) visible
+  - KPI tiles and audit update live (SSE)
+- Demo warm-up
+  - Run scripts/demo_walkthrough.py once • Verify ATS mock receives applications
