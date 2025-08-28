@@ -143,24 +143,28 @@ export default function App() {
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>Audit Trail (latest 250)</Typography>
             <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular" }}>
-              {audit.slice().reverse().map(e => {
-                const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
-                return (
-                <div key={e.id} title={e.hash || ""}>
-                  <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> {icon} :: <code>{e.action}</code>
-                  {e.payload?.locale === 'ar' && (
-                    <span style={{ marginLeft: 8, padding: '2px 6px', background: '#eee', borderRadius: 4, fontSize: 12 }}>AR</span>
-                  )}
-                  {typeof e.payload?.cost_usd === 'number' && (
-                    <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
-                  )}
-                  {e.payload?.compliance && (
-                    <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? 'green' : 'crimson' }}>
-                      policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
-                    </span>
-                  )}
-                </div>
-              )})}
+              {audit.length === 0 ? (
+                <Typography variant="body2" sx={{ color: '#777' }}>No audit events yet. Run Simulate Outreach and Flow to populate.</Typography>
+              ) : (
+                audit.slice().reverse().map(e => {
+                  const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
+                  return (
+                  <div key={e.id} title={e.hash || ""}>
+                    <b>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i>{e.actor}</i> {icon} :: <code>{e.action}</code>
+                    {e.payload?.locale === 'ar' && (
+                      <span style={{ marginLeft: 8, padding: '2px 6px', background: '#eee', borderRadius: 4, fontSize: 12 }}>AR</span>
+                    )}
+                    {typeof e.payload?.cost_usd === 'number' && (
+                      <span style={{ marginLeft: 8, color: '#555' }}>${e.payload.cost_usd.toFixed(3)}</span>
+                    )}
+                    {e.payload?.compliance && (
+                      <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? 'green' : 'crimson' }}>
+                        policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
+                      </span>
+                    )}
+                  </div>
+                )})
+              )}
             </div>
             <Button size="small" sx={{ mt: 1 }} onClick={()=>setReplayOpen(true)}>Replay</Button>
           </Paper>
