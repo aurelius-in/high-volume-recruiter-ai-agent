@@ -45,23 +45,28 @@ export default function App() {
   });
 
   const createJob = async () => {
-    const res = await axios.post(`${API}/jobs`, {
-      title: "Retail Associate",
-      location: "Jeddah",
-      shift: "Night",
-      reqs: ["Arabic or English", "18+", "High school"]
-    });
-    setJobId(res.data.job_id);
+    try {
+      const res = await axios.post(`${API}/jobs`, {
+        title: "Retail Associate",
+        location: "Jeddah",
+        shift: "Night",
+        reqs: ["Arabic or English", "18+", "High school"]
+      });
+      setJobId(res.data.job_id);
+    } catch (e) {
+      // demo UI: simple alert fallback
+      alert("Failed to create job");
+    }
   };
 
   const seedOutreach = async () => {
     if (!jobId) return;
-    await axios.post(`${API}/simulate/outreach?job_id=${jobId}`);
+    try { await axios.post(`${API}/simulate/outreach?job_id=${jobId}`); } catch (e) { alert("Outreach failed"); }
   };
 
   const runFlow = async () => {
     if (!jobId) return;
-    await axios.post(`${API}/simulate/flow?job_id=${jobId}`);
+    try { await axios.post(`${API}/simulate/flow?job_id=${jobId}`); } catch (e) { alert("Flow failed"); }
     await refresh();
   };
 

@@ -48,26 +48,38 @@ export default function App() {
   });
 
   const createJob = async () => {
-    const res = await axios.post(`${API}/jobs`, {
-      title: "Retail Associate",
-      location: "Jeddah",
-      shift: "Night",
-      reqs: ["Arabic or English", "18+", "High school"]
-    });
-    setJobId(res.data.job_id);
+    try {
+      const res = await axios.post(`${API}/jobs`, {
+        title: "Retail Associate",
+        location: "Jeddah",
+        shift: "Night",
+        reqs: ["Arabic or English", "18+", "High school"]
+      });
+      setJobId(res.data.job_id);
+    } catch (e) {
+      setToast({ open: true, message: "Failed to create job", severity: "error" });
+    }
   };
 
   const seedOutreach = async () => {
     if (!jobId) return;
-    await axios.post(`${API}/simulate/outreach?job_id=${jobId}`);
-    setToast({ open: true, message: "Outreach seeded", severity: "success" });
+    try {
+      await axios.post(`${API}/simulate/outreach?job_id=${jobId}`);
+      setToast({ open: true, message: "Outreach seeded", severity: "success" });
+    } catch (e) {
+      setToast({ open: true, message: "Outreach failed", severity: "error" });
+    }
   };
 
   const runFlow = async () => {
     if (!jobId) return;
-    await axios.post(`${API}/simulate/flow?job_id=${jobId}`);
-    await refresh();
-    setToast({ open: true, message: "Flow executed", severity: "success" });
+    try {
+      await axios.post(`${API}/simulate/flow?job_id=${jobId}`);
+      await refresh();
+      setToast({ open: true, message: "Flow executed", severity: "success" });
+    } catch (e) {
+      setToast({ open: true, message: "Flow failed", severity: "error" });
+    }
   };
 
   return (
