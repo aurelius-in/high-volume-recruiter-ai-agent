@@ -23,7 +23,7 @@ export default function App() {
   const [funnel, setFunnel] = useState(null);
   const [replayOpen, setReplayOpen] = useState(false);
   const [policyOpen, setPolicyOpen] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   const [health, setHealth] = useState(null);
   const [locale, setLocale] = useState(import.meta.env.VITE_LOCALE || "en");
@@ -89,8 +89,9 @@ export default function App() {
   };
 
   return (
-    <Container sx={{
+    <Container disableGutters maxWidth={false} sx={{
       py: 4,
+      minHeight: '100vh',
       bgcolor: '#0b0d0b',
       color: '#e0e0e0',
       backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(13,71,20,0.25), transparent 300px), radial-gradient(circle at 80% 30%, rgba(183,28,28,0.15), transparent 260px)'
@@ -102,7 +103,7 @@ export default function App() {
           {health && (
             <Chip size="small" label={t("systemOk")} sx={{ mr: 1, bgcolor: 'rgba(46,125,50,0.3)', color: '#e8f5e9', border: '1px solid rgba(46,125,50,0.6)' }} />
           )}
-          <FormControlLabel control={<Switch checked={dark} onChange={e=>setDark(e.target.checked)} />} label={t("dark")} />
+          {/* Dark mode is always on; toggle removed */}
           <Button size="small" onClick={()=>setPolicyOpen(true)} sx={{ color: '#e0e0e0' }}>{t("viewPolicy")}</Button>
           <select style={{ marginLeft: 8, background: '#000', color: '#e0e0e0', border: '1px solid rgba(46,125,50,0.4)', borderRadius: 6, padding: '4px 6px' }} value={locale} onChange={(e)=>setLocale(e.target.value)}>
             <option value="en">EN</option>
@@ -114,10 +115,29 @@ export default function App() {
       </div>
 
       <Paper sx={{ px: 2, pt: 1, mb: 2, bgcolor: 'rgba(0,0,0,0.6)', border: '1px solid rgba(46,125,50,0.4)' }}>
-        <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto">
-          <Tab label={t("outreachTab")} sx={{ color: '#e0e0e0' }} />
-          <Tab label={t("qualificationTab")} sx={{ color: '#e0e0e0' }} />
-          <Tab label={t("auditTab")} sx={{ color: '#e0e0e0' }} />
+        <Tabs value={tab} onChange={(_,v)=>setTab(v)} aria-label="workflow tabs" variant="scrollable" scrollButtons="auto"
+          TabIndicatorProps={{ sx: { height: 4, backgroundColor: 'rgba(46,125,50,0.9)', boxShadow: '0 0 12px rgba(46,125,50,0.8)' } }}>
+          <Tab label={t("outreachTab")} sx={{ color: '#e0e0e0',
+            mx: 1,
+            borderRadius: 2,
+            border: '1px solid rgba(46,125,50,0.5)',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 16px rgba(0,0,0,0.35)'
+          }} />
+          <Tab label={t("qualificationTab")} sx={{ color: '#e0e0e0',
+            mx: 1,
+            borderRadius: 2,
+            border: '1px solid rgba(183,28,28,0.5)',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(183,28,28,0.4))',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 16px rgba(0,0,0,0.35)'
+          }} />
+          <Tab label={t("auditTab")} sx={{ color: '#e0e0e0',
+            mx: 1,
+            borderRadius: 2,
+            border: '1px solid rgba(46,125,50,0.5)',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(13,71,20,0.5))',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 16px rgba(0,0,0,0.35)'
+          }} />
         </Tabs>
       </Paper>
 

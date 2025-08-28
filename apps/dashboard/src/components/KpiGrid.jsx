@@ -6,7 +6,23 @@ export default function KpiGrid({ data }){
   // Normalize to exactly 6 entries (pad if fewer)
   const desiredOrder = ['reply_rate','qualified_rate','show_rate','ats_success_rate','cost_per_qualified','active_candidates'];
   const map = new Map(entries);
-  const six = desiredOrder.map(k => [k, map.get(k) ?? '-']);
+  const six = desiredOrder.map(k => {
+    let v = map.get(k);
+    if (v === undefined || v === null || v === '') {
+      // sensible defaults by type
+      if (k.includes('rate')) v = '0%';
+      else if (k.includes('cost')) v = '$0';
+      else v = '0';
+    }
+    return [k, v];
+  });
+
+  const labelFor = (key) => {
+    if (key === 'ats_success_rate') return 'ATS Success Rate';
+    if (key === 'active_candidates') return 'Active Candidates';
+    if (key === 'cost_per_qualified') return 'Cost Per Qualified';
+    return key.replaceAll('_',' ').replace(/\b\w/g, (m) => m.toUpperCase());
+  };
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
@@ -24,7 +40,7 @@ export default function KpiGrid({ data }){
             color: '#e8f5e9',
             marginBottom: 6,
             textTransform: 'capitalize'
-          }}>{key.replaceAll('_',' ')}</div>
+          }}>{labelFor(key)}</div>
           <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: 0.3, color: '#66bb6a' }}>{String(value)}</div>
         </div>
       ))}
