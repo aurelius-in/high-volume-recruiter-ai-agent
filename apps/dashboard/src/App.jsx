@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Grid, Paper, Typography, Button, TextField, Snackbar, Alert, Switch, FormControlLabel, Skeleton, Chip, Tabs, Tab, Box } from "@mui/material";
 import Simulator from "./Simulator.jsx";
+import AskChat from "./components/AskChat.jsx";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
@@ -262,7 +263,7 @@ export default function App() {
       {tab === 2 && (
         <Box>
           <Grid container spacing={1.25}>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <Paper sx={{ p: 2, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ color:'#fff' }}>{t("auditTrail")}</Typography>
                 <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular", color:'#e0e0e0' }}>
@@ -290,6 +291,12 @@ export default function App() {
                   )}
                 </div>
                 <Button size="small" sx={{ mt: 1, color: '#e0e0e0' }} onClick={()=>setReplayOpen(true)}>Replay</Button>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
+                <Typography variant="subtitle1" gutterBottom sx={{ color:'#fff' }}>Ask Anything</Typography>
+                <AskChat />
               </Paper>
             </Grid>
           </Grid>
