@@ -113,7 +113,8 @@ export default function App() {
                 fontWeight: 700,
                 border: tab===0?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
                 background: tab===0?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(46,125,50,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
-                textDecoration: 'none'
+                textDecoration: 'none',
+                '&.Mui-selected': { color: '#ffeb3b !important' }
               }} />
               <Tab label={t("qualificationTab")} sx={{ color: tab===1?'#ffeb3b':'#cfd8dc',
                 mx: 0.5,
@@ -124,7 +125,8 @@ export default function App() {
                 fontWeight: 700,
                 border: tab===1?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
                 background: tab===1?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(46,125,50,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
-                textDecoration: 'none'
+                textDecoration: 'none',
+                '&.Mui-selected': { color: '#ffeb3b !important' }
               }} />
               <Tab label={t("auditTab")} sx={{ color: tab===2?'#ffeb3b':'#cfd8dc',
                 mx: 0.5,
@@ -135,7 +137,8 @@ export default function App() {
                 fontWeight: 700,
                 border: tab===2?'1px solid rgba(46,125,50,0.7)':'1px solid rgba(46,125,50,0.3)',
                 background: tab===2?'linear-gradient(180deg, rgba(0,0,0,0.7), rgba(46,125,50,0.5))':'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(38,50,56,0.4))',
-                textDecoration: 'none'
+                textDecoration: 'none',
+                '&.Mui-selected': { color: '#ffeb3b !important' }
               }} />
             </Tabs>
           </div>
