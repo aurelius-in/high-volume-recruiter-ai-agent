@@ -40,6 +40,8 @@ Copy `.env.example` to `.env` and set values. Empty values keep you in demo mode
 MODE=demo
 VITE_API_BASE=http://localhost:8000
 ATS_BASE=http://localhost:8001
+ATS_CONNECTOR_BASE=
+CHANNEL_CONNECTOR_BASE=
 SIGNING_SECRET=dev-signing-secret
 
 # Optional real adapters
