@@ -16,6 +16,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 import sentry_sdk
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+import aiohttp
 
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 if SENTRY_DSN:
@@ -139,6 +140,13 @@ _CAP_CACHE: Optional[dict] = None
 _CAP_CACHE_TS: float = 0.0
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
+
+# LLM provider config (optional real mode)
+PROVIDER = os.getenv("PROVIDER")  # 'openai' | 'azure_openai' | 'anthropic'
+MODEL = os.getenv("MODEL", "gpt-4o-mini")
+PROVIDER_API_KEY = os.getenv("PROVIDER_API_KEY")
+CHAT_MAX_TOKENS = int(os.getenv("CHAT_MAX_TOKENS", "512"))
+CHAT_TIMEOUT_S = int(os.getenv("CHAT_TIMEOUT_S", "25"))
 
 # load policy.yaml if present
 def _load_policy() -> None:
@@ -679,5 +687,105 @@ def analytics_top_matches() -> dict:
     items = seed[:30]
     items.sort(key=lambda x: (x["currency"].endswith("/hr"), x["pay"]), reverse=True)
     return {"items": items}
+
+
+# ---- Chat (SSE) ----
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+    session_id: str | None = None
+    include_context: bool = True
+
+def _redact(text: str) -> str:
+    # minimal demo redaction: mask phone-like numbers
+    try:
+        import re
+        return re.sub(r"\+?\d[\d\s\-]{6,}\d", "+••• ••• ••XX", text)
+    except Exception:
+        return text
+
+async def _llm_stream(messages: List[dict]):
+    # Demo: if no provider configured, stream a local heuristic answer
+    if not PROVIDER or not PROVIDER_API_KEY:
+        # simple echo with light reasoning
+        yield {"event": "token", "data": "This is a local demo answer. "}
+        yield {"event": "token", "data": "Ask is currently handled on the frontend, "}
+        yield {"event": "token", "data": "but the backend stream is now ready to plug into a provider."}
+        yield {"event": "done", "data": ""}
+        return
+    # Example OpenAI Chat Completions (stream) using aiohttp
+    try:
+        if PROVIDER == "openai":
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {"Authorization": f"Bearer {PROVIDER_API_KEY}", "Content-Type": "application/json"}
+            body = {
+                "model": MODEL,
+                "max_tokens": CHAT_MAX_TOKENS,
+                "stream": True,
+                "messages": messages,
+            }
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=CHAT_TIMEOUT_S)) as sess:
+                async with sess.post(url, headers=headers, json=body) as resp:
+                    resp.raise_for_status()
+                    async for line in resp.content:
+                        if not line:
+                            continue
+                        chunk = line.decode("utf-8", errors="ignore").strip()
+                        if not chunk.startswith("data:"):
+                            continue
+                        data = chunk[len("data:"):].strip()
+                        if data == "[DONE]":
+                            yield {"event": "done", "data": ""}
+                            break
+                        try:
+                            j = json.loads(data)
+                            delta = j.get("choices", [{}])[0].get("delta", {}).get("content")
+                            if delta:
+                                yield {"event": "token", "data": delta}
+                        except Exception:
+                            continue
+        else:
+            # Other providers not implemented in demo
+            yield {"event": "token", "data": f"Provider {PROVIDER} not implemented in demo."}
+            yield {"event": "done", "data": ""}
+    except Exception as e:
+        yield {"event": "error", "data": str(e)}
+
+@app.post("/chat/stream")
+async def chat_stream(req: ChatRequest):
+    # Build system prompt with optional context
+    system = "You are a helpful recruiter assistant. Be concise and accurate."
+    if req.include_context:
+        # summarize current runtime context (bounded for demo)
+        jobs_sample = list(JOBS.items())[:5]
+        cands_sample = list(CANDIDATES.items())[:5]
+        ctx = {
+            "jobs": [{"id": jid, **j} for jid, j in jobs_sample],
+            "candidates": [{"id": cid, **c} for cid, c in cands_sample],
+            "kpi": kpi(),
+        }
+        system += "\nContext:" + json.dumps(ctx)[:2000]
+
+    messages = [{"role": "system", "content": system}] + [
+        {"role": m.role, "content": _redact(m.content)} for m in req.messages
+    ]
+
+    audit("agent", "chat.request", {"session_id": req.session_id, "messages": [m.dict() for m in req.messages]})
+
+    async def event_gen():
+        async for ev in _llm_stream(messages):
+            if ev["event"] == "token":
+                yield {"event": "chat", "data": ev["data"]}
+            elif ev["event"] == "error":
+                yield {"event": "error", "data": ev["data"]}
+            elif ev["event"] == "done":
+                yield {"event": "done", "data": ""}
+                break
+        audit("agent", "chat.response", {"session_id": req.session_id})
+
+    return EventSourceResponse(event_gen())
 
 
