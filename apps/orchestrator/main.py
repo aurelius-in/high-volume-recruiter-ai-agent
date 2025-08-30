@@ -607,3 +607,77 @@ def ops_force(body: ForceOp) -> dict:
     return {"ok": True}
 
 
+# --- Analytics (demo) ---
+@app.get("/analytics/top-recruiters")
+def analytics_top_recruiters() -> dict:
+    # Deterministic demo dataset of 30 recruiter stats
+    names = [
+        # Saudi
+        "Abdullah Al‑Harbi","Fatima Al‑Harbi","Yousef Al‑Qahtani","Mona Al‑Otaibi","Khalid Al‑Anazi","Sara Al‑Ghamdi",
+        # English
+        "Emily Johnson","Michael Smith","David Wilson","Olivia Brown","James Taylor","Emma Moore",
+        # Spanish
+        "Juan Pérez","María García","Luis Hernández","Lucía Martínez","Carlos Sánchez","Sofía López",
+        # Chinese
+        "Li Wei","Wang Fang","Zhang Wei","Chen Jie","Liu Yang","Huang Lei",
+        # More
+        "Benjamin Lee","Charlotte Martin","Henry Hall","Amelia Walker","Alexander Young","Harper King",
+    ]
+    items = []
+    base_hires = 150
+    for i in range(30):
+        items.append({
+            "id": f"r-{i}",
+            "name": names[i % len(names)],
+            "hires": max(7, base_hires - i * 3),
+            "offer_rate": 65 + (i % 20),
+            "time_to_fill_days": 7 + (i % 10),
+            "open_reqs": 5 + (i % 12)
+        })
+    # Sort by hires desc
+    items.sort(key=lambda x: x["hires"], reverse=True)
+    return {"items": items}
+
+
+@app.get("/analytics/top-matches")
+def analytics_top_matches() -> dict:
+    # Demo dataset of 30 matches (software/AI first), sorted by pay
+    seed = [
+        {"title": "Director of AI Platform", "pay": 290000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "Director of Engineering", "pay": 275000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Principal Engineer", "pay": 245000, "currency": "USD", "loc": "Seattle, WA", "tag": "Software"},
+        {"title": "Staff Software Engineer", "pay": 225000, "currency": "USD", "loc": "Austin, TX", "tag": "Software"},
+        {"title": "AI Research Engineer", "pay": 210000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "Machine Learning Engineer", "pay": 195000, "currency": "USD", "loc": "San Francisco, CA", "tag": "Software"},
+        {"title": "MLOps Engineer", "pay": 185000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "Backend Engineer (Python/FastAPI)", "pay": 175000, "currency": "USD", "loc": "New York, NY", "tag": "Software"},
+        {"title": "Frontend Engineer (React)", "pay": 165000, "currency": "USD", "loc": "Los Angeles, CA", "tag": "Software"},
+        {"title": "Full‑Stack Engineer", "pay": 160000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Data Engineer", "pay": 155000, "currency": "USD", "loc": "Boston, MA", "tag": "Software"},
+        {"title": "DevOps Engineer", "pay": 150000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "AI Product Manager", "pay": 185000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Product Manager (AI)", "pay": 175000, "currency": "USD", "loc": "Chicago, IL", "tag": "Software"},
+        {"title": "Sales Associate", "pay": 26, "currency": "USD/hr", "loc": "Dallas, TX", "tag": "Sales"},
+        {"title": "Customer Support Specialist", "pay": 24, "currency": "USD/hr", "loc": "Remote", "tag": "Customer Service"},
+        {"title": "Warehouse Picker", "pay": 22, "currency": "USD/hr", "loc": "Memphis, TN", "tag": "Warehouse"},
+        {"title": "Housekeeping Attendant", "pay": 18, "currency": "USD/hr", "loc": "Orlando, FL", "tag": "Hospitality"},
+        {"title": "Security Guard (Unarmed)", "pay": 21, "currency": "USD/hr", "loc": "Phoenix, AZ", "tag": "Security"},
+        {"title": "Assembler (Electronics)", "pay": 23, "currency": "USD/hr", "loc": "Austin, TX", "tag": "Manufacturing"},
+        {"title": "Medical Assistant", "pay": 26, "currency": "USD/hr", "loc": "Atlanta, GA", "tag": "Healthcare"},
+        {"title": "Pharmacy Technician", "pay": 25, "currency": "USD/hr", "loc": "Houston, TX", "tag": "Healthcare"},
+        {"title": "Delivery Driver (Last‑Mile)", "pay": 24, "currency": "USD/hr", "loc": "Dallas, TX", "tag": "Logistics"},
+        {"title": "Data Entry Clerk", "pay": 20, "currency": "USD/hr", "loc": "Remote", "tag": "Admin"},
+        {"title": "Receptionist", "pay": 21, "currency": "USD/hr", "loc": "London, UK", "tag": "Admin"},
+        {"title": "QA Inspector", "pay": 24, "currency": "USD/hr", "loc": "Tijuana, MX", "tag": "Manufacturing"},
+        {"title": "Forklift Operator", "pay": 23, "currency": "USD/hr", "loc": "Memphis, TN", "tag": "Warehouse"},
+        {"title": "Hotel Front Desk", "pay": 19, "currency": "USD/hr", "loc": "Dubai, UAE", "tag": "Hospitality"},
+        {"title": "Barista", "pay": 18, "currency": "USD/hr", "loc": "Seattle, WA", "tag": "Hospitality"},
+        {"title": "Software Engineer I", "pay": 130000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Software Engineer II", "pay": 150000, "currency": "USD", "loc": "Remote", "tag": "Software"}
+    ]
+    # normalize to 30 items and sort by pay (assuming numeric for USD; for /hr keep order)
+    items = seed[:30]
+    items.sort(key=lambda x: (x["currency"].endswith("/hr"), x["pay"]), reverse=True)
+    return {"items": items}
+
+
