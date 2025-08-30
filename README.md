@@ -2,6 +2,14 @@
 
 Production-minded agentic AI recruiter for high-volume hiring. It contacts candidates (SMS/WhatsApp/web), captures consent, screens with knockout rules, schedules interviews, writes to the ATS, and updates a live dashboard with KPIs and a signed, append-only audit trail. Ships with a polished UI and a fully offline demo mode.
 
+## UI Overview
+
+![Hire Falcon UI — Tab 1](hiretab1.gif)
+
+![Hire Falcon UI — Tab 2](hiretab2.gif)
+
+![Hire Falcon UI — Tab 3](hiretab3.gif)
+
 ## Quick Start
 
 ### Docker (fastest)

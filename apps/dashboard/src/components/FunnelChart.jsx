@@ -20,17 +20,22 @@ export default function FunnelChart({ data }){
     value: idx === 0 ? base : Math.round(base * Math.pow(0.6, idx))
   }));
   return (
-    <div style={{ width: "100%", height: 140 }}>
+    <div style={{ width: "100%", height: 150 }}>
       <ResponsiveContainer>
-        <BarChart data={rows} margin={{ top: 0, right: 8, left: 0, bottom: 10 }}>
+        <BarChart data={rows} margin={{ top: 0, right: 8, left: 14, bottom: 12 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-          <XAxis dataKey="name" interval={0} angle={-35} textAnchor="end" height={40} tick={{ fill: '#e0e0e0', fontSize: 9 }} tickMargin={2} axisLine={{ stroke: 'rgba(255,255,255,0.3)' }} tickLine={{ stroke: 'rgba(255,255,255,0.3)' }} />
+          <XAxis dataKey="name" interval={0} angle={-25} textAnchor="end" height={46} tick={{ fill: '#e0e0e0', fontSize: 8 }} tickMargin={4} axisLine={{ stroke: 'rgba(255,255,255,0.3)' }} tickLine={{ stroke: 'rgba(255,255,255,0.3)' }} />
           <YAxis hide />
           <Tooltip formatter={(v)=>v} labelFormatter={(label)=>label} />
           <Bar dataKey="value" radius={[4,4,0,0]}>
-            {rows.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={index === 0 ? '#2e7d32' : '#ef6c00'} />
-            ))}
+            {rows.map((entry, index) => {
+              const fill =
+                index === 0 ? '#2e7d32' :
+                (index === 1 || index === 2) ? '#fdd835' :
+                (index >= 5) ? '#e53935' :
+                '#ef6c00';
+              return <Cell key={`cell-${index}`} fill={fill} />;
+            })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

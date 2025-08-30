@@ -65,9 +65,9 @@ export default function CapacityGauge(){
           <Radial confirmed={today.confirmed} available={today.available} />
         </div>
         <div style={{ display:'flex', flexDirection:'column', gap:6, marginLeft: -8 }}>
-          <span style={{ background:'#1b5e20', color:'#e8f5e9', border:'1px solid rgba(46,125,50,0.6)', borderRadius:12, padding:'2px 8px', fontSize:12, width:'fit-content' }}>{t('capacityLabels.holds')} {today.held}</span>
-          <span style={{ background:'#0d47a1', color:'#e3f2fd', border:'1px solid rgba(100,181,246,0.5)', borderRadius:12, padding:'2px 8px', fontSize:12, width:'fit-content' }}>{t('capacityLabels.confirmed')} {today.confirmed}</span>
-          <span style={{ background:'#37474f', color:'#eceff1', border:'1px solid rgba(176,190,197,0.5)', borderRadius:12, padding:'2px 8px', fontSize:12, width:'fit-content' }}>{t('capacityLabels.noShow')} {Math.round((today.no_show_forecast||0)*100)}%</span>
+          <span style={{ background:'#1b5e20', color:'#e8f5e9', border:'1px solid rgba(46,125,50,0.6)', borderRadius:12, padding:'2px 8px', fontSize:11, width:'fit-content' }}>{t('capacityLabels.holds')} {today.held}</span>
+          <span style={{ background:'#0d47a1', color:'#e3f2fd', border:'1px solid rgba(100,181,246,0.5)', borderRadius:12, padding:'2px 8px', fontSize:11, width:'fit-content' }}>{t('capacityLabels.confirmed')} {today.confirmed}</span>
+          <span style={{ background:'#37474f', color:'#eceff1', border:'1px solid rgba(176,190,197,0.5)', borderRadius:12, padding:'2px 8px', fontSize:11, width:'fit-content' }}>{t('capacityLabels.noShow')} {Math.round((today.no_show_forecast||0)*100)}%</span>
         </div>
       </div>
     </div>
