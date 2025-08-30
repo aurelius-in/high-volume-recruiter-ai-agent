@@ -1,0 +1,32 @@
+{
+  "name": "demo-stack",
+  "private": true,
+  "packageManager": "pnpm@9.6.0",
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "cross-env-shell": "^5.0.0",
+    "wait-on": "^7.2.0"
+  },
+  "scripts": {
+    "bootstrap:py": "node scripts/bootstrap-py.mjs",
+    "bootstrap:js": "node scripts/bootstrap-js.mjs",
+    "bootstrap": "pnpm bootstrap:py && pnpm bootstrap:js",
+
+    "start:orchestrator:win": "cross-env-shell \"apps\\orchestrator\\.venv\\Scripts\\python -m uvicorn apps.orchestrator.main:app --host 0.0.0.0 --port 8000\"",
+    "start:orchestrator:posix": "cross-env-shell \"apps/orchestrator/.venv/bin/python -m uvicorn apps.orchestrator.main:app --host 0.0.0.0 --port 8000\"",
+    "start:orchestrator": "node -e \"process.exit(process.platform==='win32'?0:1)\" && pnpm start:orchestrator:win || pnpm start:orchestrator:posix",
+
+    "start:ats:win": "cross-env-shell \"apps\\orchestrator\\.venv\\Scripts\\python -m uvicorn apps.ats-mock.main:app --host 0.0.0.0 --port 8001\"",
+    "start:ats:posix": "cross-env-shell \"apps/orchestrator/.venv/bin/python -m uvicorn apps.ats-mock.main:app --host 0.0.0.0 --port 8001\"",
+    "start:ats": "node -e \"process.exit(process.platform==='win32'?0:1)\" && pnpm start:ats:win || pnpm start:ats:posix",
+
+    "start:dashboard": "pnpm -C apps/dashboard dev --host --port 5173",
+
+    "dev": "concurrently -n orchestrator,ats,dashboard -c auto \"pnpm start:orchestrator\" \"pnpm start:ats\" \"pnpm start:dashboard\"",
+
+    "health": "wait-on -l -t 120000 http-get://localhost:8000/health http-get://localhost:5173",
+    "demo": "pnpm run health && node scripts/walkthrough.mjs"
+  }
+}
+
+
