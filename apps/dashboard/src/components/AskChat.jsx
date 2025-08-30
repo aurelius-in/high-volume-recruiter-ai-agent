@@ -126,8 +126,8 @@ export default function AskChat(){
   };
 
   return (
-    <Box sx={{ display:'flex', flexDirection:'column', height: 360, bgcolor:'#000', color:'#fff' }}>
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>{t('ask.title')}</Typography>
+    <Box sx={{ display:'flex', flexDirection:'column', height: 360, bgcolor:'#000', color:'#cfd8d3' }}>
+      <Typography variant="subtitle1" sx={{ mb: 1, color:'#cfd8d3' }}>{t('ask.title')}</Typography>
       <div ref={listRef} style={{ flex:1, overflowY:'auto', padding: '6px 8px', border:'1px solid rgba(46,125,50,0.35)', borderRadius: 6, background:'rgba(0,0,0,0.6)' }}>
         {messages.map((m, idx)=> (
           <div key={idx} style={{ marginBottom: 8, display:'flex', justifyContent: m.role==='user'?'flex-end':'flex-start' }}>

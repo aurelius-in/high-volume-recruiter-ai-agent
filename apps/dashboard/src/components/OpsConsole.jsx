@@ -58,21 +58,21 @@ export default function OpsConsole(){
       <Grid item>
         <div style={{ display:'flex', gap:8 }}>
           <Button variant="contained" sx={{
-            color: '#fff', fontWeight: 800, fontSize:'0.82rem', lineHeight:1.1, borderRadius:'10px',
+            color: '#cfd8d3', fontWeight: 800, fontSize:'0.82rem', lineHeight:1.1, borderRadius:'10px',
             border:'1px solid rgba(244,67,54,0.7)',
             background: 'linear-gradient(180deg, rgba(15,15,15,0.95) 0%, rgba(0,0,0,0.95) 60%), repeating-linear-gradient(135deg, rgba(244,67,54,0.18) 0 6px, rgba(0,0,0,0) 6px 12px)',
             boxShadow:'0 0 10px rgba(244,67,54,0.35), 0 6px 14px rgba(0,0,0,0.7), inset 0 0 10px rgba(244,67,54,0.22)',
             '&:hover':{ transform:'translateY(-1px)', boxShadow:'0 0 14px rgba(244,67,54,0.45), 0 10px 18px rgba(0,0,0,0.75), inset 0 0 12px rgba(244,67,54,0.28)'}
           }} onClick={()=> setMode('create') }>{t('ops.createCandidate')}</Button>
           <Button variant="contained" sx={{
-            color: '#fff', fontWeight: 800, fontSize:'0.82rem', lineHeight:1.1, borderRadius:'10px',
+            color: '#cfd8d3', fontWeight: 800, fontSize:'0.82rem', lineHeight:1.1, borderRadius:'10px',
             border:'1px solid rgba(244,67,54,0.7)',
             background: 'linear-gradient(180deg, rgba(15,15,15,0.95) 0%, rgba(0,0,0,0.95) 60%), repeating-linear-gradient(135deg, rgba(244,67,54,0.18) 0 6px, rgba(0,0,0,0) 6px 12px)',
             boxShadow:'0 0 10px rgba(244,67,54,0.35), 0 6px 14px rgba(0,0,0,0.7), inset 0 0 10px rgba(244,67,54,0.22)',
             '&:hover':{ transform:'translateY(-1px)', boxShadow:'0 0 14px rgba(244,67,54,0.45), 0 10px 18px rgba(0,0,0,0.75), inset 0 0 12px rgba(244,67,54,0.28)'}
           }} onClick={()=> setMode('propose') }>{t('ops.addTime')}</Button>
           <Button variant="contained" sx={{
-            color: '#fff', fontWeight: 800, fontSize:'0.82rem', lineHeight:1.1, borderRadius:'10px',
+            color: '#cfd8d3', fontWeight: 800, fontSize:'0.82rem', lineHeight:1.1, borderRadius:'10px',
             border:'1px solid rgba(244,67,54,0.7)',
             background: 'linear-gradient(180deg, rgba(15,15,15,0.95) 0%, rgba(0,0,0,0.95) 60%), repeating-linear-gradient(135deg, rgba(244,67,54,0.18) 0 6px, rgba(0,0,0,0) 6px 12px)',
             boxShadow:'0 0 10px rgba(244,67,54,0.35), 0 6px 14px rgba(0,0,0,0.7), inset 0 0 10px rgba(244,67,54,0.22)',

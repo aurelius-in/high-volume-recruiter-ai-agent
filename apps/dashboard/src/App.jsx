@@ -30,6 +30,64 @@ export default function App() {
   const [health, setHealth] = useState(null);
   const [locale, setLocale] = useState(import.meta.env.VITE_LOCALE || "en");
   const [tab, setTab] = useState(0);
+  const [jobSearch, setJobSearch] = useState("");
+  const [candSearch, setCandSearch] = useState("");
+
+  // Demo data for Audit & Ask replacements (recruiter-facing)
+  const recruiterNamePool = [
+    // Saudi
+    "Abdullah Al‑Harbi","Fatima Al‑Harbi","Yousef Al‑Qahtani","Mona Al‑Otaibi","Khalid Al‑Anazi","Sara Al‑Ghamdi",
+    // English
+    "Emily Johnson","Michael Smith","David Wilson","Olivia Brown","James Taylor","Emma Moore",
+    // Spanish
+    "Juan Pérez","María García","Luis Hernández","Lucía Martínez","Carlos Sánchez","Sofía López",
+    // Chinese
+    "Li Wei","Wang Fang","Zhang Wei","Chen Jie","Liu Yang","Huang Lei"
+  ];
+  const topRecruiters = Array.from({ length: 30 }).map((_, i) => {
+    const name = recruiterNamePool[i % recruiterNamePool.length];
+    const hires = 150 - i * 3; // descending, min will still be > 7
+    const offerRate = 65 + (i % 20); // 65..84
+    const ttf = 7 + (i % 10); // 7..16 days
+    const reqs = 5 + (i % 12);
+    return { id: `r-${i}`, name, hires, offerRate, ttf, reqs };
+  }).sort((a, b) => b.hires - a.hires);
+
+  const matchTitles = [
+    // software/AI heavy pay first
+    { title: "Director of AI Platform", pay: 290000, currency: "USD", loc: "Remote", tag: "Software" },
+    { title: "Director of Engineering", pay: 275000, currency: "USD", loc: "Hybrid", tag: "Software" },
+    { title: "Principal Engineer", pay: 245000, currency: "USD", loc: "Seattle, WA", tag: "Software" },
+    { title: "Staff Software Engineer", pay: 225000, currency: "USD", loc: "Austin, TX", tag: "Software" },
+    { title: "AI Research Engineer", pay: 210000, currency: "USD", loc: "Remote", tag: "Software" },
+    { title: "Machine Learning Engineer", pay: 195000, currency: "USD", loc: "San Francisco, CA", tag: "Software" },
+    { title: "MLOps Engineer", pay: 185000, currency: "USD", loc: "Remote", tag: "Software" },
+    { title: "Backend Engineer (Python/FastAPI)", pay: 175000, currency: "USD", loc: "New York, NY", tag: "Software" },
+    { title: "Frontend Engineer (React)", pay: 165000, currency: "USD", loc: "Los Angeles, CA", tag: "Software" },
+    { title: "Full‑Stack Engineer", pay: 160000, currency: "USD", loc: "Hybrid", tag: "Software" },
+    // general matches
+    { title: "Data Engineer", pay: 155000, currency: "USD", loc: "Boston, MA", tag: "Software" },
+    { title: "DevOps Engineer", pay: 150000, currency: "USD", loc: "Remote", tag: "Software" },
+    { title: "AI Product Manager", pay: 185000, currency: "USD", loc: "Hybrid", tag: "Software" },
+    { title: "Product Manager (AI)", pay: 175000, currency: "USD", loc: "Chicago, IL", tag: "Software" },
+    { title: "Sales Associate", pay: 26, currency: "USD/hr", loc: "Dallas, TX", tag: "Sales" },
+    { title: "Customer Support Specialist", pay: 24, currency: "USD/hr", loc: "Remote", tag: "Customer Service" },
+    { title: "Warehouse Picker", pay: 22, currency: "USD/hr", loc: "Memphis, TN", tag: "Warehouse" },
+    { title: "Housekeeping Attendant", pay: 18, currency: "USD/hr", loc: "Orlando, FL", tag: "Hospitality" },
+    { title: "Security Guard (Unarmed)", pay: 21, currency: "USD/hr", loc: "Phoenix, AZ", tag: "Security" },
+    { title: "Assembler (Electronics)", pay: 23, currency: "USD/hr", loc: "Austin, TX", tag: "Manufacturing" },
+    { title: "Medical Assistant", pay: 26, currency: "USD/hr", loc: "Atlanta, GA", tag: "Healthcare" },
+    { title: "Pharmacy Technician", pay: 25, currency: "USD/hr", loc: "Houston, TX", tag: "Healthcare" },
+    { title: "Delivery Driver (Last‑Mile)", pay: 24, currency: "USD/hr", loc: "Dallas, TX", tag: "Logistics" },
+    { title: "Data Entry Clerk", pay: 20, currency: "USD/hr", loc: "Remote", tag: "Admin" },
+    { title: "Receptionist", pay: 21, currency: "USD/hr", loc: "London, UK", tag: "Admin" },
+    { title: "QA Inspector", pay: 24, currency: "USD/hr", loc: "Tijuana, MX", tag: "Manufacturing" },
+    { title: "Forklift Operator", pay: 23, currency: "USD/hr", loc: "Memphis, TN", tag: "Warehouse" },
+    { title: "Hotel Front Desk", pay: 19, currency: "USD/hr", loc: "Dubai, UAE", tag: "Hospitality" },
+    { title: "Barista", pay: 18, currency: "USD/hr", loc: "Seattle, WA", tag: "Hospitality" },
+    { title: "Software Engineer I", pay: 130000, currency: "USD", loc: "Hybrid", tag: "Software" },
+    { title: "Software Engineer II", pay: 150000, currency: "USD", loc: "Remote", tag: "Software" }
+  ].slice(0, 30).sort((a, b) => (b.pay - a.pay));
 
   const refresh = async () => {
     const h = await axios.get(`${API}/health`);
@@ -167,21 +225,21 @@ export default function App() {
                 <Box sx={{ mb: 0.75 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
                     <Button onClick={createJob} fullWidth variant="contained" sx={{
-                      color: '#fff', fontWeight: 800, fontSize: '0.82rem', lineHeight: 1.1, py: 0.85, borderRadius: '12px',
+                      color: '#cfd8d3', fontWeight: 800, fontSize: '0.82rem', lineHeight: 1.1, py: 0.85, borderRadius: '12px',
                       border: '1px solid rgba(255,190,100,0.7)',
                       background: 'linear-gradient(180deg, rgba(15,15,15,0.95) 0%, rgba(0,0,0,0.95) 60%), repeating-linear-gradient(135deg, rgba(255,180,0,0.15) 0 6px, rgba(0,0,0,0) 6px 12px)',
                       boxShadow: '0 0 12px rgba(255,170,0,0.35), 0 6px 16px rgba(0,0,0,0.7), inset 0 0 12px rgba(255,170,0,0.22)',
                       '&:hover': { transform: 'translateY(-1px)', boxShadow: '0 0 16px rgba(255,170,0,0.45), 0 10px 20px rgba(0,0,0,0.75), inset 0 0 14px rgba(255,170,0,0.28)'}
                     }}>{t("createJob")}</Button>
                     <Button onClick={seedOutreach} fullWidth variant="contained" sx={{
-                      color: '#fff', fontWeight: 800, fontSize: '0.82rem', lineHeight: 1.1, py: 0.85, borderRadius: '12px',
+                      color: '#cfd8d3', fontWeight: 800, fontSize: '0.82rem', lineHeight: 1.1, py: 0.85, borderRadius: '12px',
                       border: '1px solid rgba(255,190,100,0.7)',
                       background: 'linear-gradient(180deg, rgba(15,15,15,0.95) 0%, rgba(0,0,0,0.95) 60%), repeating-linear-gradient(135deg, rgba(255,180,0,0.15) 0 6px, rgba(0,0,0,0) 6px 12px)',
                       boxShadow: '0 0 12px rgba(255,170,0,0.35), 0 6px 16px rgba(0,0,0,0.7), inset 0 0 12px rgba(255,170,0,0.22)',
                       '&:hover': { transform: 'translateY(-1px)', boxShadow: '0 0 16px rgba(255,170,0,0.45), 0 10px 20px rgba(0,0,0,0.75), inset 0 0 14px rgba(255,170,0,0.28)'}
                     }}>{t("simulateOutreach")}</Button>
                     <Button onClick={runFlow} fullWidth variant="contained" sx={{
-                      color: '#fff', fontWeight: 800, fontSize: '0.82rem', lineHeight: 1.1, py: 0.85, borderRadius: '12px',
+                      color: '#cfd8d3', fontWeight: 800, fontSize: '0.82rem', lineHeight: 1.1, py: 0.85, borderRadius: '12px',
                       border: '1px solid rgba(255,190,100,0.7)',
                       background: 'linear-gradient(180deg, rgba(15,15,15,0.95) 0%, rgba(0,0,0,0.95) 60%), repeating-linear-gradient(135deg, rgba(255,180,0,0.15) 0 6px, rgba(0,0,0,0) 6px 12px)',
                       boxShadow: '0 0 12px rgba(255,170,0,0.35), 0 6px 16px rgba(0,0,0,0.7), inset 0 0 12px rgba(255,170,0,0.22)',
@@ -225,7 +283,7 @@ export default function App() {
               </Paper>
             </Grid>
             <Grid item xs={12} md={3}>
-              <Paper sx={{ pt: 0, pb: 1, px: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(183,28,28,0.35)' }}>
+              <Paper sx={{ pt: 0, pb: 1, px: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(183,28,28,0.35)', width: 'calc(100% - 20px)' }}>
                 <Typography variant="subtitle1" sx={{ fontSize: 16, mb: 0.25 }}>{t("capacity") || "Capacity"}</Typography>
                 <Box sx={{ mt: 0 }}>
                   <CapacityGauge />
@@ -233,8 +291,8 @@ export default function App() {
               </Paper>
             </Grid>
             <Grid item xs={12} md={3}>
-              <Paper sx={{ pt: 0, pb: 1, px: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)' }}>
-                <Typography variant="subtitle1" sx={{ fontSize: 16, mb: 0.25 }}>{t("funnel")}</Typography>
+              <Paper sx={{ pt: 0, pb: 1, pl: 3, pr: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)', ml: '-20px', width: 'calc(100% + 20px)' }}>
+                <Typography variant="subtitle1" sx={{ fontSize: 16, mb: 0.25, color:'#cfd8d3' }}>Hire Funnel</Typography>
                 {funnel ? (
                   <FunnelChart data={funnel} />
                 ) : (
@@ -249,14 +307,25 @@ export default function App() {
       {tab === 1 && (
         <Box>
           <Grid container spacing={1.25}>
-            <Grid item xs={12} md={6}><JobsList /></Grid>
-            <Grid item xs={12} md={6}><CandidatesList /></Grid>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 1, mb: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)' }}>
+                <TextField fullWidth size="small" placeholder={"🔍  SEARCH JOBS"}
+                  value={jobSearch} onChange={(e)=>setJobSearch(e.target.value)}
+                  InputProps={{ sx:{ color:'#e0e0e0' } }}
+                />
+              </Paper>
+              <JobsList searchTerm={jobSearch} />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 1, mb: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)' }}>
+                <TextField fullWidth size="small" placeholder={"🔍  SEARCH CANDIDATES"}
+                  value={candSearch} onChange={(e)=>setCandSearch(e.target.value)}
+                  InputProps={{ sx:{ color:'#e0e0e0' } }}
+                />
+              </Paper>
+              <CandidatesList searchTerm={candSearch} />
+            </Grid>
           </Grid>
-          <Paper sx={{ p: 2, mt: 1.25, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
-            <Typography variant="subtitle1" gutterBottom sx={{ color:'#fff' }}>{t("qualificationTab")}</Typography>
-            <Typography variant="body2" sx={{ color: '#cfd8dc', mb: 1 }}>Use Ops Console to propose/confirm schedules, or send messages for consent.</Typography>
-            <OpsConsole />
-          </Paper>
         </Box>
       )}
 
@@ -264,37 +333,41 @@ export default function App() {
         <Box>
           <Grid container spacing={1.25}>
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ color:'#fff' }}>{t("auditTrail")}</Typography>
-                <div style={{ maxHeight: 300, overflow: "auto", fontFamily: "ui-monospace, SFMono-Regular", color:'#e0e0e0' }}>
-                  {audit.length === 0 ? (
-                    <Typography variant="body2" sx={{ color: '#bdbdbd' }}>{t("noActivity")}</Typography>
-                  ) : (
-                    audit.slice().reverse().map(e => {
-                      const icon = e.actor === 'agent' ? '🤖' : e.actor === 'candidate' ? '👤' : e.actor === 'system' ? '🛠️' : '🔹';
-                      return (
-                      <div key={e.id} title={e.hash || ""}>
-                        <b style={{ color:'#fff', fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, "Apple Color Emoji", "Segoe UI Emoji"' }}>{new Date(e.ts * 1000).toLocaleTimeString()}</b> — <i style={{ color:'#e0e0e0', fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, "Apple Color Emoji", "Segoe UI Emoji"', fontStyle: 'italic' }}>{e.actor}</i> {icon} :: <code style={{ color:'#cfd8dc' }}>{e.action}</code>
-                        {e.payload?.locale === 'ar' && (
-                          <span style={{ marginLeft: 8, padding: '2px 6px', background: '#263238', borderRadius: 4, fontSize: 12, color: '#e0e0e0' }}>AR</span>
-                        )}
-                        {typeof e.payload?.cost_usd === 'number' && (
-                          <span style={{ marginLeft: 8, color: '#bdbdbd' }}>${e.payload.cost_usd.toFixed(3)}</span>
-                        )}
-                        {e.payload?.compliance && (
-                          <span style={{ marginLeft: 8, color: e.payload.compliance.ok ? '#66bb6a' : '#ef5350' }}>
-                            policy:{e.payload.compliance.ok ? 'ok' : 'violation'}
-                          </span>
-                        )}
-                      </div>
-                    )})
-                  )}
-                </div>
-                <Button size="small" sx={{ mt: 1, color: '#e0e0e0' }} onClick={()=>setReplayOpen(true)}>Replay</Button>
-              </Paper>
+              <Grid container spacing={1.25}>
+                <Grid item xs={12} md={6}>
+                  <Paper sx={{ p: 2, bgcolor: '#000', color:'#e3d6c9', border: '1px solid rgba(46,125,50,0.4)' }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color:'#e3d6c9' }}>Top Recruiters</Typography>
+                    <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                      <ul style={{ margin:0, paddingLeft: 16 }}>
+                        {topRecruiters.map(r => (
+                          <li key={r.id} style={{ marginBottom: 8 }}>
+                            <div style={{ fontWeight: 700 }}>{r.name} — Hires: {r.hires}</div>
+                            <div style={{ opacity: 0.9, fontSize: 12 }}>Offers: {r.offerRate}% • Time‑to‑fill: {r.ttf}d • Open reqs: {r.reqs}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Paper sx={{ p: 2, bgcolor: '#000', color:'#a9bcb2', border: '1px solid rgba(46,125,50,0.4)' }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color:'#a9bcb2' }}>Top Matches</Typography>
+                    <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                      <ul style={{ margin:0, paddingLeft: 16 }}>
+                        {matchTitles.map((m, idx) => (
+                          <li key={`m-${idx}`} style={{ marginBottom: 8 }}>
+                            <div style={{ fontWeight: 700 }}>{m.title} — {m.currency.includes('hr') ? `$${m.pay}/${m.currency.split('/')[1]}` : `$${m.pay.toLocaleString()} ${m.currency}`}</div>
+                            <div style={{ opacity: 0.9, fontSize: 12 }}>Domain: {m.tag} • Location: {m.loc}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </Paper>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, bgcolor: '#000', color:'#fff', border: '1px solid rgba(46,125,50,0.4)' }}>
+              <Paper sx={{ p: 2, bgcolor: '#000', color:'#cfd8d3', border: '1px solid rgba(46,125,50,0.4)' }}>
                 <AskChat />
               </Paper>
             </Grid>
