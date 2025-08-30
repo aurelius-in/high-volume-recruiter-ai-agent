@@ -67,14 +67,6 @@ LEVER_API_TOKEN=
 WORKDAY_BASE_URL=
 ```
 
-## Demo Script (90 seconds)
-1) Create Job — “We just opened 200 Retail Associate roles in Jeddah night shift.”
-2) Simulate Outreach — “Agent contacts candidates; Arabic is auto-handled; we can show per-message cost in real deployments.”
-3) Run Flow — “We capture consent, ask 3–5 knockout questions, collect documents, schedule interviews, and write to the ATS.”
-4) KPIs — “Tiles show reply, qualified, show, and cost per qualified; they update live.”
-5) Audit — “Every step is governed by policy.yaml and hashed into an append-only ledger; hover for hash; click Replay.”
-6) Hiring Simulator — “Leaders can model volume and capacity and see hires/week instantly.”
-
 ## Architecture
 
 ```
