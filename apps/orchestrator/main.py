@@ -16,6 +16,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 import sentry_sdk
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+import aiohttp
 
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 if SENTRY_DSN:
@@ -139,6 +140,13 @@ _CAP_CACHE: Optional[dict] = None
 _CAP_CACHE_TS: float = 0.0
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET", "dev-signing-secret")
+
+# LLM provider config (optional real mode)
+PROVIDER = os.getenv("PROVIDER")  # 'openai' | 'azure_openai' | 'anthropic'
+MODEL = os.getenv("MODEL", "gpt-4o-mini")
+PROVIDER_API_KEY = os.getenv("PROVIDER_API_KEY")
+CHAT_MAX_TOKENS = int(os.getenv("CHAT_MAX_TOKENS", "512"))
+CHAT_TIMEOUT_S = int(os.getenv("CHAT_TIMEOUT_S", "25"))
 
 # load policy.yaml if present
 def _load_policy() -> None:
@@ -605,5 +613,197 @@ def ops_force(body: ForceOp) -> dict:
         return {"ok": True}
     audit("system", "ops.ignored", {"action": action, "candidate_id": cid})
     return {"ok": True}
+
+
+# --- Analytics (demo) ---
+@app.get("/analytics/top-recruiters")
+def analytics_top_recruiters() -> dict:
+    # Deterministic demo dataset of 30 recruiter stats; if mock file exists, load from it
+    try:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        mock_path = os.path.join(base_dir, "orchestrator", "mock", "top_recruiters.json")
+        if os.path.exists(mock_path):
+            with open(mock_path, "r", encoding="utf-8") as f:
+                j = json.load(f)
+                return {"items": j}
+    except Exception:
+        pass
+    names = [
+        # Saudi
+        "Abdullah Al‑Harbi","Fatima Al‑Harbi","Yousef Al‑Qahtani","Mona Al‑Otaibi","Khalid Al‑Anazi","Sara Al‑Ghamdi",
+        # English
+        "Emily Johnson","Michael Smith","David Wilson","Olivia Brown","James Taylor","Emma Moore",
+        # Spanish
+        "Juan Pérez","María García","Luis Hernández","Lucía Martínez","Carlos Sánchez","Sofía López",
+        # Chinese
+        "Li Wei","Wang Fang","Zhang Wei","Chen Jie","Liu Yang","Huang Lei",
+        # More
+        "Benjamin Lee","Charlotte Martin","Henry Hall","Amelia Walker","Alexander Young","Harper King",
+    ]
+    items = []
+    base_hires = 150
+    for i in range(30):
+        items.append({
+            "id": f"r-{i}",
+            "name": names[i % len(names)],
+            "hires": max(7, base_hires - i * 3),
+            "offer_rate": 65 + (i % 20),
+            "time_to_fill_days": 7 + (i % 10),
+            "open_reqs": 5 + (i % 12)
+        })
+    # Sort by hires desc
+    items.sort(key=lambda x: x["hires"], reverse=True)
+    return {"items": items}
+
+
+@app.get("/analytics/top-matches")
+def analytics_top_matches() -> dict:
+    # Demo dataset of 30 matches (software/AI first), sorted by pay; load mock file if present
+    try:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        mock_path = os.path.join(base_dir, "orchestrator", "mock", "top_matches.json")
+        if os.path.exists(mock_path):
+            with open(mock_path, "r", encoding="utf-8") as f:
+                j = json.load(f)
+                return {"items": j}
+    except Exception:
+        pass
+    seed = [
+        {"title": "Director of AI Platform", "pay": 290000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "Director of Engineering", "pay": 275000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Principal Engineer", "pay": 245000, "currency": "USD", "loc": "Seattle, WA", "tag": "Software"},
+        {"title": "Staff Software Engineer", "pay": 225000, "currency": "USD", "loc": "Austin, TX", "tag": "Software"},
+        {"title": "AI Research Engineer", "pay": 210000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "Machine Learning Engineer", "pay": 195000, "currency": "USD", "loc": "San Francisco, CA", "tag": "Software"},
+        {"title": "MLOps Engineer", "pay": 185000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "Backend Engineer (Python/FastAPI)", "pay": 175000, "currency": "USD", "loc": "New York, NY", "tag": "Software"},
+        {"title": "Frontend Engineer (React)", "pay": 165000, "currency": "USD", "loc": "Los Angeles, CA", "tag": "Software"},
+        {"title": "Full‑Stack Engineer", "pay": 160000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Data Engineer", "pay": 155000, "currency": "USD", "loc": "Boston, MA", "tag": "Software"},
+        {"title": "DevOps Engineer", "pay": 150000, "currency": "USD", "loc": "Remote", "tag": "Software"},
+        {"title": "AI Product Manager", "pay": 185000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Product Manager (AI)", "pay": 175000, "currency": "USD", "loc": "Chicago, IL", "tag": "Software"},
+        {"title": "Sales Associate", "pay": 26, "currency": "USD/hr", "loc": "Dallas, TX", "tag": "Sales"},
+        {"title": "Customer Support Specialist", "pay": 24, "currency": "USD/hr", "loc": "Remote", "tag": "Customer Service"},
+        {"title": "Warehouse Picker", "pay": 22, "currency": "USD/hr", "loc": "Memphis, TN", "tag": "Warehouse"},
+        {"title": "Housekeeping Attendant", "pay": 18, "currency": "USD/hr", "loc": "Orlando, FL", "tag": "Hospitality"},
+        {"title": "Security Guard (Unarmed)", "pay": 21, "currency": "USD/hr", "loc": "Phoenix, AZ", "tag": "Security"},
+        {"title": "Assembler (Electronics)", "pay": 23, "currency": "USD/hr", "loc": "Austin, TX", "tag": "Manufacturing"},
+        {"title": "Medical Assistant", "pay": 26, "currency": "USD/hr", "loc": "Atlanta, GA", "tag": "Healthcare"},
+        {"title": "Pharmacy Technician", "pay": 25, "currency": "USD/hr", "loc": "Houston, TX", "tag": "Healthcare"},
+        {"title": "Delivery Driver (Last‑Mile)", "pay": 24, "currency": "USD/hr", "loc": "Dallas, TX", "tag": "Logistics"},
+        {"title": "Data Entry Clerk", "pay": 20, "currency": "USD/hr", "loc": "Remote", "tag": "Admin"},
+        {"title": "Receptionist", "pay": 21, "currency": "USD/hr", "loc": "London, UK", "tag": "Admin"},
+        {"title": "QA Inspector", "pay": 24, "currency": "USD/hr", "loc": "Tijuana, MX", "tag": "Manufacturing"},
+        {"title": "Forklift Operator", "pay": 23, "currency": "USD/hr", "loc": "Memphis, TN", "tag": "Warehouse"},
+        {"title": "Hotel Front Desk", "pay": 19, "currency": "USD/hr", "loc": "Dubai, UAE", "tag": "Hospitality"},
+        {"title": "Barista", "pay": 18, "currency": "USD/hr", "loc": "Seattle, WA", "tag": "Hospitality"},
+        {"title": "Software Engineer I", "pay": 130000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},
+        {"title": "Software Engineer II", "pay": 150000, "currency": "USD", "loc": "Remote", "tag": "Software"}
+    ]
+    # normalize to 30 items and sort by pay (assuming numeric for USD; for /hr keep order)
+    items = seed[:30]
+    items.sort(key=lambda x: (x["currency"].endswith("/hr"), x["pay"]), reverse=True)
+    return {"items": items}
+
+
+# ---- Chat (SSE) ----
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+    session_id: str | None = None
+    include_context: bool = True
+
+def _redact(text: str) -> str:
+    # minimal demo redaction: mask phone-like numbers
+    try:
+        import re
+        return re.sub(r"\+?\d[\d\s\-]{6,}\d", "+••• ••• ••XX", text)
+    except Exception:
+        return text
+
+async def _llm_stream(messages: List[dict]):
+    # Demo: if no provider configured, stream a local heuristic answer
+    if not PROVIDER or not PROVIDER_API_KEY:
+        # simple echo with light reasoning
+        yield {"event": "token", "data": "This is a local demo answer. "}
+        yield {"event": "token", "data": "Ask is currently handled on the frontend, "}
+        yield {"event": "token", "data": "but the backend stream is now ready to plug into a provider."}
+        yield {"event": "done", "data": ""}
+        return
+    # Example OpenAI Chat Completions (stream) using aiohttp
+    try:
+        if PROVIDER == "openai":
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {"Authorization": f"Bearer {PROVIDER_API_KEY}", "Content-Type": "application/json"}
+            body = {
+                "model": MODEL,
+                "max_tokens": CHAT_MAX_TOKENS,
+                "stream": True,
+                "messages": messages,
+            }
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=CHAT_TIMEOUT_S)) as sess:
+                async with sess.post(url, headers=headers, json=body) as resp:
+                    resp.raise_for_status()
+                    async for line in resp.content:
+                        if not line:
+                            continue
+                        chunk = line.decode("utf-8", errors="ignore").strip()
+                        if not chunk.startswith("data:"):
+                            continue
+                        data = chunk[len("data:"):].strip()
+                        if data == "[DONE]":
+                            yield {"event": "done", "data": ""}
+                            break
+                        try:
+                            j = json.loads(data)
+                            delta = j.get("choices", [{}])[0].get("delta", {}).get("content")
+                            if delta:
+                                yield {"event": "token", "data": delta}
+                        except Exception:
+                            continue
+        else:
+            # Other providers not implemented in demo
+            yield {"event": "token", "data": f"Provider {PROVIDER} not implemented in demo."}
+            yield {"event": "done", "data": ""}
+    except Exception as e:
+        yield {"event": "error", "data": str(e)}
+
+@app.post("/chat/stream")
+async def chat_stream(req: ChatRequest):
+    # Build system prompt with optional context
+    system = "You are a helpful recruiter assistant. Be concise and accurate."
+    if req.include_context:
+        # summarize current runtime context (bounded for demo)
+        jobs_sample = list(JOBS.items())[:5]
+        cands_sample = list(CANDIDATES.items())[:5]
+        ctx = {
+            "jobs": [{"id": jid, **j} for jid, j in jobs_sample],
+            "candidates": [{"id": cid, **c} for cid, c in cands_sample],
+            "kpi": kpi(),
+        }
+        system += "\nContext:" + json.dumps(ctx)[:2000]
+
+    messages = [{"role": "system", "content": system}] + [
+        {"role": m.role, "content": _redact(m.content)} for m in req.messages
+    ]
+
+    audit("agent", "chat.request", {"session_id": req.session_id, "messages": [m.dict() for m in req.messages]})
+
+    async def event_gen():
+        async for ev in _llm_stream(messages):
+            if ev["event"] == "token":
+                yield {"event": "chat", "data": ev["data"]}
+            elif ev["event"] == "error":
+                yield {"event": "error", "data": ev["data"]}
+            elif ev["event"] == "done":
+                yield {"event": "done", "data": ""}
+                break
+        audit("agent", "chat.response", {"session_id": req.session_id})
+
+    return EventSourceResponse(event_gen())
 
 

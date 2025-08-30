@@ -67,14 +67,6 @@ LEVER_API_TOKEN=
 WORKDAY_BASE_URL=
 ```
 
-## Demo Script (90 seconds)
-1) Create Job — “We just opened 200 Retail Associate roles in Jeddah night shift.”
-2) Simulate Outreach — “Agent contacts candidates; Arabic is auto-handled; we can show per-message cost in real deployments.”
-3) Run Flow — “We capture consent, ask 3–5 knockout questions, collect documents, schedule interviews, and write to the ATS.”
-4) KPIs — “Tiles show reply, qualified, show, and cost per qualified; they update live.”
-5) Audit — “Every step is governed by policy.yaml and hashed into an append-only ledger; hover for hash; click Replay.”
-6) Hiring Simulator — “Leaders can model volume and capacity and see hires/week instantly.”
-
 ## Architecture
 
 ```
@@ -129,6 +121,15 @@ Audit & Events
 - GET `/audit?limit=250&cursor=` → { events[], next_cursor }
 - GET `/audit/verify` → { ok, broken_at? }
 - GET `/events/stream` (SSE, event: "audit")
+
+Analytics
+- GET `/analytics/top-recruiters` → { items[] } (hires, offer_rate, time_to_fill_days, open_reqs)
+- GET `/analytics/top-matches` → { items[] } (title, pay, currency, loc, tag)
+
+Chat (Agent)
+- POST `/chat/stream` (SSE)
+  - body: { messages: [{ role, content }...], session_id?, include_context? }
+  - stream events: `event: chat` `data: <token>`; end with `event: done`
 
 Metrics & Simulator
 - GET `/kpi` → tiles

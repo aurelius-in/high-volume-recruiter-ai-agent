@@ -1,4 +1,12 @@
-﻿.venv/
+﻿__pycache__/
+*.pyc
+orchestrator*.log
+orchestrator*.txt
+venv/
+*.env
+node_modules/
+dist/
+.venv/
 __pycache__/
 *.pyc
 node_modules/

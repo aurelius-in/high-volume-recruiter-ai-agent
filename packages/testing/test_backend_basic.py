@@ -31,3 +31,28 @@ def test_policy_send_message():
   events = ar.json()["events"]
   assert any(e["action"] == "message.sent" for e in events)
 
+def test_analytics_endpoints():
+  r = client.get("/analytics/top-recruiters")
+  assert r.status_code == 200
+  items = r.json().get("items", [])
+  assert isinstance(items, list)
+  assert len(items) >= 1
+
+  r2 = client.get("/analytics/top-matches")
+  assert r2.status_code == 200
+  items2 = r2.json().get("items", [])
+  assert isinstance(items2, list)
+  assert len(items2) >= 1
+
+def test_chat_stream_demo():
+  # Without provider configured, should stream demo tokens
+  payload = {
+    "messages": [{"role":"user","content":"Hello"}],
+    "include_context": False
+  }
+  with client.stream("POST", "/chat/stream", json=payload) as s:
+    assert s.status_code == 200
+    # read a bit from stream
+    chunk = next(s.iter_text())
+    assert "data:" in chunk
+
