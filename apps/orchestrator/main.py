@@ -618,7 +618,16 @@ def ops_force(body: ForceOp) -> dict:
 # --- Analytics (demo) ---
 @app.get("/analytics/top-recruiters")
 def analytics_top_recruiters() -> dict:
-    # Deterministic demo dataset of 30 recruiter stats
+    # Deterministic demo dataset of 30 recruiter stats; if mock file exists, load from it
+    try:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        mock_path = os.path.join(base_dir, "orchestrator", "mock", "top_recruiters.json")
+        if os.path.exists(mock_path):
+            with open(mock_path, "r", encoding="utf-8") as f:
+                j = json.load(f)
+                return {"items": j}
+    except Exception:
+        pass
     names = [
         # Saudi
         "Abdullah Al‑Harbi","Fatima Al‑Harbi","Yousef Al‑Qahtani","Mona Al‑Otaibi","Khalid Al‑Anazi","Sara Al‑Ghamdi",
@@ -649,7 +658,16 @@ def analytics_top_recruiters() -> dict:
 
 @app.get("/analytics/top-matches")
 def analytics_top_matches() -> dict:
-    # Demo dataset of 30 matches (software/AI first), sorted by pay
+    # Demo dataset of 30 matches (software/AI first), sorted by pay; load mock file if present
+    try:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        mock_path = os.path.join(base_dir, "orchestrator", "mock", "top_matches.json")
+        if os.path.exists(mock_path):
+            with open(mock_path, "r", encoding="utf-8") as f:
+                j = json.load(f)
+                return {"items": j}
+    except Exception:
+        pass
     seed = [
         {"title": "Director of AI Platform", "pay": 290000, "currency": "USD", "loc": "Remote", "tag": "Software"},
         {"title": "Director of Engineering", "pay": 275000, "currency": "USD", "loc": "Hybrid", "tag": "Software"},

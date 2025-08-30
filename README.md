@@ -130,6 +130,15 @@ Audit & Events
 - GET `/audit/verify` → { ok, broken_at? }
 - GET `/events/stream` (SSE, event: "audit")
 
+Analytics
+- GET `/analytics/top-recruiters` → { items[] } (hires, offer_rate, time_to_fill_days, open_reqs)
+- GET `/analytics/top-matches` → { items[] } (title, pay, currency, loc, tag)
+
+Chat (Agent)
+- POST `/chat/stream` (SSE)
+  - body: { messages: [{ role, content }...], session_id?, include_context? }
+  - stream events: `event: chat` `data: <token>`; end with `event: done`
+
 Metrics & Simulator
 - GET `/kpi` → tiles
 - GET `/funnel` → { contacted, replied, qualified, scheduled, showed }
