@@ -138,7 +138,7 @@ function ActivityCalendar({ events }){
               height: 28,
               border: `1px solid ${evColor || 'rgba(176,190,197,0.25)'}`,
               background: useFill ? evColor : 'transparent',
-              color: useFill ? '#000' : (cell.inMonth ? '#a5d6a7' : '#546e7a'),
+              color: useFill ? '#a5d6a7' : (cell.inMonth ? '#a5d6a7' : '#546e7a'),
               borderRadius:6,
               textAlign:'right',
               paddingRight:6,
