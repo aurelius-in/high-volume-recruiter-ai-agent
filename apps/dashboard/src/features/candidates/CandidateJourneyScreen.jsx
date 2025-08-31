@@ -151,9 +151,10 @@ function ActivityCalendar({ events }){
 function NotesPanel(){
   const { t } = useTranslation();
   const notes = [
-    { id:'n1', author:'Emily Johnson', at:'2025‑06‑03 10:15', body:'Strong PM background. Prefers hybrid.' },
-    { id:'n2', author:'David Wilson', at:'2025‑06‑04 14:05', body:'Confirmed interview; good communication.' },
-    { id:'n3', author:'Olivia Brown', at:'2025‑06‑06 16:10', body:'ATS updated to Interviewed.' }
+    { id:'n1', author:'Emily Johnson', at:'2025‑06‑18 09:40', body:'Reviewed profile post‑reply. Consent captured. Strong PM/AI background; prefers Hybrid. Verified work eligibility and shift flexibility. Added to shortlist for HM review.' },
+    { id:'n2', author:'David Wilson', at:'2025‑07‑03 13:45', body:'Interview confirmed and logistics sent (prep packet, location/Zoom details). Candidate confirmed availability and provided portfolio links. HM expectations shared (product strategy + delivery depth).' },
+    { id:'n3', author:'Olivia Brown', at:'2025‑08‑06 16:20', body:'Panel feedback mostly positive (systems thinking, stakeholder management). Candidate aligned on compensation range; initiated background check. ATS progressed to Interviewed → Offer Pending.' },
+    { id:'n4', author:'Emily Johnson', at:'2025‑08‑28 10:15', body:'Offer accepted. Start date pending team onboarding schedule. ATS moved to Hired; kickoff tasks opened for IT and HR.' }
   ];
   return (
     <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%' }}>
