@@ -18,7 +18,12 @@ function CandidateJourneyHeader({ candidate }){
     <Paper sx={{ p: 1.5, bgcolor:'#000', color:'#e0e0e0', border:'1px solid rgba(46,125,50,0.35)', position:'sticky', top:0, zIndex:2 }}>
       <Box sx={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <Box>
-          <Typography variant="h6" sx={{ mb: 0.5, color:'#a5d6a7', fontWeight: 800 }}>{candidate.fullName}</Typography>
+          <Typography variant="h6" sx={{ mb: 0.5, color:'#a5d6a7', fontWeight: 800 }}>
+            {candidate.fullName}
+            <Typography component="span" variant="body2" sx={{ ml: 2, color:'#a5d6a7', opacity: 0.9, fontWeight: 600 }}>
+              Email: mosi1985@gmail.com • Phone: 540-500-3300
+            </Typography>
+          </Typography>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
             {/** unified chip style for light green-grey text */}
             <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.role||''}`} />
