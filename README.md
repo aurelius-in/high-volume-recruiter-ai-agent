@@ -4,17 +4,56 @@ Production-minded agentic AI recruiter for high-volume hiring. It contacts candi
 
 ## UI Overview
 
+### Outreach (Tab 1)
+This clip shows the Outreach console in action: composing and sending messages (SMS/WhatsApp/web), watching KPIs update live, and scanning the funnel. The language selector in the top‑right can switch the entire UI (all tabs) between English, Arabic, and Chinese.
+
+Backend agents powering this flow:
+- Messaging Agent: sends/receives across channels (can be wired to social messaging providers).
+- Screening Agent: captures consent and handles knockout questions.
+- Scheduler Agent: proposes/updates interview slots.
+- ATS Sync Agent: writes outcomes back to the ATS.
+- Compliance/Policy Agent: enforces guardrails (allowed channels, redactions, limits).
+
+What you’ll see: KPI tiles (reply/qualified/show/ATS success, cost per qualified, active candidates) and a real‑time funnel (Contacted → Replied → Qualified → Scheduled → Showed → Offer → Hired).
+
 ![Hire Falcon UI — Tab 1](hiretab1.gif)
+
+Below: the same screen after triggering outreach and automation; tiles and the funnel animate as new events arrive.
+
+### Scheduling (Tab 2)
+This clip shows the Scheduling experience. You can view, search, and select jobs; click a job to view more detail. Search supports free‑text on any job field (pay rate/salary, title, location, onsite/hybrid/remote, etc.). Candidate profiles include preferences (onsite/remote), pay range, role, and experience, enabling side‑by‑side matching. Both Jobs and Candidates have their own search bars, so you can filter each list independently to align on like‑criteria.
 
 ![Hire Falcon UI — Tab 2](hiretab2.gif)
 
+Below: the filtered job and candidate results appear side‑by‑side for quick matching.
+
+### Audit & Ask (Tab 3)
+This clip shows the Audit & Ask screen. At a glance, you can see top recruiters and recent top matches. The Ask panel (ChatGPT‑connected) lets you ask natural‑language questions about jobs, candidates, or providers and get readable, paragraph‑style answers.
+
 ![Hire Falcon UI — Tab 3](hiretab3.gif)
+
+Below: the replayable audit and policy context make it easy to inspect decisions and outcomes.
+
+### Candidate Journey (from Scheduling)
+This clip shows how selecting a job or candidate reveals a context‑aware View button. Clicking View Candidate opens the Candidate Journey: a full‑screen view with a timeline from Outreach → Reply/Consent → Qualification → Scheduling → ATS Update → Hired, an interactive activity calendar and legend, the candidate’s header details, and a notes panel. Use the green right‑arrow SCHEDULE button (top‑right) to jump back to scheduling with the candidate pre‑selected; the outlined BACK arrow returns to the previous tab.
 
 ![Candidate Journey — End‑to‑end timeline, calendar, notes](hiretab4.gif)
 
+Below: the journey stays demo‑friendly (shared mock content) while reflecting whichever candidate you selected.
+
+### Arabic (AR, RTL)
+This clip shows selecting Arabic from the language dropdown and navigating the whole app fully localized, including list values and calendar month/day names. The UI switches to RTL layout.
+
 ![Arabic UI — Full app translated (AR, RTL)](hiretab5.gif)
 
+Below: Outreach, Scheduling, Candidate Journey, and Audit & Ask all render in Arabic.
+
+### Chinese (ZH)
+This clip shows selecting Chinese (Mandarin) and navigating the app with localized headings, list values, timeline event titles/summaries, note text, and calendar month/day names.
+
 ![Chinese UI — Tabs and screens translated (ZH)](hiretab6.gif)
+
+Below: the same flows as English/Arabic, fully localized for Chinese.
 
 ## End‑to‑End Recruiter Flow (Demo)
 
