@@ -37,6 +37,7 @@ export default function App() {
   const [candSearch, setCandSearch] = useState("");
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState(null);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
 
   // Demo data for Audit & Ask replacements (recruiter-facing)
   const recruiterNamePool = [
@@ -335,11 +336,15 @@ export default function App() {
                   InputProps={{ sx:{ color:'#e0e0e0' } }}
                 />
               </Paper>
-              <CandidatesList searchTerm={candSearch} selectedCandidateId={selectedCandidateId} onSelectCandidate={setSelectedCandidateId} />
+              <CandidatesList
+                searchTerm={candSearch}
+                selectedCandidateId={selectedCandidateId}
+                onSelectCandidate={(c)=>{ setSelectedCandidateId(c.id); setSelectedCandidate(c); }}
+              />
               {selectedCandidateId && (
                 <div style={{ marginTop: 8 }}>
-                  <Button variant="contained" color="success" onClick={()=>navigate(`/candidates/${encodeURIComponent(selectedCandidateId)}/journey`)}>
-                    {t('candidateJourney.openButton')}
+                  <Button variant="contained" color="success" onClick={()=>navigate(`/candidates/${encodeURIComponent(selectedCandidateId)}/journey`, { state: { candidate: selectedCandidate } })}>
+                    {t('viewCandidate') || 'View Candidate'}
                   </Button>
                 </div>
               )}

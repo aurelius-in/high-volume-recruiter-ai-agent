@@ -24,10 +24,10 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     {auth0Domain && auth0ClientId ? (
       <Auth0Provider domain={auth0Domain} clientId={auth0ClientId} authorizationParams={{ redirect_uri: window.location.origin, audience: auth0Audience }}>
-        <RouterProvider router={router} />
+        <RouterProvider router={router} future={{ v7_startTransition: true }} />
       </Auth0Provider>
     ) : (
-      <RouterProvider router={router} />
+      <RouterProvider router={router} future={{ v7_startTransition: true }} />
     )}
   </React.StrictMode>
 );
