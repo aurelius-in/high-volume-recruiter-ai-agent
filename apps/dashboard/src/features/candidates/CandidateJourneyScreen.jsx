@@ -151,9 +151,10 @@ function ActivityCalendar({ events }){
 function NotesPanel(){
   const { t } = useTranslation();
   const notes = [
-    { id:'n1', author:'Emily Johnson', at:'2025‑06‑03 10:15', body:'Strong PM background. Prefers hybrid.' },
-    { id:'n2', author:'David Wilson', at:'2025‑06‑04 14:05', body:'Confirmed interview; good communication.' },
-    { id:'n3', author:'Olivia Brown', at:'2025‑06‑06 16:10', body:'ATS updated to Interviewed.' }
+    { id:'n1', author:'Emily Johnson', at:'2025‑06‑18 09:40', body:'Reviewed profile post‑reply. Consent captured. Strong PM/AI background; prefers Hybrid. Verified work eligibility and shift flexibility. Added to shortlist for HM review.' },
+    { id:'n2', author:'David Wilson', at:'2025‑07‑03 13:45', body:'Interview confirmed and logistics sent (prep packet, location/Zoom details). Candidate confirmed availability and provided portfolio links. HM expectations shared (product strategy + delivery depth).' },
+    { id:'n3', author:'Olivia Brown', at:'2025‑08‑06 16:20', body:'Panel feedback mostly positive (systems thinking, stakeholder management). Candidate aligned on compensation range; initiated background check. ATS progressed to Interviewed → Offer Pending.' },
+    { id:'n4', author:'Emily Johnson', at:'2025‑08‑28 10:15', body:'Offer accepted. Start date pending team onboarding schedule. ATS moved to Hired; kickoff tasks opened for IT and HR.' }
   ];
   return (
     <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%' }}>
@@ -199,13 +200,14 @@ export default function CandidateJourneyScreen(){
 
   // Shared demo events powering both Timeline and Calendar
   const events = useMemo(() => ([
-    { id:'e1', type:'outreach', at:'2025-06-03T09:10:00', summary:'Initial SMS sent with job details.' },
-    { id:'e2', type:'reply', at:'2025-06-03T09:25:00', summary:'Candidate replied and consented.' },
-    { id:'e3', type:'qualification', at:'2025-06-03T10:10:00', summary:'Passed screen; preferred Hybrid.' },
-    { id:'e4', type:'schedule', at:'2025-06-04T13:00:00', summary:'Proposed Thursday 10:00; confirmed.' },
-    { id:'e5', type:'reschedule', at:'2025-06-05T11:30:00', summary:'Moved to Friday 11:00.' },
-    { id:'e6', type:'ats_update', at:'2025-06-06T15:45:00', summary:'Progress set to Interviewed.' },
-    { id:'e7', type:'hired', at:'2025-06-10T09:00:00', summary:'Marked hired in ATS.' }
+    // ~10-week journey ending late August 2025
+    { id:'e1', type:'outreach',    at:'2025-06-17T09:10:00', summary:'Initial SMS sent with job details.' },
+    { id:'e2', type:'reply',       at:'2025-06-17T09:25:00', summary:'Candidate replied and consented.' },
+    { id:'e3', type:'qualification', at:'2025-06-20T10:10:00', summary:'Passed screen; prefers Hybrid.' },
+    { id:'e4', type:'schedule',    at:'2025-07-02T13:00:00', summary:'Proposed interview; confirmed.' },
+    { id:'e5', type:'reschedule',  at:'2025-07-18T11:30:00', summary:'Rescheduled due to conflict.' },
+    { id:'e6', type:'ats_update',  at:'2025-08-05T15:45:00', summary:'ATS updated to “Interviewed”.' },
+    { id:'e7', type:'hired',       at:'2025-08-28T09:00:00', summary:'Marked hired in ATS.' }
   ]), []);
 
   return (
