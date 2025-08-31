@@ -16,6 +16,28 @@ Production-minded agentic AI recruiter for high-volume hiring. It contacts candi
 
 ![Chinese UI — Tabs and screens translated (ZH)](hiretab6.gif)
 
+## End‑to‑End Recruiter Flow (Demo)
+
+1) Create a job, start outreach, and run automation
+   - Click "Create Job" → "Start Outreach" → "Run Automation" on the Outreach tab.
+   - Watch KPI tiles update and the Funnel populate (Contacted → Replied → Qualified → Scheduled).
+
+2) Scheduling and Candidate Journey
+   - Go to the Scheduling tab, search/filter as needed.
+   - Click a candidate to highlight, then click "View Candidate" to open the Candidate Journey.
+   - The Candidate Journey shows:
+     - Timeline of key events (Outreach → Reply/Consent → Qualification → Scheduling → ATS Update → Hired)
+     - Interactive month calendar with color‑coded activity and a fixed legend
+     - Recruiter notes with a notes input field and an Add button
+   - Use the arrow‑shaped BACK/SCHEDULE buttons to return to Scheduling or deep‑link to the scheduling flow.
+
+3) Audit & Ask
+   - Open the Audit & Ask tab to see the signed audit trail, use Replay, and ask questions in the Ask panel.
+
+4) Multi‑language (EN/AR/ZH)
+   - Use the top‑right locale selector. All headings, labels, list values, and the Candidate Journey (timeline, summaries, notes) translate.
+   - Arabic uses RTL; Chinese uses localized month/day names in the calendar.
+
 ## Quick Start
 
 ### Docker (fastest)
