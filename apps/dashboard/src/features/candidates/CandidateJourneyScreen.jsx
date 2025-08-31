@@ -21,7 +21,7 @@ function CandidateJourneyHeader({ candidate }){
           <Typography variant="h6" sx={{ mb: 0.5, color:'#a5d6a7', fontWeight: 800 }}>
             {candidate.fullName}
             <Typography component="span" variant="body2" sx={{ ml: 2, color:'#a5d6a7', opacity: 0.9, fontWeight: 600 }}>
-              Email: mosi1985@gmail.com • Phone: 540-500-3300
+              {t('candidateJourney.email')}: mosi1985@gmail.com • {t('candidateJourney.phone')}: 540-500-3300 • 📄 {t('candidateJourney.viewResume')}
             </Typography>
           </Typography>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
@@ -43,8 +43,60 @@ function CandidateJourneyHeader({ candidate }){
           </div>
         </Box>
         <Box sx={{ display:'flex', gap:1 }}>
-          <Button variant="outlined" onClick={()=>navigate(`/`)}>{t('candidateJourney.back')}</Button>
-          <Button variant="contained" color="primary" onClick={()=>navigate(`/scheduling?candidate=${encodeURIComponent(candidate.id)}`)}>{t('candidateJourney.schedule')}</Button>
+          <Button
+            variant="text"
+            size="small"
+            onClick={()=>navigate(`/`)}
+            sx={{
+              position:'relative',
+              minWidth: 64,
+              px: 2,
+              height: 32,
+              bgcolor: 'transparent',
+              color: '#cfd8dc',
+              textTransform: 'none',
+              fontSize: 12,
+              clipPath: 'polygon(0 50%, 12px 0, 100% 0, 100% 100%, 12px 100%)',
+              '&::before': {
+                content:'""',
+                position:'absolute',
+                inset: 0,
+                background: 'rgba(176,190,197,0.7)',
+                clipPath: 'polygon(0 50%, 12px 0, 100% 0, 100% 100%, 12px 100%)',
+                borderRadius: 0
+              },
+              '&::after': {
+                content:'""',
+                position:'absolute',
+                inset: '1px',
+                background: '#000',
+                clipPath: 'polygon(0 50%, 12px 0, 100% 0, 100% 100%, 12px 100%)',
+                borderRadius: 0
+              },
+              '&:hover::before': { background:'rgba(176,190,197,0.9)' }
+            }}
+          >
+            BACK
+          </Button>
+          <Button
+            variant="text"
+            size="small"
+            onClick={()=>navigate(`/scheduling?candidate=${encodeURIComponent(candidate.id)}`)}
+            sx={{
+              position:'relative',
+              minWidth: 88,
+              px: 2,
+              height: 32,
+              bgcolor: '#2e7d32',
+              color: '#cfd8dc',
+              textTransform: 'none',
+              fontSize: 12,
+              clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)',
+              '&:hover': { bgcolor: '#1b5e20' }
+            }}
+          >
+            SCHEDULE
+          </Button>
         </Box>
       </Box>
     </Paper>
@@ -52,14 +104,19 @@ function CandidateJourneyHeader({ candidate }){
 }
 
 function JourneyTimeline({ events }){
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const typeToIcon = { outreach:'📣', reply:'✉️', consent:'✉️', qualification:'✅', schedule:'📅', reschedule:'🔁', ats_update:'🗂️', hired:'🏁', error:'⚠️', reminder:'⏰', no_show:'🚫' };
-  const items = (events||[]).map(e=>({
-    ...e,
-    icon: typeToIcon[e.type] || '•',
-    title: e.type.charAt(0).toUpperCase()+e.type.slice(1).replace('_',' '),
-    atDisplay: new Date(e.at).toLocaleString()
-  }));
+  const items = (events||[]).map(e=>{
+    const dt = new Date(e.at);
+    const atDisplay = dt.toLocaleString(i18n.language);
+    return {
+      ...e,
+      icon: typeToIcon[e.type] || '•',
+      title: t(`candidateJourney.types.${e.type}`),
+      atDisplay,
+      summaryText: t(`candidateJourney.eventSummaries.${e.type}`)
+    };
+  });
   return (
     <Paper sx={{ p:1.5, bgcolor:'#000', color:'#ffcc80', border:'1px solid rgba(46,125,50,0.35)' }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.timeline')}</Typography>
@@ -67,17 +124,17 @@ function JourneyTimeline({ events }){
         {items.map(it=> (
           <li key={it.id} style={{ marginBottom: 10 }}>
             <div style={{ fontWeight:700 }}>{it.icon} {it.title} — {it.atDisplay}</div>
-            <div style={{ opacity:0.9, fontSize:12 }}>{it.summary || it.details}</div>
+            <div style={{ opacity:0.9, fontSize:12 }}>{it.summaryText}</div>
           </li>
         ))}
       </ul>
-      <Button variant="outlined" size="small" disabled sx={{ mt:1 }}>Replay</Button>
+      <Button variant="outlined" size="small" disabled sx={{ mt:1 }}>{t('candidateJourney.replay')}</Button>
     </Paper>
   );
 }
 
 function ActivityCalendar({ events }){
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [offset, setOffset] = useState(0); // month offset from current
   const base = new Date();
   const viewDate = new Date(base.getFullYear(), base.getMonth()+offset, 1);
@@ -104,7 +161,7 @@ function ActivityCalendar({ events }){
     }
     weeks.push(week);
   }
-  const monthLabel = viewDate.toLocaleDateString(undefined, { year:'numeric', month:'long' });
+  const monthLabel = viewDate.toLocaleDateString(i18n.language, { year:'numeric', month:'long' });
 
   // Map events to Y-M-D -> color
   const colorForType = (type)=>{
@@ -173,12 +230,13 @@ function ActivityCalendar({ events }){
 }
 
 function NotesPanel(){
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const fmt = (s)=> new Date(s.replace(/\u202f|\u200f/g,'')).toLocaleString(i18n.language);
   const notes = [
-    { id:'n1', author:'Emily Johnson', at:'2025‑06‑18 09:40', body:'Reviewed profile post‑reply. Consent captured. Strong PM/AI background; prefers Hybrid. Verified work eligibility and shift flexibility. Added to shortlist for HM review.' },
-    { id:'n2', author:'David Wilson', at:'2025‑07‑03 13:45', body:'Interview confirmed and logistics sent (prep packet, location/Zoom details). Candidate confirmed availability and provided portfolio links. HM expectations shared (product strategy + delivery depth).' },
-    { id:'n3', author:'Olivia Brown', at:'2025‑08‑06 16:20', body:'Panel feedback mostly positive (systems thinking, stakeholder management). Candidate aligned on compensation range; initiated background check. ATS progressed to Interviewed → Offer Pending.' },
-    { id:'n4', author:'Emily Johnson', at:'2025‑08‑28 10:15', body:'Offer accepted. Start date pending team onboarding schedule. ATS moved to Hired; kickoff tasks opened for IT and HR.' }
+    { id:'n1', author:'Emily Johnson', at:'2025-06-18T09:40:00', bodyKey:'note1' },
+    { id:'n2', author:'David Wilson', at:'2025-07-03T13:45:00', bodyKey:'note2' },
+    { id:'n3', author:'Olivia Brown', at:'2025-08-06T16:20:00', bodyKey:'note3' },
+    { id:'n4', author:'Emily Johnson', at:'2025-08-28T10:15:00', bodyKey:'note4' }
   ];
   return (
     <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%', display:'flex', flexDirection:'column' }}>
@@ -187,15 +245,15 @@ function NotesPanel(){
         <ul style={{ margin:0, paddingLeft:16 }}>
           {notes.map(n=> (
             <li key={n.id} style={{ marginBottom: 10 }}>
-              <div style={{ fontWeight:700 }}>{n.author} — {n.at}</div>
-              <div style={{ opacity:0.9, fontSize:12 }}>{n.body}</div>
+              <div style={{ fontWeight:700 }}>{n.author} — {fmt(n.at)}</div>
+              <div style={{ opacity:0.9, fontSize:12 }}>{t(`candidateJourney.notesText.${n.bodyKey}`)}</div>
             </li>
           ))}
         </ul>
       </div>
       <TextField
         multiline
-        placeholder="ADD A NOTE"
+        placeholder={t('candidateJourney.addNotePlaceholder')}
         sx={{
           mt:1,
           flex:1,
