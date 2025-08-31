@@ -18,22 +18,23 @@ function CandidateJourneyHeader({ candidate }){
     <Paper sx={{ p: 1.5, bgcolor:'#000', color:'#e0e0e0', border:'1px solid rgba(46,125,50,0.35)', position:'sticky', top:0, zIndex:2 }}>
       <Box sx={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <Box>
-          <Typography variant="h6" sx={{ mb: 0.5 }}>{candidate.fullName}</Typography>
+          <Typography variant="h6" sx={{ mb: 0.5, color:'#a5d6a7', fontWeight: 800 }}>{candidate.fullName}</Typography>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-            <Chip size="small" label={`${candidate.role||''}`} />
-            <Chip size="small" label={`${candidate.location||''}`} />
-            <Chip size="small" label={`${candidate.channel?.toUpperCase()||''}`} />
-            <Chip size="small" color="success" label={`${candidate.stage||''}`} />
-            {candidate.gender ? <Chip size="small" label={`${candidate.gender}`} /> : null}
-            {candidate.workPref ? <Chip size="small" label={`${candidate.workPref}`} /> : null}
-            {candidate.expertise || candidate.roleTitle ? <Chip size="small" label={`${candidate.expertise||''}${candidate.roleTitle?` — ${candidate.roleTitle}`:''}`} /> : null}
-            {lang ? <Chip size="small" label={`${lang}`} /> : null}
-            {Number.isFinite(candidate.years) ? <Chip size="small" label={`${candidate.years}y`} /> : null}
-            {candidate.education ? <Chip size="small" label={`${candidate.education}`} /> : null}
-            {candidate.citizenship || candidate.statusCode ? <Chip size="small" label={`${candidate.citizenship||''} ${candidate.statusCode||''}`.trim()} /> : null}
-            {lastSeen ? <Chip size="small" label={`Last ${lastSeen}`} /> : null}
-            {candidate.phone ? <Chip size="small" label={`${candidate.phone}`} /> : null}
-            {typeof candidate.consent === 'boolean' ? <Chip size="small" label={`Consent: ${candidate.consent ? t('yes') : t('no')}`}/> : null}
+            {/** unified chip style for light green-grey text */}
+            <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.role||''}`} />
+            <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.location||''}`} />
+            <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.channel?.toUpperCase()||''}`} />
+            <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.stage||''}`} />
+            {candidate.gender ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.gender}`} /> : null}
+            {candidate.workPref ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.workPref}`} /> : null}
+            {candidate.expertise || candidate.roleTitle ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.expertise||''}${candidate.roleTitle?` — ${candidate.roleTitle}`:''}`} /> : null}
+            {lang ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${lang}`} /> : null}
+            {Number.isFinite(candidate.years) ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.years}y`} /> : null}
+            {candidate.education ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.education}`} /> : null}
+            {candidate.citizenship || candidate.statusCode ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.citizenship||''} ${candidate.statusCode||''}`.trim()} /> : null}
+            {lastSeen ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`Last ${lastSeen}`} /> : null}
+            {candidate.phone ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`${candidate.phone}`} /> : null}
+            {typeof candidate.consent === 'boolean' ? <Chip size="small" variant="outlined" sx={{ color:'#a5d6a7', borderColor:'rgba(165,214,167,0.5)' }} label={`Consent: ${candidate.consent ? t('yes') : t('no')}`}/> : null}
           </div>
         </Box>
         <Box sx={{ display:'flex', gap:1 }}>
