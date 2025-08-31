@@ -363,7 +363,7 @@ export function CandidatesList({ searchTerm = "", selectedCandidateId = null, on
       <div style={{ height: 300, overflowY: 'auto' }}>
         <ul style={{ margin:0, paddingLeft:20 }}>
           {display.map(c => (
-            <li key={c.id} style={{ marginBottom: 10, cursor:'pointer' }} onClick={()=>onSelectCandidate(c.id)}>
+            <li key={c.id} style={{ marginBottom: 10, cursor:'pointer' }} onClick={()=>onSelectCandidate(c)}>
               <div style={{
                 background: selectedCandidateId===c.id ? 'rgba(46,125,50,0.35)' : 'transparent',
                 color: selectedCandidateId===c.id ? '#ffcc80' : 'inherit',

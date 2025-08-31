@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Box, Button, Chip, Grid, Paper, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -39,7 +39,7 @@ function JourneyTimeline(){
     { id:'e7', icon:'🏁', title:'Hired', at:'2025-06-10 09:00', details:'Marked hired in ATS.' }
   ];
   return (
-    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#e0e0e0', border:'1px solid rgba(46,125,50,0.35)' }}>
+    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#ffcc80', border:'1px solid rgba(46,125,50,0.35)' }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.timeline')}</Typography>
       <ul style={{ margin:0, paddingLeft: 16 }}>
         {items.map(it=> (
@@ -56,27 +56,73 @@ function JourneyTimeline(){
 
 function ActivityCalendar(){
   const { t } = useTranslation();
-  // Simplified static calendar mock
+  const [offset, setOffset] = useState(0); // month offset from current
+  const base = new Date();
+  const viewDate = new Date(base.getFullYear(), base.getMonth()+offset, 1);
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
   const legend = [
     { key:'green', dot:'●', label:t('candidateJourney.legend.green'), color:'#2e7d32' },
     { key:'yellow', dot:'●', label:t('candidateJourney.legend.yellow'), color:'#fdd835' },
     { key:'orange', dot:'●', label:t('candidateJourney.legend.orange'), color:'#fb8c00' },
     { key:'red', dot:'●', label:t('candidateJourney.legend.red'), color:'#e53935' }
   ];
+  const weeks = [];
+  let day = 1 - firstDay;
+  while (day <= daysInMonth) {
+    const week = [];
+    for (let i=0;i<7;i++){
+      const d = new Date(year, month, day);
+      const inMonth = d.getMonth() === month;
+      week.push({ date: d, inMonth });
+      day++;
+    }
+    weeks.push(week);
+  }
+  const monthLabel = viewDate.toLocaleDateString(undefined, { year:'numeric', month:'long' });
+
   return (
-    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#e0e0e0', border:'1px solid rgba(46,125,50,0.35)' }}>
-      <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.calendar')}</Typography>
-      <div style={{ height: 220, border:'1px dashed rgba(176,190,197,0.4)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', color:'#90a4ae' }}>
-        Calendar mock (month view)
-      </div>
-      <div style={{ display:'flex', gap:12, marginTop:10, flexWrap:'wrap' }}>
-        {legend.map(l => (
-          <span key={l.key} style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-            <span style={{ color:l.color }}>{l.dot}</span> {l.label}
-          </span>
-        ))}
-      </div>
-    </Paper>
+    <>
+      <Paper sx={{ p:1.5, bgcolor:'#000', color:'#a5d6a7', border:'1px solid rgba(46,125,50,0.35)' }}>
+        <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.calendar')}</Typography>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+          <Button size="small" variant="outlined" aria-label="Previous month" onClick={()=>setOffset(o=>o-1)}>{'<'}</Button>
+          <Typography variant="subtitle2">{monthLabel}</Typography>
+          <Button size="small" variant="outlined" aria-label="Next month" onClick={()=>setOffset(o=>o+1)}>{'>'}</Button>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:4 }}>
+          {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
+            <div key={d} style={{ textAlign:'center', opacity:0.7, fontSize:12 }}>{d}</div>
+          ))}
+          {weeks.map((week, wi)=> week.map((cell, ci)=> (
+            <div key={`${wi}-${ci}`} style={{
+              height: 28,
+              border:'1px solid rgba(176,190,197,0.25)',
+              borderRadius:6,
+              textAlign:'right',
+              paddingRight:6,
+              paddingTop:4,
+              color: cell.inMonth ? '#a5d6a7' : '#546e7a'
+            }}>
+              {cell.date.getDate()}
+            </div>
+          )))}
+        </div>
+      </Paper>
+
+      <Paper sx={{ p:1, mt:'48px', bgcolor:'#000', color:'#a5d6a7', border:'1px solid rgba(46,125,50,0.35)' }}>
+        <div style={{ display:'flex', gap:12, flexWrap:'wrap', alignItems:'center', fontSize:12 }}>
+          {legend.map(l => (
+            <span key={l.key} style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+              <span style={{ color:l.color, fontSize:10 }}>{l.dot}</span> <span>{l.label}</span>
+            </span>
+          ))}
+        </div>
+      </Paper>
+    </>
   );
 }
 
@@ -88,7 +134,7 @@ function NotesPanel(){
     { id:'n3', author:'Olivia Brown', at:'2025‑06‑06 16:10', body:'ATS updated to Interviewed.' }
   ];
   return (
-    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#e0e0e0', border:'1px solid rgba(46,125,50,0.35)', height:'100%' }}>
+    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%' }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.notes')}</Typography>
       <div style={{ height: 220, overflowY:'auto' }}>
         <ul style={{ margin:0, paddingLeft:16 }}>
@@ -108,14 +154,26 @@ function NotesPanel(){
 export default function CandidateJourneyScreen(){
   const { t } = useTranslation();
   const { candidateId } = useParams();
-  const candidate = useMemo(()=>({
-    id: candidateId,
-    fullName: 'Selected Candidate',
-    role: 'AI Product Manager',
-    location: 'San Francisco, CA',
-    channel: 'web',
-    stage: 'qualified'
-  }), [candidateId]);
+  const location = useLocation();
+  const candidate = useMemo(()=>{
+    const stateCand = location.state && location.state.candidate;
+    if (stateCand) return {
+      id: stateCand.id,
+      fullName: stateCand.name || stateCand.fullName || 'Candidate',
+      role: stateCand.roleTitle || '—',
+      location: stateCand.location || '—',
+      channel: stateCand.channel || '—',
+      stage: stateCand.status || '—'
+    };
+    return {
+      id: candidateId,
+      fullName: 'Candidate',
+      role: '—',
+      location: '—',
+      channel: '—',
+      stage: '—'
+    };
+  }, [candidateId, location.state]);
 
   return (
     <Box sx={{ py: 1.25, px: 1, minHeight:'100vh', bgcolor:'#0b0d0b' }}>
