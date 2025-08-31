@@ -169,7 +169,20 @@ function NotesPanel(){
           ))}
         </ul>
       </div>
-      <Button variant="outlined" size="small" disabled sx={{ mt:1, opacity:0.7 }}>Notes disabled in demo</Button>
+      <div style={{ display:'flex', gap:8, alignItems:'center', marginTop:12 }}>
+        <div style={{ flex:1 }}>
+          <div style={{
+            padding:'8px 10px',
+            border:'1px dashed rgba(46,125,50,0.5)',
+            borderRadius:6,
+            color:'#cddc39',
+            background:'rgba(255,255,255,0.03)'
+          }}>
+            ADD A NOTE
+          </div>
+        </div>
+        <Button variant="contained" color="success" size="small">Add note</Button>
+      </div>
     </Paper>
   );
 }
