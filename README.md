@@ -10,6 +10,12 @@ Production-minded agentic AI recruiter for high-volume hiring. It contacts candi
 
 ![Hire Falcon UI — Tab 3](hiretab3.gif)
 
+![Candidate Journey — End‑to‑end timeline, calendar, notes](hiretab4.gif)
+
+![Arabic UI — Full app translated (AR, RTL)](hiretab5.gif)
+
+![Chinese UI — Tabs and screens translated (ZH)](hiretab6.gif)
+
 ## Quick Start
 
 ### Docker (fastest)
