@@ -1,21 +1,39 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Box, Button, Chip, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Chip, Grid, Paper, Typography, TextField } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 function CandidateJourneyHeader({ candidate }){
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const lastSeen = (()=>{
+    const m = Number(candidate.lastMins||candidate.last_minutes||0);
+    if (!Number.isFinite(m) || m <= 0) return '';
+    const h = Math.floor(m/60);
+    const mm = String(m%60).padStart(2,'0');
+    return `${h}h${mm}m`;
+  })();
+  const lang = (candidate.locale||'').toUpperCase();
   return (
     <Paper sx={{ p: 1.5, bgcolor:'#000', color:'#e0e0e0', border:'1px solid rgba(46,125,50,0.35)', position:'sticky', top:0, zIndex:2 }}>
       <Box sx={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <Box>
           <Typography variant="h6" sx={{ mb: 0.5 }}>{candidate.fullName}</Typography>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-            <Chip size="small" label={`${candidate.role}`} />
+            <Chip size="small" label={`${candidate.role||''}`} />
             <Chip size="small" label={`${candidate.location||''}`} />
             <Chip size="small" label={`${candidate.channel?.toUpperCase()||''}`} />
-            <Chip size="small" color="success" label={`${candidate.stage}`} />
+            <Chip size="small" color="success" label={`${candidate.stage||''}`} />
+            {candidate.gender ? <Chip size="small" label={`${candidate.gender}`} /> : null}
+            {candidate.workPref ? <Chip size="small" label={`${candidate.workPref}`} /> : null}
+            {candidate.expertise || candidate.roleTitle ? <Chip size="small" label={`${candidate.expertise||''}${candidate.roleTitle?` — ${candidate.roleTitle}`:''}`} /> : null}
+            {lang ? <Chip size="small" label={`${lang}`} /> : null}
+            {Number.isFinite(candidate.years) ? <Chip size="small" label={`${candidate.years}y`} /> : null}
+            {candidate.education ? <Chip size="small" label={`${candidate.education}`} /> : null}
+            {candidate.citizenship || candidate.statusCode ? <Chip size="small" label={`${candidate.citizenship||''} ${candidate.statusCode||''}`.trim()} /> : null}
+            {lastSeen ? <Chip size="small" label={`Last ${lastSeen}`} /> : null}
+            {candidate.phone ? <Chip size="small" label={`${candidate.phone}`} /> : null}
+            {typeof candidate.consent === 'boolean' ? <Chip size="small" label={`Consent: ${candidate.consent ? t('yes') : t('no')}`}/> : null}
           </div>
         </Box>
         <Box sx={{ display:'flex', gap:1 }}>
@@ -157,7 +175,7 @@ function NotesPanel(){
     { id:'n4', author:'Emily Johnson', at:'2025‑08‑28 10:15', body:'Offer accepted. Start date pending team onboarding schedule. ATS moved to Hired; kickoff tasks opened for IT and HR.' }
   ];
   return (
-    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%' }}>
+    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%', display:'flex', flexDirection:'column' }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.notes')}</Typography>
       <div style={{ height: 220, overflowY:'auto' }}>
         <ul style={{ margin:0, paddingLeft:16 }}>
@@ -169,7 +187,20 @@ function NotesPanel(){
           ))}
         </ul>
       </div>
-      <Button variant="outlined" size="small" disabled sx={{ mt:1, opacity:0.7 }}>Notes disabled in demo</Button>
+      <TextField
+        multiline
+        placeholder="ADD A NOTE"
+        sx={{
+          mt:1,
+          flex:1,
+          minHeight: 120,
+          '& .MuiInputBase-root': { bgcolor:'rgba(38,50,56,0.6)', color:'#e0e0e0', alignItems:'flex-start' },
+          '& .MuiOutlinedInput-notchedOutline': { borderColor:'rgba(176,190,197,0.4)' },
+          '& .MuiInputBase-input::placeholder': { color:'#b0bec5', opacity:1 }
+        }}
+        minRows={5}
+      />
+      <Button variant="contained" color="success" sx={{ mt:1, alignSelf:'flex-end' }}>ADD</Button>
     </Paper>
   );
 }
