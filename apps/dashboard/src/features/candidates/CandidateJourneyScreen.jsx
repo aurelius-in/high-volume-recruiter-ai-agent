@@ -27,25 +27,23 @@ function CandidateJourneyHeader({ candidate }){
   );
 }
 
-function JourneyTimeline(){
+function JourneyTimeline({ events }){
   const { t } = useTranslation();
-  const items = [
-    { id:'e1', icon:'📣', title:'Outreach', at:'2025-06-03 09:10', details:'Initial SMS sent with job details.' },
-    { id:'e2', icon:'✉️', title:'Reply', at:'2025-06-03 09:25', details:'Candidate replied and consented.' },
-    { id:'e3', icon:'✅', title:'Qualification', at:'2025-06-03 10:10', details:'Passed screen; preferred Hybrid.' },
-    { id:'e4', icon:'📅', title:'Scheduling', at:'2025-06-04 13:00', details:'Proposed Thursday 10:00; confirmed.' },
-    { id:'e5', icon:'🔁', title:'Reschedule', at:'2025-06-05 11:30', details:'Moved to Friday 11:00.' },
-    { id:'e6', icon:'🗂️', title:'ATS Update', at:'2025-06-06 15:45', details:'Progress set to Interviewed.' },
-    { id:'e7', icon:'🏁', title:'Hired', at:'2025-06-10 09:00', details:'Marked hired in ATS.' }
-  ];
+  const typeToIcon = { outreach:'📣', reply:'✉️', consent:'✉️', qualification:'✅', schedule:'📅', reschedule:'🔁', ats_update:'🗂️', hired:'🏁', error:'⚠️', reminder:'⏰', no_show:'🚫' };
+  const items = (events||[]).map(e=>({
+    ...e,
+    icon: typeToIcon[e.type] || '•',
+    title: e.type.charAt(0).toUpperCase()+e.type.slice(1).replace('_',' '),
+    atDisplay: new Date(e.at).toLocaleString()
+  }));
   return (
     <Paper sx={{ p:1.5, bgcolor:'#000', color:'#ffcc80', border:'1px solid rgba(46,125,50,0.35)' }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.timeline')}</Typography>
       <ul style={{ margin:0, paddingLeft: 16 }}>
         {items.map(it=> (
           <li key={it.id} style={{ marginBottom: 10 }}>
-            <div style={{ fontWeight:700 }}>{it.icon} {it.title} — {it.at}</div>
-            <div style={{ opacity:0.9, fontSize:12 }}>{it.details}</div>
+            <div style={{ fontWeight:700 }}>{it.icon} {it.title} — {it.atDisplay}</div>
+            <div style={{ opacity:0.9, fontSize:12 }}>{it.summary || it.details}</div>
           </li>
         ))}
       </ul>
@@ -54,7 +52,7 @@ function JourneyTimeline(){
   );
 }
 
-function ActivityCalendar(){
+function ActivityCalendar({ events }){
   const { t } = useTranslation();
   const [offset, setOffset] = useState(0); // month offset from current
   const base = new Date();
@@ -84,6 +82,23 @@ function ActivityCalendar(){
   }
   const monthLabel = viewDate.toLocaleDateString(undefined, { year:'numeric', month:'long' });
 
+  // Map events to Y-M-D -> color
+  const colorForType = (type)=>{
+    if (type==='outreach' || type==='reply' || type==='consent' || type==='qualification' || type==='ats_update' || type==='hired') return '#2e7d32';
+    if (type==='schedule' || type==='reminder') return '#fdd835';
+    if (type==='reschedule' || type==='no_show') return '#fb8c00';
+    if (type==='error') return '#e53935';
+    return undefined;
+  };
+  const eventByDay = {};
+  (events||[]).forEach(e=>{
+    const d = new Date(e.at);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const color = colorForType(e.type);
+    if (!color) return;
+    eventByDay[key] = color; // last one wins; enough for demo
+  });
+
   return (
     <>
       <Paper sx={{ p:1.5, bgcolor:'#000', color:'#a5d6a7', border:'1px solid rgba(46,125,50,0.35)' }}>
@@ -97,19 +112,26 @@ function ActivityCalendar(){
           {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
             <div key={d} style={{ textAlign:'center', opacity:0.7, fontSize:12 }}>{d}</div>
           ))}
-          {weeks.map((week, wi)=> week.map((cell, ci)=> (
-            <div key={`${wi}-${ci}`} style={{
+          {weeks.map((week, wi)=> week.map((cell, ci)=> {
+            const key = `${cell.date.getFullYear()}-${String(cell.date.getMonth()+1).padStart(2,'0')}-${String(cell.date.getDate()).padStart(2,'0')}`;
+            const evColor = eventByDay[key];
+            const useFill = !!evColor;
+            const style = {
               height: 28,
-              border:'1px solid rgba(176,190,197,0.25)',
+              border: `1px solid ${evColor || 'rgba(176,190,197,0.25)'}`,
+              background: useFill ? evColor : 'transparent',
+              color: useFill ? '#000' : (cell.inMonth ? '#a5d6a7' : '#546e7a'),
               borderRadius:6,
               textAlign:'right',
               paddingRight:6,
-              paddingTop:4,
-              color: cell.inMonth ? '#a5d6a7' : '#546e7a'
-            }}>
-              {cell.date.getDate()}
-            </div>
-          )))}
+              paddingTop:4
+            };
+            return (
+              <div key={`${wi}-${ci}`} style={style}>
+                {cell.date.getDate()}
+              </div>
+            );
+          }))}
         </div>
       </Paper>
 
@@ -175,12 +197,23 @@ export default function CandidateJourneyScreen(){
     };
   }, [candidateId, location.state]);
 
+  // Shared demo events powering both Timeline and Calendar
+  const events = useMemo(() => ([
+    { id:'e1', type:'outreach', at:'2025-06-03T09:10:00', summary:'Initial SMS sent with job details.' },
+    { id:'e2', type:'reply', at:'2025-06-03T09:25:00', summary:'Candidate replied and consented.' },
+    { id:'e3', type:'qualification', at:'2025-06-03T10:10:00', summary:'Passed screen; preferred Hybrid.' },
+    { id:'e4', type:'schedule', at:'2025-06-04T13:00:00', summary:'Proposed Thursday 10:00; confirmed.' },
+    { id:'e5', type:'reschedule', at:'2025-06-05T11:30:00', summary:'Moved to Friday 11:00.' },
+    { id:'e6', type:'ats_update', at:'2025-06-06T15:45:00', summary:'Progress set to Interviewed.' },
+    { id:'e7', type:'hired', at:'2025-06-10T09:00:00', summary:'Marked hired in ATS.' }
+  ]), []);
+
   return (
     <Box sx={{ py: 1.25, px: 1, minHeight:'100vh', bgcolor:'#0b0d0b' }}>
       <CandidateJourneyHeader candidate={candidate} />
       <Grid container spacing={1.25} sx={{ mt: 0.5 }}>
-        <Grid item xs={12} md={4}><JourneyTimeline /></Grid>
-        <Grid item xs={12} md={4}><ActivityCalendar /></Grid>
+        <Grid item xs={12} md={4}><JourneyTimeline events={events} /></Grid>
+        <Grid item xs={12} md={4}><ActivityCalendar events={events} /></Grid>
         <Grid item xs={12} md={4}><NotesPanel /></Grid>
       </Grid>
     </Box>
