@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./global.css";
 import { Auth0Provider } from "@auth0/auth0-react";
 import * as Sentry from "@sentry/react";
@@ -15,14 +16,18 @@ const auth0Domain = import.meta.env.VITE_AUTH0_DOMAIN;
 const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
 const auth0Audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 
+const router = createBrowserRouter([
+  { path: "/*", element: <App /> }
+]);
+
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     {auth0Domain && auth0ClientId ? (
       <Auth0Provider domain={auth0Domain} clientId={auth0ClientId} authorizationParams={{ redirect_uri: window.location.origin, audience: auth0Audience }}>
-        <App />
+        <RouterProvider router={router} />
       </Auth0Provider>
     ) : (
-      <App />
+      <RouterProvider router={router} />
     )}
   </React.StrictMode>
 );

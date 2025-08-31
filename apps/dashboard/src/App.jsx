@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Grid, Paper, Typography, Button, TextField, Snackbar, Alert, Switch, FormControlLabel, Skeleton, Chip, Tabs, Tab, Box } from "@mui/material";
+import { Routes, Route, useNavigate, useParams, Link } from "react-router-dom";
 import Simulator from "./Simulator.jsx";
 import AskChat from "./components/AskChat.jsx";
+import CandidateJourneyScreen from "./features/candidates/CandidateJourneyScreen.jsx";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
@@ -19,6 +21,7 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function App() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [kpi, setKpi] = useState(null);
   const [audit, setAudit] = useState([]);
   const [jobId, setJobId] = useState("");
@@ -32,6 +35,8 @@ export default function App() {
   const [tab, setTab] = useState(0);
   const [jobSearch, setJobSearch] = useState("");
   const [candSearch, setCandSearch] = useState("");
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState(null);
 
   // Demo data for Audit & Ask replacements (recruiter-facing)
   const recruiterNamePool = [
@@ -148,7 +153,7 @@ export default function App() {
     }
   };
 
-  return (
+  const Shell = (
     <Container disableGutters maxWidth={false} sx={{
       py: 2,
       minHeight: '100vh',
@@ -314,7 +319,14 @@ export default function App() {
                   InputProps={{ sx:{ color:'#e0e0e0' } }}
                 />
               </Paper>
-              <JobsList searchTerm={jobSearch} />
+              <JobsList searchTerm={jobSearch} selectedJobId={selectedJobId} onSelectJob={setSelectedJobId} />
+              {selectedJobId && (
+                <div style={{ marginTop: 8 }}>
+                  <Button variant="contained" color="success" onClick={()=>navigate(`/jobs/${encodeURIComponent(selectedJobId)}`)}>
+                    {t('viewJob') || 'View Job'}
+                  </Button>
+                </div>
+              )}
             </Grid>
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 1, mb: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)' }}>
@@ -323,7 +335,14 @@ export default function App() {
                   InputProps={{ sx:{ color:'#e0e0e0' } }}
                 />
               </Paper>
-              <CandidatesList searchTerm={candSearch} />
+              <CandidatesList searchTerm={candSearch} selectedCandidateId={selectedCandidateId} onSelectCandidate={setSelectedCandidateId} />
+              {selectedCandidateId && (
+                <div style={{ marginTop: 8 }}>
+                  <Button variant="contained" color="success" onClick={()=>navigate(`/candidates/${encodeURIComponent(selectedCandidateId)}/journey`)}>
+                    {t('candidateJourney.openButton')}
+                  </Button>
+                </div>
+              )}
             </Grid>
           </Grid>
         </Box>
@@ -382,6 +401,15 @@ export default function App() {
       </Snackbar>
       </AuthGate>
     </Container>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={Shell} />
+      <Route path="/candidates/:candidateId/journey" element={<CandidateJourneyScreen />} />
+      <Route path="/jobs/:jobId" element={<div style={{ padding: 16 }}>Job view placeholder</div>} />
+      <Route path="*" element={Shell} />
+    </Routes>
   );
 }
 

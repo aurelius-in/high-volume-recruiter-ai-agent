@@ -14,6 +14,21 @@ const resources = {
         cost_per_qualified: "Cost Per Qualified",
         active_candidates: "Active Candidates"
       },
+      candidateJourney: {
+        openButton: "Open Candidate Journey",
+        title: "Candidate Journey",
+        schedule: "Schedule",
+        back: "Back to Scheduling",
+        timeline: "Journey Timeline",
+        calendar: "Activity Calendar",
+        notes: "Recruiter Notes",
+        legend: {
+          green: "Activity",
+          yellow: "Upcoming Interview",
+          orange: "Reschedule / No-show",
+          red: "Error / Policy / ATS Issue"
+        }
+      }
       funnel: "Funnel",
       opsConsole: "Ops Console",
       controls: "Controls",
@@ -40,6 +55,21 @@ const resources = {
         suggest3: "How many candidates are qualified?",
         suggest4: "List jobs in Dallas"
       },
+      candidateJourney: {
+        openButton: "افتح رحلة المرشح",
+        title: "رحلة المرشح",
+        schedule: "جدولة",
+        back: "العودة إلى الجدولة",
+        timeline: "مخطط الرحلة",
+        calendar: "تقويم الأنشطة",
+        notes: "ملاحظات المُوظِّف",
+        legend: {
+          green: "نشاط",
+          yellow: "مقابلة قادمة",
+          orange: "إعادة جدولة / عدم الحضور",
+          red: "خطأ / سياسة / مشكلة نظام التوظيف"
+        }
+      }
       // Additional i18n keys
       hireFunnel: "Hire Funnel",
       searchJobsPlaceholder: "🔍  SEARCH JOBS",
@@ -75,8 +105,24 @@ const resources = {
         channel: "Channel",
         consent: "Consent"
       },
+      candidateJourney: {
+        openButton: "打开候选人旅程",
+        title: "候选人旅程",
+        schedule: "安排",
+        back: "返回排期",
+        timeline: "旅程时间线",
+        calendar: "活动日历",
+        notes: "招聘备注",
+        legend: {
+          green: "活动",
+          yellow: "即将面试",
+          orange: "改期/未到场",
+          red: "错误/策略/ATS 问题"
+        }
+      }
       yes: "yes",
       no: "no",
+      viewJob: "View Job",
       heatmap: {
         title: "Monthly Reply Window Heatmap",
         caption: "Reply rate by hour × weekday. Favor green, avoid red.",
@@ -194,6 +240,7 @@ const resources = {
       },
       yes: "نعم",
       no: "لا",
+      viewJob: "عرض الوظيفة",
       heatmap: {
         title: "خريطة نوافذ الرد الشهرية",
         caption: "معدل الرد حسب الساعة × أيام الأسبوع. فضّل الأخضر وتجنّب الأحمر.",
@@ -311,6 +358,7 @@ const resources = {
       },
       yes: "是",
       no: "否",
+      viewJob: "查看职位",
       heatmap: {
         title: "月度回复时间窗口热力图",
         caption: "按小时 × 星期的回复率。尽量选择绿色，避免红色。",
