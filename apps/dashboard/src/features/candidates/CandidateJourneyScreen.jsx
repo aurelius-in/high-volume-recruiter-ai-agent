@@ -199,13 +199,14 @@ export default function CandidateJourneyScreen(){
 
   // Shared demo events powering both Timeline and Calendar
   const events = useMemo(() => ([
-    { id:'e1', type:'outreach', at:'2025-06-03T09:10:00', summary:'Initial SMS sent with job details.' },
-    { id:'e2', type:'reply', at:'2025-06-03T09:25:00', summary:'Candidate replied and consented.' },
-    { id:'e3', type:'qualification', at:'2025-06-03T10:10:00', summary:'Passed screen; preferred Hybrid.' },
-    { id:'e4', type:'schedule', at:'2025-06-04T13:00:00', summary:'Proposed Thursday 10:00; confirmed.' },
-    { id:'e5', type:'reschedule', at:'2025-06-05T11:30:00', summary:'Moved to Friday 11:00.' },
-    { id:'e6', type:'ats_update', at:'2025-06-06T15:45:00', summary:'Progress set to Interviewed.' },
-    { id:'e7', type:'hired', at:'2025-06-10T09:00:00', summary:'Marked hired in ATS.' }
+    // ~10-week journey ending late August 2025
+    { id:'e1', type:'outreach',    at:'2025-06-17T09:10:00', summary:'Initial SMS sent with job details.' },
+    { id:'e2', type:'reply',       at:'2025-06-17T09:25:00', summary:'Candidate replied and consented.' },
+    { id:'e3', type:'qualification', at:'2025-06-20T10:10:00', summary:'Passed screen; prefers Hybrid.' },
+    { id:'e4', type:'schedule',    at:'2025-07-02T13:00:00', summary:'Proposed interview; confirmed.' },
+    { id:'e5', type:'reschedule',  at:'2025-07-18T11:30:00', summary:'Rescheduled due to conflict.' },
+    { id:'e6', type:'ats_update',  at:'2025-08-05T15:45:00', summary:'ATS updated to “Interviewed”.' },
+    { id:'e7', type:'hired',       at:'2025-08-28T09:00:00', summary:'Marked hired in ATS.' }
   ]), []);
 
   return (
