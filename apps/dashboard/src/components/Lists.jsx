@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Paper, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
-export function JobsList({ searchTerm = "" }){
+export function JobsList({ searchTerm = "", selectedJobId = null, onSelectJob = ()=>{} }){
+  const { t } = useTranslation();
   const [jobs, setJobs] = useState([]);
   useEffect(()=>{ axios.get(`${API}/jobs`).then(r=>setJobs(r.data.jobs||[])); },[]);
   // Fallback demo: 50 clear, easy-to-explain roles/cities/shifts
@@ -128,14 +130,19 @@ export function JobsList({ searchTerm = "" }){
   }) : display;
   return (
     <Paper sx={{ p:2, bgcolor:'#000', color:'#cfd8d3', border:'1px solid rgba(46,125,50,0.35)', height: 360 }}>
-      <Typography variant="subtitle1" sx={{ mb:1 }}>Jobs</Typography>
+      <Typography variant="subtitle1" sx={{ mb:1 }}>{t('jobs')}</Typography>
       <div style={{ height: 300, overflowY: 'auto' }}>
         <ul style={{ margin:0, paddingLeft:20 }}>
           {filtered.map(j => (
-            <li key={j.id} style={{ marginBottom: 10 }}>
-              <div>{j.title} — {j.location} — {j.shift}</div>
+            <li key={j.id} style={{ marginBottom: 10, cursor:'pointer' }} onClick={()=>onSelectJob(j.id)}>
+              <div style={{
+                background: selectedJobId===j.id ? 'rgba(46,125,50,0.35)' : 'transparent',
+                color: selectedJobId===j.id ? '#ffcc80' : 'inherit',
+                borderRadius: 6,
+                padding: selectedJobId===j.id ? '2px 4px' : 0
+              }}>{j.title} — {j.location} — {j.shift}</div>
               <div style={{ opacity: 0.9, fontSize: 12 }}>
-                📄 {j.reqId} • Openings: {j.openings?.filled ?? 0}/{j.openings?.target ?? 0} • {j.type} • {j.workMode} • {j.pay} • Dept: {j.dept} • HM: {j.hm} • Priority: {j.priority} • Age: {j.ageDays}d • Pipeline: {j.pipeline?.applied ?? 0}/{j.pipeline?.contacted ?? 0}/{j.pipeline?.replied ?? 0}/{j.pipeline?.qualified ?? 0}/{j.pipeline?.scheduled ?? 0} • SLA: {j.slaHours}h{j.notes ? ` • ${j.notes}` : ''}
+                📄 {t('labels.reqId')}: {j.reqId} • {t('labels.openings')}: {j.openings?.filled ?? 0}/{j.openings?.target ?? 0} • {j.type} • {j.workMode} • {j.pay} • {t('labels.dept')}: {j.dept} • {t('labels.hm')}: {j.hm} • {t('labels.priority')}: {j.priority} • {t('labels.age')}: {j.ageDays}d • {t('labels.pipeline')}: {j.pipeline?.applied ?? 0}/{j.pipeline?.contacted ?? 0}/{j.pipeline?.replied ?? 0}/{j.pipeline?.qualified ?? 0}/{j.pipeline?.scheduled ?? 0} • {t('labels.sla')}: {j.slaHours}h{j.notes ? ` • ${j.notes}` : ''}
               </div>
             </li>
           ))}
@@ -145,7 +152,8 @@ export function JobsList({ searchTerm = "" }){
   );
 }
 
-export function CandidatesList({ searchTerm = "" }){
+export function CandidatesList({ searchTerm = "", selectedCandidateId = null, onSelectCandidate = ()=>{} }){
+  const { t } = useTranslation();
   const [cands, setCands] = useState([]);
   useEffect(()=>{ axios.get(`${API}/candidates`).then(r=>setCands(r.data.candidates||[])); },[]);
   const demoNames = [
@@ -351,16 +359,21 @@ export function CandidatesList({ searchTerm = "" }){
   }) : combined;
   return (
     <Paper sx={{ p:2, bgcolor:'#000', color:'#cfd8d3', border:'1px solid rgba(46,125,50,0.35)', height: 360 }}>
-      <Typography variant="subtitle1" sx={{ mb:1 }}>Candidates</Typography>
+      <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidates')}</Typography>
       <div style={{ height: 300, overflowY: 'auto' }}>
         <ul style={{ margin:0, paddingLeft:20 }}>
           {display.map(c => (
-            <li key={c.id} style={{ marginBottom: 10 }}>
-              <div>
-                {c.name} — <span style={{ fontSize: 11, opacity: 0.85 }}>Status: {statusBadge(c).emoji} ({statusBadge(c).text})</span>
+            <li key={c.id} style={{ marginBottom: 10, cursor:'pointer' }} onClick={()=>onSelectCandidate(c.id)}>
+              <div style={{
+                background: selectedCandidateId===c.id ? 'rgba(46,125,50,0.35)' : 'transparent',
+                color: selectedCandidateId===c.id ? '#ffcc80' : 'inherit',
+                borderRadius: 6,
+                padding: selectedCandidateId===c.id ? '2px 4px' : 0
+              }}>
+                {c.name} — <span style={{ fontSize: 11, opacity: 0.85 }}>{t('labels.status')}: {statusBadge(c).emoji} ({statusBadge(c).text})</span>
               </div>
               <div style={{ opacity: 0.9, fontSize: 12 }}>
-                👤 {c.gender} • {c.location} • Loc. Pref: {c.workPref} • Expertise: {c.expertise} — {c.roleTitle} • Lang: {toLangCode(c.locale)} • Exp: {c.years} yrs • Education: {c.education || pickStable(educationLevels, c.id)} • Citizenship: {c.citizenship || pickStable(citizenshipCodes, c.id)} {c.statusCode || ''} • Last: {Math.floor(c.lastMins/60)}h{String(c.lastMins%60).padStart(2,'0')}m • {c.phone || ''}{c.notes ? ` • ${c.notes}` : ''} • Channel: {c.channel} • Consent: {c.consent ? 'yes' : 'no'}
+                👤 {c.gender} • {c.location} • {t('labels.locPref')}: {c.workPref} • {t('labels.expertise')}: {c.expertise} — {c.roleTitle} • {t('labels.lang')}: {toLangCode(c.locale)} • {t('labels.exp')}: {c.years} {t('labels.years')} • {t('labels.education')}: {c.education || pickStable(educationLevels, c.id)} • {t('labels.citizenship')}: {c.citizenship || pickStable(citizenshipCodes, c.id)} {c.statusCode || ''} • {t('labels.last')}: {Math.floor(c.lastMins/60)}h{String(c.lastMins%60).padStart(2,'0')}m • {c.phone || ''}{c.notes ? ` • ${c.notes}` : ''} • {t('labels.channel')}: {c.channel} • {t('labels.consent')}: {c.consent ? t('yes') : t('no')}
               </div>
             </li>
           ))}

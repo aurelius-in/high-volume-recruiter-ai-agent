@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function AskChat(){
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     { role: "assistant", text: t('ask.suggestionLine') }
@@ -21,6 +21,18 @@ export default function AskChat(){
     fetch(`${API}/candidates`).then(r=>r.json()).then(d=>setCandidates(d.candidates||[])).catch(()=>{});
     fetch(`${API}/kpi`).then(r=>r.json()).then(setKpi).catch(()=>{});
   },[]);
+
+  // Update the initial assistant suggestion whenever language changes.
+  useEffect(()=>{
+    setMessages((cur)=>{
+      // If the first message looks like our suggestion, replace it to the current locale
+      if (cur.length > 0 && cur[0].role === 'assistant') {
+        const rest = cur.slice(1);
+        return [{ role:'assistant', text: t('ask.suggestionLine') }, ...rest];
+      }
+      return [{ role:'assistant', text: t('ask.suggestionLine') }];
+    });
+  }, [i18n.language, t]);
 
   useEffect(()=>{
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -80,49 +92,78 @@ export default function AskChat(){
     return "I can answer about candidates (qualified/scheduled/replied), active candidates, ATS rate, or list jobs by city.";
   };
 
+  // Stream from backend /chat/stream via fetch (text/event-stream)
+  const streamFromBackend = async (userText) => {
+    const history = messages.map(m => ({ role: m.role, content: m.text }));
+    const controller = new AbortController();
+    setMessages(m=>[...m, { role:'assistant', text: '⏳' }]);
+    try {
+      const res = await fetch(`${API}/chat/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
+        body: JSON.stringify({ messages: [...history, { role:'user', content: userText }], include_context: true }),
+        signal: controller.signal
+      });
+      if (!res.ok || !res.body) {
+        throw new Error('chat stream failed');
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = '';
+      let started = false;
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+        const parts = acc.split(/\n\n/);
+        acc = parts.pop() || '';
+        for (const chunk of parts) {
+          const lines = chunk.split(/\n/);
+          let ev = null; let data = '';
+          for (const line of lines) {
+            if (line.startsWith('event:')) ev = line.slice(6).trim();
+            if (line.startsWith('data:')) data += line.slice(5).trim();
+          }
+          if (ev === 'chat' && data) {
+            setMessages(m=>{
+              const copy = m.slice();
+              if (!started && copy[copy.length-1]?.text === '⏳' && copy[copy.length-1]?.role==='assistant') {
+                copy.pop();
+                copy.push({ role:'assistant', text: data });
+              } else {
+                copy[copy.length-1].text += data;
+              }
+              started = true;
+              return copy;
+            });
+          } else if (ev === 'done') {
+            controller.abort();
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      setMessages(m=>{
+        const copy = m.slice();
+        if (copy[copy.length-1]?.text === '⏳') copy.pop();
+        copy.push({ role:'assistant', text: 'Sorry — the assistant is unavailable right now.' });
+        return copy;
+      });
+    }
+  };
+
   const onSend = async () => {
     const text = input.trim();
     if (!text) return;
     setInput("");
     setMessages(m=>[...m, { role:'user', text }]);
-
-    // Demo-specific handling with hourglass delay
-    const q = text.toLowerCase();
-    const hasOliver = q.includes('oliver');
-    const hasEllison = q.includes('ellison');
-    const hasSabbar = q.includes('sabbar');
-    const hasQualifiedWord = q.includes('qualified');
-
-    if (hasOliver && (hasSabbar || hasQualifiedWord)) {
-      // Second answer path, delayed with hourglass
-      setMessages(m=>[...m, { role:'assistant', text: '⏳' }]);
-      await new Promise(r=>setTimeout(r, 3000));
-      const detailed = "Yes — Oliver is highly qualified. Experience includes multi-agent planning and coordination, vector search and embeddings, prompt and policy design, evaluation harnesses, event-driven backends (FastAPI), and modern React dashboards. He has 10+ years building AI/ML products and agentic automations, with a strong track record of reliability, safety, and measurable business impact.";
-      setMessages(m=>{
-        const copy = m.slice();
-        if (copy[copy.length-1]?.text === '⏳' && copy[copy.length-1]?.role==='assistant') copy.pop();
-        copy.push({ role:'assistant', text: detailed });
-        return copy;
-      });
-      return;
+    // Prefer backend assistant; fallback to local heuristics if it fails
+    try {
+      await streamFromBackend(text);
+    } catch (e) {
+      const reply = await answer(text);
+      setMessages(m=>[...m, { role:'assistant', text: reply }]);
     }
-
-    if (hasOliver && hasEllison) {
-      // First answer path, delayed with hourglass
-      setMessages(m=>[...m, { role:'assistant', text: '⏳' }]);
-      await new Promise(r=>setTimeout(r, 3000));
-      const detailed = "Yes. Oliver Ellison has over 10 years designing and shipping AI systems, including production agentic workflows, retrieval-augmented generation, tool-use orchestration, and high-volume messaging automations. He has led end‑to‑end delivery from data and model evaluation through scalable backend services and robust UX for operator-in-the-loop control.";
-      setMessages(m=>{
-        const copy = m.slice();
-        if (copy[copy.length-1]?.text === '⏳' && copy[copy.length-1]?.role==='assistant') copy.pop();
-        copy.push({ role:'assistant', text: detailed });
-        return copy;
-      });
-      return;
-    }
-
-    const reply = await answer(text);
-    setMessages(m=>[...m, { role:'assistant', text: reply }]);
   };
 
   return (
@@ -153,7 +194,7 @@ export default function AskChat(){
             '& .MuiOutlinedInput-notchedOutline': { borderColor:'rgba(176,190,197,0.4)' }
           }}
         />
-        <Button variant="contained" onClick={onSend} sx={{ bgcolor:'#2e7d32' }}>Send</Button>
+        <Button variant="contained" onClick={onSend} sx={{ bgcolor:'#2e7d32' }}>{t('ops.send')}</Button>
       </div>
       <Box sx={{ mt: 1, display:'flex', gap: 0.5, flexWrap:'wrap' }}>
         <Chip size="small" label={t('ask.suggest1')} onClick={()=>setInput(t('ask.suggest1'))}/>

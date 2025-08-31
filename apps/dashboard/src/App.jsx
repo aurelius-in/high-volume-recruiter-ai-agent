@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Grid, Paper, Typography, Button, TextField, Snackbar, Alert, Switch, FormControlLabel, Skeleton, Chip, Tabs, Tab, Box } from "@mui/material";
+import { Routes, Route, useNavigate, useParams, Link } from "react-router-dom";
 import Simulator from "./Simulator.jsx";
 import AskChat from "./components/AskChat.jsx";
+import CandidateJourneyScreen from "./features/candidates/CandidateJourneyScreen.jsx";
 import FunnelChart from "./components/FunnelChart.jsx";
 import TimezoneFooter from "./components/TimezoneFooter.jsx";
 import OpsConsole from "./components/OpsConsole.jsx";
@@ -19,6 +21,7 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function App() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [kpi, setKpi] = useState(null);
   const [audit, setAudit] = useState([]);
   const [jobId, setJobId] = useState("");
@@ -32,6 +35,8 @@ export default function App() {
   const [tab, setTab] = useState(0);
   const [jobSearch, setJobSearch] = useState("");
   const [candSearch, setCandSearch] = useState("");
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState(null);
 
   // Demo data for Audit & Ask replacements (recruiter-facing)
   const recruiterNamePool = [
@@ -148,7 +153,7 @@ export default function App() {
     }
   };
 
-  return (
+  const Shell = (
     <Container disableGutters maxWidth={false} sx={{
       py: 2,
       minHeight: '100vh',
@@ -292,7 +297,7 @@ export default function App() {
             </Grid>
             <Grid item xs={12} md={3}>
               <Paper sx={{ pt: 0, pb: 1, pl: 3, pr: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)', ml: '-20px', width: 'calc(100% + 20px)' }}>
-                <Typography variant="subtitle1" sx={{ fontSize: 16, mb: 0.25, color:'#cfd8d3' }}>Hire Funnel</Typography>
+                <Typography variant="subtitle1" sx={{ fontSize: 16, mb: 0.25, color:'#cfd8d3' }}>{t('hireFunnel')}</Typography>
                 {funnel ? (
                   <FunnelChart data={funnel} />
                 ) : (
@@ -309,21 +314,35 @@ export default function App() {
           <Grid container spacing={1.25}>
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 1, mb: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)' }}>
-                <TextField fullWidth size="small" placeholder={"🔍  SEARCH JOBS"}
+                <TextField fullWidth size="small" placeholder={t('searchJobsPlaceholder')}
                   value={jobSearch} onChange={(e)=>setJobSearch(e.target.value)}
                   InputProps={{ sx:{ color:'#e0e0e0' } }}
                 />
               </Paper>
-              <JobsList searchTerm={jobSearch} />
+              <JobsList searchTerm={jobSearch} selectedJobId={selectedJobId} onSelectJob={setSelectedJobId} />
+              {selectedJobId && (
+                <div style={{ marginTop: 8 }}>
+                  <Button variant="contained" color="success" onClick={()=>navigate(`/jobs/${encodeURIComponent(selectedJobId)}`)}>
+                    {t('viewJob') || 'View Job'}
+                  </Button>
+                </div>
+              )}
             </Grid>
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 1, mb: 1, bgcolor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(46,125,50,0.35)' }}>
-                <TextField fullWidth size="small" placeholder={"🔍  SEARCH CANDIDATES"}
+                <TextField fullWidth size="small" placeholder={t('searchCandidatesPlaceholder')}
                   value={candSearch} onChange={(e)=>setCandSearch(e.target.value)}
                   InputProps={{ sx:{ color:'#e0e0e0' } }}
                 />
               </Paper>
-              <CandidatesList searchTerm={candSearch} />
+              <CandidatesList searchTerm={candSearch} selectedCandidateId={selectedCandidateId} onSelectCandidate={setSelectedCandidateId} />
+              {selectedCandidateId && (
+                <div style={{ marginTop: 8 }}>
+                  <Button variant="contained" color="success" onClick={()=>navigate(`/candidates/${encodeURIComponent(selectedCandidateId)}/journey`)}>
+                    {t('candidateJourney.openButton')}
+                  </Button>
+                </div>
+              )}
             </Grid>
           </Grid>
         </Box>
@@ -336,13 +355,13 @@ export default function App() {
               <Grid container spacing={1.25}>
                 <Grid item xs={12} md={6}>
                   <Paper sx={{ p: 2, bgcolor: '#000', color:'#e3d6c9', border: '1px solid rgba(46,125,50,0.4)' }}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color:'#e3d6c9' }}>Top Recruiters</Typography>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color:'#e3d6c9' }}>{t('topRecruiters')}</Typography>
                     <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                       <ul style={{ margin:0, paddingLeft: 16 }}>
                         {topRecruiters.map(r => (
                           <li key={r.id} style={{ marginBottom: 8 }}>
-                            <div style={{ fontWeight: 700 }}>{r.name} — Hires: {r.hires}</div>
-                            <div style={{ opacity: 0.9, fontSize: 12 }}>Offers: {r.offerRate}% • Time‑to‑fill: {r.ttf}d • Open reqs: {r.reqs}</div>
+                            <div style={{ fontWeight: 700 }}>{r.name} — {t('labels.hires')}: {r.hires}</div>
+                            <div style={{ opacity: 0.9, fontSize: 12 }}>{t('labels.offers')}: {r.offerRate}% • {t('labels.ttf')}: {r.ttf}d • {t('labels.openReqs')}: {r.reqs}</div>
                           </li>
                         ))}
                       </ul>
@@ -351,13 +370,13 @@ export default function App() {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <Paper sx={{ p: 2, bgcolor: '#000', color:'#a9bcb2', border: '1px solid rgba(46,125,50,0.4)' }}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color:'#a9bcb2' }}>Top Matches</Typography>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color:'#a9bcb2' }}>{t('topMatches')}</Typography>
                     <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                       <ul style={{ margin:0, paddingLeft: 16 }}>
                         {matchTitles.map((m, idx) => (
                           <li key={`m-${idx}`} style={{ marginBottom: 8 }}>
                             <div style={{ fontWeight: 700 }}>{m.title} — {m.currency.includes('hr') ? `$${m.pay}/${m.currency.split('/')[1]}` : `$${m.pay.toLocaleString()} ${m.currency}`}</div>
-                            <div style={{ opacity: 0.9, fontSize: 12 }}>Domain: {m.tag} • Location: {m.loc}</div>
+                            <div style={{ opacity: 0.9, fontSize: 12 }}>{t('labels.domain')}: {m.tag} • {t('labels.location')}: {m.loc}</div>
                           </li>
                         ))}
                       </ul>
@@ -382,6 +401,15 @@ export default function App() {
       </Snackbar>
       </AuthGate>
     </Container>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={Shell} />
+      <Route path="/candidates/:candidateId/journey" element={<CandidateJourneyScreen />} />
+      <Route path="/jobs/:jobId" element={<div style={{ padding: 16 }}>Job view placeholder</div>} />
+      <Route path="*" element={Shell} />
+    </Routes>
   );
 }
 
