@@ -85,39 +85,44 @@ function ActivityCalendar(){
   const monthLabel = viewDate.toLocaleDateString(undefined, { year:'numeric', month:'long' });
 
   return (
-    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#a5d6a7', border:'1px solid rgba(46,125,50,0.35)' }}>
-      <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.calendar')}</Typography>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
-        <Button size="small" variant="outlined" aria-label="Previous month" onClick={()=>setOffset(o=>o-1)}>{'<'}</Button>
-        <Typography variant="subtitle2">{monthLabel}</Typography>
-        <Button size="small" variant="outlined" aria-label="Next month" onClick={()=>setOffset(o=>o+1)}>{'>'}</Button>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:4 }}>
-        {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
-          <div key={d} style={{ textAlign:'center', opacity:0.7, fontSize:12 }}>{d}</div>
-        ))}
-        {weeks.map((week, wi)=> week.map((cell, ci)=> (
-          <div key={`${wi}-${ci}`} style={{
-            height: 28,
-            border:'1px solid rgba(176,190,197,0.25)',
-            borderRadius:6,
-            textAlign:'right',
-            paddingRight:6,
-            paddingTop:4,
-            color: cell.inMonth ? '#a5d6a7' : '#546e7a'
-          }}>
-            {cell.date.getDate()}
-          </div>
-        )))}
-      </div>
-      <div style={{ display:'flex', gap:12, marginTop:10, flexWrap:'wrap' }}>
-        {legend.map(l => (
-          <span key={l.key} style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-            <span style={{ color:l.color }}>{l.dot}</span> {l.label}
-          </span>
-        ))}
-      </div>
-    </Paper>
+    <>
+      <Paper sx={{ p:1.5, bgcolor:'#000', color:'#a5d6a7', border:'1px solid rgba(46,125,50,0.35)' }}>
+        <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.calendar')}</Typography>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+          <Button size="small" variant="outlined" aria-label="Previous month" onClick={()=>setOffset(o=>o-1)}>{'<'}</Button>
+          <Typography variant="subtitle2">{monthLabel}</Typography>
+          <Button size="small" variant="outlined" aria-label="Next month" onClick={()=>setOffset(o=>o+1)}>{'>'}</Button>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:4 }}>
+          {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
+            <div key={d} style={{ textAlign:'center', opacity:0.7, fontSize:12 }}>{d}</div>
+          ))}
+          {weeks.map((week, wi)=> week.map((cell, ci)=> (
+            <div key={`${wi}-${ci}`} style={{
+              height: 28,
+              border:'1px solid rgba(176,190,197,0.25)',
+              borderRadius:6,
+              textAlign:'right',
+              paddingRight:6,
+              paddingTop:4,
+              color: cell.inMonth ? '#a5d6a7' : '#546e7a'
+            }}>
+              {cell.date.getDate()}
+            </div>
+          )))}
+        </div>
+      </Paper>
+
+      <Paper sx={{ p:1, mt:'48px', bgcolor:'#000', color:'#a5d6a7', border:'1px solid rgba(46,125,50,0.35)' }}>
+        <div style={{ display:'flex', gap:12, flexWrap:'wrap', alignItems:'center', fontSize:12 }}>
+          {legend.map(l => (
+            <span key={l.key} style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+              <span style={{ color:l.color, fontSize:10 }}>{l.dot}</span> <span>{l.label}</span>
+            </span>
+          ))}
+        </div>
+      </Paper>
+    </>
   );
 }
 
