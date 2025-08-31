@@ -211,13 +211,32 @@ export default function CandidateJourneyScreen(){
   const location = useLocation();
   const candidate = useMemo(()=>{
     const stateCand = location.state && location.state.candidate;
-    if (stateCand) return {
-      id: stateCand.id,
-      fullName: stateCand.name || stateCand.fullName || 'Candidate',
-      role: stateCand.roleTitle || '—',
-      location: stateCand.location || '—',
-      channel: stateCand.channel || '—',
-      stage: stateCand.status || '—'
+    let cand = stateCand;
+    if (!cand){
+      try {
+        const cached = sessionStorage.getItem('selectedCandidate');
+        if (cached) cand = JSON.parse(cached);
+      } catch(_){/* ignore */}
+    }
+    if (cand) return {
+      id: cand.id,
+      fullName: cand.name || cand.fullName || 'Candidate',
+      role: cand.roleTitle || '—',
+      location: cand.location || '—',
+      channel: cand.channel || '—',
+      stage: cand.status || '—',
+      gender: cand.gender,
+      workPref: cand.workPref,
+      expertise: cand.expertise,
+      roleTitle: cand.roleTitle,
+      locale: cand.locale,
+      years: cand.years,
+      education: cand.education,
+      citizenship: cand.citizenship,
+      statusCode: cand.statusCode,
+      lastMins: cand.lastMins,
+      phone: cand.phone,
+      consent: cand.consent
     };
     return {
       id: candidateId,

@@ -343,7 +343,7 @@ export default function App() {
               />
               {selectedCandidateId && (
                 <div style={{ marginTop: 8 }}>
-                  <Button variant="contained" color="success" onClick={()=>navigate(`/candidates/${encodeURIComponent(selectedCandidateId)}/journey`, { state: { candidate: selectedCandidate } })}>
+                  <Button variant="contained" color="success" onClick={()=>{ try { if (selectedCandidate) sessionStorage.setItem('selectedCandidate', JSON.stringify(selectedCandidate)); } catch(_){}; navigate(`/candidates/${encodeURIComponent(selectedCandidateId)}/journey`, { state: { candidate: selectedCandidate } }); }}>
                     {t('viewCandidate') || 'View Candidate'}
                   </Button>
                 </div>
