@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Box, Button, Chip, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Chip, Grid, Paper, Typography, TextField } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 function CandidateJourneyHeader({ candidate }){
@@ -157,7 +157,7 @@ function NotesPanel(){
     { id:'n4', author:'Emily Johnson', at:'2025‑08‑28 10:15', body:'Offer accepted. Start date pending team onboarding schedule. ATS moved to Hired; kickoff tasks opened for IT and HR.' }
   ];
   return (
-    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%' }}>
+    <Paper sx={{ p:1.5, bgcolor:'#000', color:'#fff59d', border:'1px solid rgba(46,125,50,0.35)', height:'100%', display:'flex', flexDirection:'column' }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidateJourney.notes')}</Typography>
       <div style={{ height: 220, overflowY:'auto' }}>
         <ul style={{ margin:0, paddingLeft:16 }}>
@@ -169,20 +169,18 @@ function NotesPanel(){
           ))}
         </ul>
       </div>
-      <div style={{ display:'flex', gap:8, alignItems:'center', marginTop:12 }}>
-        <div style={{ flex:1 }}>
-          <div style={{
-            padding:'8px 10px',
-            border:'1px dashed rgba(46,125,50,0.5)',
-            borderRadius:6,
-            color:'#cddc39',
-            background:'rgba(255,255,255,0.03)'
-          }}>
-            ADD A NOTE
-          </div>
-        </div>
-        <Button variant="contained" color="success" size="small">Add note</Button>
-      </div>
+      <TextField
+        multiline
+        placeholder="ADD A NOTE"
+        sx={{
+          mt:1,
+          flex:1,
+          '& .MuiInputBase-root': { bgcolor:'rgba(38,50,56,0.6)', color:'#e0e0e0', alignItems:'flex-start' },
+          '& .MuiOutlinedInput-notchedOutline': { borderColor:'rgba(176,190,197,0.4)' },
+          '& .MuiInputBase-input::placeholder': { color:'#b0bec5', opacity:1 }
+        }}
+      />
+      <Button variant="contained" color="success" sx={{ mt:1, alignSelf:'flex-end' }}>ADD</Button>
     </Paper>
   );
 }
