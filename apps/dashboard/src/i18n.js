@@ -18,15 +18,50 @@ const resources = {
         openButton: "Open Candidate Journey",
         title: "Candidate Journey",
         schedule: "Schedule",
+        backShort: "Back",
         back: "Back to Scheduling",
         timeline: "Journey Timeline",
         calendar: "Activity Calendar",
         notes: "Recruiter Notes",
+        email: "Email",
+        phone: "Phone",
+        viewResume: "View Resume",
+        addNotePlaceholder: "ADD A NOTE",
         legend: {
           green: "Activity",
           yellow: "Upcoming Interview",
           orange: "Reschedule / No-show",
           red: "Error / Policy / ATS Issue"
+        },
+        eventSummaries: {
+          outreach: "Initial SMS sent with job details.",
+          reply: "Candidate replied and consented.",
+          qualification: "Passed screen; prefers Hybrid.",
+          schedule: "Proposed interview; confirmed.",
+          reschedule: "Rescheduled due to conflict.",
+          ats_update: "ATS updated to \"Interviewed\".",
+          hired: "Marked hired in ATS."
+        },
+        addButton: "ADD",
+        replay: "Replay",
+        notesText: {
+          note1: "Reviewed profile post‑reply. Consent captured. Strong PM/AI background; prefers Hybrid. Verified work eligibility and shift flexibility. Added to shortlist for HM review.",
+          note2: "Interview confirmed and logistics sent (prep packet, location/Zoom details). Candidate confirmed availability and provided portfolio links. HM expectations shared (product strategy + delivery depth).",
+          note3: "Panel feedback mostly positive (systems thinking, stakeholder management). Candidate aligned on compensation range; initiated background check. ATS progressed to Interviewed → Offer Pending.",
+          note4: "Offer accepted. Start date pending team onboarding schedule. ATS moved to Hired; kickoff tasks opened for IT and HR."
+        },
+        types: {
+          outreach: "Outreach",
+          reply: "Reply",
+          consent: "Consent",
+          qualification: "Qualification",
+          schedule: "Scheduling",
+          reschedule: "Reschedule",
+          ats_update: "ATS Update",
+          hired: "Hired",
+          error: "Error",
+          reminder: "Reminder",
+          no_show: "No‑show"
         }
       },
       funnel: "Funnel",
@@ -90,6 +125,20 @@ const resources = {
         location: "Location",
         channel: "Channel",
         consent: "Consent"
+      },
+      valueMaps: {
+        status: { contacted: "Contacted", replied: "Replied", qualified: "Qualified", scheduled: "Scheduled" },
+        workPref: { Onsite: "Onsite", Remote: "Remote", Hybrid: "Hybrid" },
+        workMode: { Onsite: "Onsite", Remote: "Remote", Hybrid: "Hybrid" },
+        priority: { High: "High", Med: "Medium", Low: "Low" },
+        type: { FT: "Full-time", PT: "Part-time", Seasonal: "Seasonal", Contract: "Contract" },
+        dept: { Stores: "Stores", Ops: "Operations", Logistics: "Logistics", CX: "Customer Experience", Sales: "Sales", Manufacturing: "Manufacturing", Healthcare: "Healthcare", Hospitality: "Hospitality", Admin: "Admin" },
+        education: { "HS Diploma": "HS Diploma", GED: "GED", "Associate's": "Associate's", "Bachelor's": "Bachelor's", "Bachelor's (In Progress)": "Bachelor's (In Progress)" },
+        citizenship: { US: "US", AR: "AR", ZH: "ZH" },
+        gender: { Male: "Male", Female: "Female", "Non-binary": "Non-binary" },
+        channel: { sms: "SMS", whatsapp: "WhatsApp", web: "Web" },
+        shift: { "Day (1st)": "Day (1st)", "Swing (2nd)": "Swing (2nd)", "Night (3rd)": "Night (3rd)" },
+        notes: { "Bilingual EN/ES": "Bilingual EN/ES", "CDL not required": "CDL not required", "Weekend rotation": "Weekend rotation", "State license": "State license", "Immediate start": "Immediate start", "Relocation OK": "Relocation OK", "Prefers hybrid": "Prefers hybrid" }
       },
       
       yes: "yes",
@@ -180,15 +229,50 @@ const resources = {
         openButton: "افتح رحلة المرشح",
         title: "رحلة المرشح",
         schedule: "جدولة",
+        backShort: "رجوع",
         back: "العودة إلى الجدولة",
         timeline: "مخطط الرحلة",
         calendar: "تقويم الأنشطة",
         notes: "ملاحظات المُوظِّف",
+        email: "البريد الإلكتروني",
+        phone: "الهاتف",
+        viewResume: "عرض السيرة الذاتية",
+        addNotePlaceholder: "أضِف ملاحظة",
         legend: {
           green: "نشاط",
           yellow: "مقابلة قادمة",
           orange: "إعادة جدولة / عدم الحضور",
           red: "خطأ / سياسة / مشكلة نظام التوظيف"
+        },
+        eventSummaries: {
+          outreach: "تم إرسال رسالة SMS أولية بتفاصيل الوظيفة.",
+          reply: "ردّ المرشح وقدم الموافقة.",
+          qualification: "اجتاز التصفية؛ يفضل النظام الهجين.",
+          schedule: "تم اقتراح المقابلة وتأكيدها.",
+          reschedule: "تمت إعادة الجدولة بسبب تعارض.",
+          ats_update: "تم تحديث نظام التوظيف إلى \"تمت المقابلة\".",
+          hired: "تم التوظيف في نظام التوظيف."
+        },
+        addButton: "إضافة",
+        replay: "إعادة التشغيل",
+        notesText: {
+          note1: "تمت مراجعة الملف بعد الرد. تم توثيق الموافقة. خلفية قوية في إدارة المنتجات/الذكاء الاصطناعي؛ يفضّل الهجين. تم التحقق من الأهلية للعمل ومرونة المناوبات. أُضيف إلى القائمة المختصرة لمراجعة المدير.",
+          note2: "تم تأكيد المقابلة وإرسال التفاصيل (حزمة التحضير، الموقع/رابط الاجتماع). أكّد المرشح التوفر وشارك روابط المحفظة. تم توضيح توقعات المدير (استراتيجية المنتج + عمق التنفيذ).",
+          note3: "كانت ملاحظات اللجنة إيجابية في الغالب (تفكير منظومي، إدارة أصحاب المصلحة). توافُق حول نطاق التعويض؛ بدء الفحص الخلفي. تقدّم النظام إلى تمت المقابلة → بانتظار العرض.",
+          note4: "تم قبول العرض. تاريخ البدء بانتظار جدول الإعداد. نُقل في النظام إلى توظيف؛ فُتحت مهام بدء التشغيل لتقنية المعلومات والموارد البشرية."
+        },
+        types: {
+          outreach: "التواصل",
+          reply: "رد",
+          consent: "موافقة",
+          qualification: "تأهيل",
+          schedule: "جدولة",
+          reschedule: "إعادة جدولة",
+          ats_update: "تحديث نظام التوظيف",
+          hired: "توظيف",
+          error: "خطأ",
+          reminder: "تذكير",
+          no_show: "عدم الحضور"
         }
       },
       // Additional i18n keys (Arabic)
@@ -225,6 +309,20 @@ const resources = {
         location: "الموقع",
         channel: "القناة",
         consent: "الموافقة"
+      },
+      valueMaps: {
+        status: { contacted: "تم التواصل", replied: "تم الرد", qualified: "مؤهل", scheduled: "مجدول" },
+        workPref: { Onsite: "في الموقع", Remote: "عن بُعد", Hybrid: "هجين" },
+        workMode: { Onsite: "في الموقع", Remote: "عن بُعد", Hybrid: "هجين" },
+        priority: { High: "عالية", Med: "متوسطة", Low: "منخفضة" },
+        type: { FT: "دوام كامل", PT: "دوام جزئي", Seasonal: "موسمي", Contract: "عقد" },
+        dept: { Stores: "المتاجر", Ops: "العمليات", Logistics: "اللوجستيات", CX: "تجربة العملاء", Sales: "المبيعات", Manufacturing: "التصنيع", Healthcare: "الرعاية الصحية", Hospitality: "الضيافة", Admin: "الإدارة" },
+        education: { "HS Diploma": "ثانوية عامة", GED: "GED", "Associate's": "دبلوم", "Bachelor's": "بكالوريوس", "Bachelor's (In Progress)": "بكالوريوس (قيد الدراسة)" },
+        citizenship: { US: "أمريكي", AR: "عربي", ZH: "صيني" },
+        gender: { Male: "ذكر", Female: "أنثى", "Non-binary": "غير ثنائي" },
+        channel: { sms: "SMS", whatsapp: "واتساب", web: "ويب" },
+        shift: { "Day (1st)": "نهاري (الأول)", "Swing (2nd)": "مسائي (الثاني)", "Night (3rd)": "ليلي (الثالث)" },
+        notes: { "Bilingual EN/ES": "ثنائي اللغة EN/ES", "CDL not required": "لا يتطلب رخصة CDL", "Weekend rotation": "مناوبة نهاية الأسبوع", "State license": "ترخيص حكومي", "Immediate start": "بدء فوري", "Relocation OK": "الانتقال مقبول", "Prefers hybrid": "يفضل الهجين" }
       },
       yes: "نعم",
       no: "لا",
@@ -314,15 +412,50 @@ const resources = {
         openButton: "打开候选人旅程",
         title: "候选人旅程",
         schedule: "安排",
+        backShort: "返回",
         back: "返回排期",
         timeline: "旅程时间线",
         calendar: "活动日历",
         notes: "招聘备注",
+        email: "邮箱",
+        phone: "电话",
+        viewResume: "查看简历",
+        addNotePlaceholder: "添加备注",
         legend: {
           green: "活动",
           yellow: "即将面试",
           orange: "改期/未到场",
           red: "错误/策略/ATS 问题"
+        },
+        eventSummaries: {
+          outreach: "已发送包含职位详情的首条短信。",
+          reply: "候选人已回复并同意。",
+          qualification: "通过筛选；偏好混合办公。",
+          schedule: "已提出面试并确认。",
+          reschedule: "因冲突已改期。",
+          ats_update: "ATS 已更新为“已面试”。",
+          hired: "已在 ATS 标记为录用。"
+        },
+        addButton: "添加",
+        replay: "回放",
+        notesText: {
+          note1: "回复后已审阅资料，记录同意。具备优秀的产品/AI背景；偏好混合办公。已核验工作资格与排班灵活性。加入用人经理候选清单。",
+          note2: "面试已确认并发送安排（准备材料、地点/视频链接）。候选人确认可用并提供作品集链接。同步了用人经理期望（产品战略与交付深度）。",
+          note3: "评审反馈整体积极（系统思维、干系人管理）。候选人与薪酬范围达成一致；已启动背景调查。ATS 从已面试推进到待发 Offer。",
+          note4: "已接受 Offer。入职日期待入职流程安排。ATS 移至已录用；已创建 IT 与 HR 的入职任务。"
+        },
+        types: {
+          outreach: "外联",
+          reply: "回复",
+          consent: "同意",
+          qualification: "资格评估",
+          schedule: "排期",
+          reschedule: "改期",
+          ats_update: "ATS 更新",
+          hired: "录用",
+          error: "错误",
+          reminder: "提醒",
+          no_show: "未到场"
         }
       },
       // Additional i18n keys (Chinese)
@@ -359,6 +492,20 @@ const resources = {
         location: "地点",
         channel: "渠道",
         consent: "同意"
+      },
+      valueMaps: {
+        status: { contacted: "已联系", replied: "已回复", qualified: "合格", scheduled: "已排期" },
+        workPref: { Onsite: "现场", Remote: "远程", Hybrid: "混合" },
+        workMode: { Onsite: "现场", Remote: "远程", Hybrid: "混合" },
+        priority: { High: "高", Med: "中", Low: "低" },
+        type: { FT: "全职", PT: "兼职", Seasonal: "季节性", Contract: "合同" },
+        dept: { Stores: "门店", Ops: "运营", Logistics: "物流", CX: "客户体验", Sales: "销售", Manufacturing: "制造", Healthcare: "医疗", Hospitality: "餐旅", Admin: "行政" },
+        education: { "HS Diploma": "高中", GED: "GED", "Associate's": "副学士", "Bachelor's": "学士", "Bachelor's (In Progress)": "学士（在读）" },
+        citizenship: { US: "美国", AR: "阿拉伯", ZH: "中国" },
+        gender: { Male: "男", Female: "女", "Non-binary": "非二元" },
+        channel: { sms: "短信", whatsapp: "WhatsApp", web: "Web" },
+        shift: { "Day (1st)": "白班（早班）", "Swing (2nd)": "中班（晚班）", "Night (3rd)": "夜班" },
+        notes: { "Bilingual EN/ES": "双语 EN/ES", "CDL not required": "不需 CDL", "Weekend rotation": "周末轮班", "State license": "州执照", "Immediate start": "可立即到岗", "Relocation OK": "可异地", "Prefers hybrid": "偏好混合" }
       },
       yes: "是",
       no: "否",

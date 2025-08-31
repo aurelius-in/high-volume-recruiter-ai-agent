@@ -128,6 +128,8 @@ export function JobsList({ searchTerm = "", selectedJobId = null, onSelectJob = 
     ].join(" ").toLowerCase();
     return hay.includes(q);
   }) : display;
+  const tr = (path, fallback)=> t(path, { defaultValue: fallback||path });
+  const mapVal = (group, key)=> t(`valueMaps.${group}.${key}`, { defaultValue: key });
   return (
     <Paper sx={{ p:2, bgcolor:'#000', color:'#cfd8d3', border:'1px solid rgba(46,125,50,0.35)', height: 360 }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('jobs')}</Typography>
@@ -140,9 +142,9 @@ export function JobsList({ searchTerm = "", selectedJobId = null, onSelectJob = 
                 color: selectedJobId===j.id ? '#ffcc80' : 'inherit',
                 borderRadius: 6,
                 padding: selectedJobId===j.id ? '2px 4px' : 0
-              }}>{j.title} — {j.location} — {j.shift}</div>
+              }}>{j.title} — {j.location} — {mapVal('shift', j.shift)}</div>
               <div style={{ opacity: 0.9, fontSize: 12 }}>
-                📄 {t('labels.reqId')}: {j.reqId} • {t('labels.openings')}: {j.openings?.filled ?? 0}/{j.openings?.target ?? 0} • {j.type} • {j.workMode} • {j.pay} • {t('labels.dept')}: {j.dept} • {t('labels.hm')}: {j.hm} • {t('labels.priority')}: {j.priority} • {t('labels.age')}: {j.ageDays}d • {t('labels.pipeline')}: {j.pipeline?.applied ?? 0}/{j.pipeline?.contacted ?? 0}/{j.pipeline?.replied ?? 0}/{j.pipeline?.qualified ?? 0}/{j.pipeline?.scheduled ?? 0} • {t('labels.sla')}: {j.slaHours}h{j.notes ? ` • ${j.notes}` : ''}
+                📄 {t('labels.reqId')}: {j.reqId} • {t('labels.openings')}: {j.openings?.filled ?? 0}/{j.openings?.target ?? 0} • {mapVal('type', j.type)} • {mapVal('workMode', j.workMode)} • {j.pay} • {t('labels.dept')}: {mapVal('dept', j.dept)} • {t('labels.hm')}: {j.hm} • {t('labels.priority')}: {mapVal('priority', j.priority)} • {t('labels.age')}: {j.ageDays}d • {t('labels.pipeline')}: {j.pipeline?.applied ?? 0}/{j.pipeline?.contacted ?? 0}/{j.pipeline?.replied ?? 0}/{j.pipeline?.qualified ?? 0}/{j.pipeline?.scheduled ?? 0} • {t('labels.sla')}: {j.slaHours}h{j.notes ? ` • ${mapVal('notes', j.notes)}` : ''}
               </div>
             </li>
           ))}
@@ -357,6 +359,11 @@ export function CandidatesList({ searchTerm = "", selectedCandidateId = null, on
     ].join(" ").toLowerCase();
     return hay.includes(qC);
   }) : combined;
+  const mapVal = (group, key)=> t(`valueMaps.${group}.${key}`, { defaultValue: key });
+  const toLang = (loc)=> {
+    const m = String(loc||"").toUpperCase();
+    return m;
+  };
   return (
     <Paper sx={{ p:2, bgcolor:'#000', color:'#cfd8d3', border:'1px solid rgba(46,125,50,0.35)', height: 360 }}>
       <Typography variant="subtitle1" sx={{ mb:1 }}>{t('candidates')}</Typography>
@@ -370,10 +377,10 @@ export function CandidatesList({ searchTerm = "", selectedCandidateId = null, on
                 borderRadius: 6,
                 padding: selectedCandidateId===c.id ? '2px 4px' : 0
               }}>
-                {c.name} — <span style={{ fontSize: 11, opacity: 0.85 }}>{t('labels.status')}: {statusBadge(c).emoji} ({statusBadge(c).text})</span>
+                {c.name} — <span style={{ fontSize: 11, opacity: 0.85 }}>{t('labels.status')}: {statusBadge(c).emoji} ({mapVal('status', statusBadge(c).text)})</span>
               </div>
               <div style={{ opacity: 0.9, fontSize: 12 }}>
-                👤 {c.gender} • {c.location} • {t('labels.locPref')}: {c.workPref} • {t('labels.expertise')}: {c.expertise} — {c.roleTitle} • {t('labels.lang')}: {toLangCode(c.locale)} • {t('labels.exp')}: {c.years} {t('labels.years')} • {t('labels.education')}: {c.education || pickStable(educationLevels, c.id)} • {t('labels.citizenship')}: {c.citizenship || pickStable(citizenshipCodes, c.id)} {c.statusCode || ''} • {t('labels.last')}: {Math.floor(c.lastMins/60)}h{String(c.lastMins%60).padStart(2,'0')}m • {c.phone || ''}{c.notes ? ` • ${c.notes}` : ''} • {t('labels.channel')}: {c.channel} • {t('labels.consent')}: {c.consent ? t('yes') : t('no')}
+                👤 {mapVal('gender', c.gender)} • {c.location} • {t('labels.locPref')}: {mapVal('workPref', c.workPref)} • {t('labels.expertise')}: {c.expertise} — {c.roleTitle} • {t('labels.lang')}: {toLangCode(c.locale)} • {t('labels.exp')}: {c.years} {t('labels.years')} • {t('labels.education')}: {mapVal('education', c.education || pickStable(educationLevels, c.id))} • {t('labels.citizenship')}: {mapVal('citizenship', c.citizenship || pickStable(citizenshipCodes, c.id))} {c.statusCode || ''} • {t('labels.last')}: {Math.floor(c.lastMins/60)}h{String(c.lastMins%60).padStart(2,'0')}m • {c.phone || ''}{c.notes ? ` • ${mapVal('notes', c.notes)}` : ''} • {t('labels.channel')}: {mapVal('channel', c.channel)} • {t('labels.consent')}: {c.consent ? t('yes') : t('no')}
               </div>
             </li>
           ))}
