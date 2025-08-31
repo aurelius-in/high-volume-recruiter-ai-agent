@@ -1,6 +1,6 @@
  # Agentic AI Recruiter
 
-Production-minded agentic AI recruiter for high-volume hiring. It contacts candidates (SMS/WhatsApp/web), captures consent, screens with knockout rules, schedules interviews, writes to the ATS, and updates a live dashboard with KPIs and a signed, append-only audit trail. Ships with a polished UI and a fully offline demo mode.
+Production‑minded agentic AI recruiter for high‑volume hiring. It contacts candidates (SMS/WhatsApp/web), captures consent, screens with knockout rules, schedules interviews, writes to the ATS, and updates a live dashboard with KPIs and a signed, append‑only audit trail.
 
 ## UI Overview
 
@@ -39,7 +39,7 @@ This clip shows how selecting a job or candidate reveals a context‑aware View 
 
 ![Candidate Journey — End‑to‑end timeline, calendar, notes](hiretab4.gif)
 
-Below: the journey stays demo‑friendly (shared mock content) while reflecting whichever candidate you selected.
+Below: the journey view reflects the candidate you selected and keeps a clean, consistent layout.
 
 ### Arabic (AR, RTL)
 This clip shows selecting Arabic from the language dropdown and navigating the whole app fully localized, including list values and calendar month/day names. The UI switches to RTL layout.
@@ -86,7 +86,7 @@ docker compose up --build
 ```
 Services:
 - Orchestrator http://localhost:8000
-- ATS Mock http://localhost:8001
+- ATS service http://localhost:8001
 - Dashboard http://localhost:5173
 
 ### Local development
@@ -110,7 +110,7 @@ npm run dev
 ```
 
 ### Configuration
-Copy `.env.example` to `.env` and set values. Empty values keep you in demo mode.
+Copy `.env.example` to `.env` and set values.
 ```
 MODE=demo
 VITE_API_BASE=http://localhost:8000
@@ -139,11 +139,11 @@ WORKDAY_BASE_URL=
 ```
 /apps
   /orchestrator       # FastAPI: agent runtime, audit, KPIs, SSE, scheduling, policy
-  /ats-mock           # Minimal ATS mock for demo writebacks
-  /ats-connector      # ATS connector skeleton (mock + real-style)
-  /channel-connector  # Channel connector skeleton (mock + twilio-like)
+  /ats-mock           # Minimal ATS service used in local runs
+  /ats-connector      # ATS connector skeleton
+  /channel-connector  # Channel connector skeleton
   /dashboard          # Main React + Vite UI (auth-capable)
-  /dashboard-demo     # Demo UI (no auth, mock-friendly)
+  /dashboard-demo     # Additional UI
 /packages
   /policies           # YAML guardrails
   /common             # shared types
@@ -157,13 +157,13 @@ WORKDAY_BASE_URL=
 - Frontend: React + Vite + Material UI
 - State: In-memory for demo; SQLite/Postgres-ready seams
 - Events: Server-Sent Events (SSE) to push live updates
-- Modes: MODE=demo (offline) or MODE=real (adapters), same UI
+- Modes: MODE=demo (local) or MODE=real (adapters)
 
 ## Product One‑Pager (Executive Summary)
 - What it is: A production-grade, multi-agent recruiter that is governed and measurable.
 - What it does: Outreach, consent, screening, document capture, scheduling, ATS sync, real-time KPIs, and a replayable audit trail.
 - Why it’s different: Multi-agent flow, explicit policy guardrails, append-only hash chain, Hiring Simulator, bilingual-ready UI.
-- How it ships: Orchestrator + connectors (mock and real-style), polished UI, Docker-ready; works offline in demo mode.
+- How it ships: Orchestrator + connectors, polished UI, Docker‑ready.
 
 ## API Reference (Backend)
 
@@ -234,8 +234,8 @@ Scheduling:
 - Greedy slot proposal and confirmation; utilization surfaced via the simulator (hires/week approximation).
 
 Connectors:
-- `apps/ats-connector`, `apps/channel-connector` provide mock and real-style stubs.
-- Orchestrator currently writes to `apps/ats-mock` for demo.
+- `apps/ats-connector`, `apps/channel-connector` provide connector stubs.
+- Orchestrator can write to an ATS service in local runs.
 
 Events:
 - SSE endpoint streams `audit` events that the UI consumes for near-real-time updates.
@@ -247,14 +247,14 @@ Unit
 - Simulator math.
 
 Integration
-- Mock ATS application creation path.
+- ATS application creation path.
 - Channel inbound consent handling updates candidate state and audit.
 
-E2E (demo mode)
+E2E
 - Create Job → Simulate Outreach → Run Flow → KPI tiles update → ATS application exists → Audit shows signed events → Replay works.
 
 Definition of Done
-- Full-path happy flow in demo mode works offline; real mode ready to swap connectors.
+- Full‑path happy flow validated end‑to‑end; real mode ready to swap connectors.
 - Dashboard is business-presentable (dark mode, policy visibility, badges, toasts).
 - Audit chain verifies; `/policy` endpoint reflects configured rules.
 - README includes Quick Start, Demo Script, Architecture, One-Pager, API Reference, UI tour, and Test Plan.
@@ -277,12 +277,12 @@ This will: create a job, seed outreach, run the flow, print KPI tiles, and verif
 - Keep the clip under 45 seconds
 
 ## Deploy to Render (optional)
-This repo includes `render.yaml` for a three-service deploy (orchestrator, ats-mock, dashboard).
+This repo includes `render.yaml` for a three‑service deploy (orchestrator, ats service, dashboard).
 
 Steps:
 1) Push to GitHub (develop). In Render, "New > Blueprint" and select this repo.
 2) First deploy will use placeholder URLs. After it boots:
-   - Copy the public URL of `recruiter-ats-mock` into the `ATS_BASE` env var of `recruiter-orchestrator`.
+   - Copy the public URL of the ATS service into the `ATS_BASE` env var of `recruiter-orchestrator`.
    - Copy the public URL of `recruiter-orchestrator` into `VITE_API_BASE` env var of `recruiter-dashboard` and redeploy dashboard.
 3) Visit the dashboard app URL and run the same 90-second demo flow.
 
@@ -300,5 +300,5 @@ Steps:
 - Dashboard
   - Auth works if enabled • Locale toggle (EN/AR) visible
   - KPI tiles and audit update live (SSE)
-- Demo warm-up
-  - Run scripts/demo_walkthrough.py once • Verify ATS mock receives applications
+- Demo warm‑up
+  - Run scripts/demo_walkthrough.py once • Verify ATS receives applications
